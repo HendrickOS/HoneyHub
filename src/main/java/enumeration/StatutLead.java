@@ -4,6 +4,6 @@ public enum StatutLead {
     NOUVEAU,
     EN_COURS,
     TRAITE,
-    ANNULE,
+    REFUSE,
     CONVERTI // Quand le lead devient un Booking
 }

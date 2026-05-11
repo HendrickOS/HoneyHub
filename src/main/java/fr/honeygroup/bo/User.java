@@ -5,7 +5,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 @Entity
-@Table(name = "`USER` Andrea") // Backticks pour le mot réservé SQL
+@Table(name = "`USER`") // Backticks pour le mot réservé SQL
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

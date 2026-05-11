@@ -55,6 +55,10 @@ public class Prestation {
     @Size(min = 10, max = 2000)
     @Column(nullable = false, length = 2000)
     private String description;
+    
+    @NotNull
+    @Column(name = "prix_base", nullable = false)
+    private Double prixBase; // Ou BigDecimal selon ta préférence
 
     @NotNull
     @Enumerated(EnumType.STRING)
