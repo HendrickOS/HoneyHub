@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 @Builder
 public class PaymentResponse {
-    private Integer id;
+    private Long id;
     private String methode;      // ex: STRIPE, VIREMENT
     private String transactionId;
     private BigDecimal montantPaye;

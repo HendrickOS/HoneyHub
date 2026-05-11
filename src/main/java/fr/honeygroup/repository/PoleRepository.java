@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PoleRepository extends JpaRepository<Pole, Integer> { // On garde Integer
+public interface PoleRepository extends JpaRepository<Pole, Long> { // On garde Integer
 
     // Vérification rapide (SQL EXISTS)
     boolean existsByNom(String nom);

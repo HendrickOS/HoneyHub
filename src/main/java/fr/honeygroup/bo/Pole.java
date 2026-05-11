@@ -30,7 +30,7 @@ public class Pole {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_pole")
-    private Integer id;
+    private Long id;
 
     @NotBlank(message = "Le nom du pôle est obligatoire")
     @Size(min = 2, max = 100)

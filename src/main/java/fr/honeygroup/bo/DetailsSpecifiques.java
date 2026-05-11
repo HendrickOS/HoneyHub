@@ -16,7 +16,7 @@ public class DetailsSpecifiques {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_detail")
-    private Integer id;
+    private Long id;
 
     @NotBlank(message = "La clé du champ est obligatoire")
     @Column(name = "champ_cle", nullable = false, length = 100)

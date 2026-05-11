@@ -10,16 +10,16 @@ import lombok.Data;
 @Data
 @Builder
 public class BookingResponse {
-    private Integer id;
+    private Long id;
     
     // Informations Client
-    private Integer userId;
+    private Long userId;
     private String userNomComplet; // Fusion Nom + Prénom pour l'affichage
     
     // Informations Catalogue
-    private Integer poleId;
+    private Long poleId;
     private String poleNom;
-    private Integer prestationId;
+    private Long prestationId;
     private String prestationTitre;
     
     // Détails Réservation

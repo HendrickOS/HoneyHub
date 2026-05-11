@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ProfileRepository extends JpaRepository<Profile, Integer> {
+public interface ProfileRepository extends JpaRepository<Profile, Long> {
     // Trouver le profil via l'ID de l'utilisateur lié
-    Optional<Profile> findByUserId(Integer userId);
+    Optional<Profile> findByUserId(Long userId);
 }

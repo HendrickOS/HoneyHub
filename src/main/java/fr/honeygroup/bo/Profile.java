@@ -13,7 +13,7 @@ import lombok.*;
 public class Profile {
 
     @Id
-    private Integer id; // Pas de @GeneratedValue ici car il utilise l'ID de l'User
+    private Long id; // Pas de @GeneratedValue ici car il utilise l'ID de l'User
 
     @Lob // Pour correspondre au LONGTEXT du SQL
     private String adresse;

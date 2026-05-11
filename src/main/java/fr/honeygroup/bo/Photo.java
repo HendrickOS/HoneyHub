@@ -16,7 +16,7 @@ public class Photo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_photo")
-    private Integer id;
+    private Long id;
 
     @NotBlank(message = "L'URL du fichier est obligatoire")
     @Size(max = 500, message = "L'URL est trop longue (max 500 caractères)")

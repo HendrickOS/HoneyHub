@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 public class PoleResponse {
 
-    private Integer id; // On garde Integer pour coller à ton SQL INT
+    private Long id; // On garde Integer pour coller à ton SQL INT
     private String nom;
     private String description;
 }

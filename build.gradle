@@ -1,62 +1,51 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '4.0.6'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '3.5.14'
+    id 'io.spring.dependency-management' version '1.1.6'
 }
 
-group = 'fr.honeygroup'
+group = 'com.honeygroup'
 version = '0.0.1-SNAPSHOT'
-description = 'Projet Honey Group  - Unification des portails'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+ext {
+    mapstructVersion = '1.5.5.Final'
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
 
-	// --- Spring Boot Core & Web ---
+    // SPRING
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-web' 
 
-    // --- Dev & Database ---
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    // OPENAPI
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.16'
+
+    // MYSQL
     runtimeOnly 'com.mysql:mysql-connector-j'
 
-    // --- LOMBOK (Bloc 1 : Compilation et Annotation Processing) ---
+    // LOMBOK
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    // --- MAPSTRUCT (Bloc 2 : Dépendances et Liaison avec Lombok) ---
-    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
-    // Cet arbitre doit être placé AVANT le processor de MapStruct
-    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+    // MAPSTRUCT
+    implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
-    // --- TESTS (Bloc 3 : Tes dépendances spécifiques) ---
+    // TEST
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-jdbc-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
-    
-    // Lombok pour les tests
-    testCompileOnly 'org.projectlombok:lombok'
-    testAnnotationProcessor 'org.projectlombok:lombok'
-    
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

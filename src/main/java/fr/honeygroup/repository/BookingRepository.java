@@ -6,10 +6,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface BookingRepository extends JpaRepository<Booking, Integer> {
+public interface BookingRepository extends JpaRepository<Booking, Long> {
     
     // Pour l'historique d'un client
-    List<Booking> findByUserId(Integer userId);
+    List<Booking> findByUserId(Long userId);
     
     // Pour ton futur tableau de bord Admin (ex: voir toutes les réservations "EN_ATTENTE")
     List<Booking> findByStatut(String statut);

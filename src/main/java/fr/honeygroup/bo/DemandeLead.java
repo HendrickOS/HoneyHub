@@ -42,7 +42,7 @@ public class DemandeLead {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_demande")
-    private Integer id;
+    private Long id;
 
     @Column(name = "date_soumission", nullable = false, updatable = false)
     private LocalDateTime dateSoumission;

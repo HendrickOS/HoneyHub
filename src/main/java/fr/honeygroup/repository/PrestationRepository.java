@@ -6,10 +6,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface PrestationRepository extends JpaRepository<Prestation, Integer> {
+public interface PrestationRepository extends JpaRepository<Prestation, Long> {
 
     // Filtrer par Pôle (La base de ton catalogue)
-    List<Prestation> findByPoleId(Integer poleId);
+    List<Prestation> findByPoleId(Long poleId);
 
     // Barre de recherche
     List<Prestation> findByTitreServiceContainingIgnoreCase(String titre);

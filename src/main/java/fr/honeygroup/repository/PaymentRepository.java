@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PaymentRepository extends JpaRepository<Payment, Integer> {
+public interface PaymentRepository extends JpaRepository<Payment, Long> {
     
     // Pour éviter les doublons de paiement
     Optional<Payment> findByTransactionId(String transactionId);
     
     // Pour lister tous les paiements liés à une réservation précise
-    List<Payment> findByBookingId(Integer bookingId);
+    List<Payment> findByBookingId(Long bookingId);
 }

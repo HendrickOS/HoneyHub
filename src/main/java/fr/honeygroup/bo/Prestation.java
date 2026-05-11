@@ -36,7 +36,7 @@ public class Prestation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_prestation")
-    private Integer id; // Integer pour coller à ton SQL INT
+    private Long id; // Integer pour coller à ton SQL INT
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_pole", nullable = false)

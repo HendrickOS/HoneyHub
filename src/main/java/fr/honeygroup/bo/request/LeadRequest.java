@@ -8,12 +8,12 @@ import java.util.Map;
 public class LeadRequest {
 
     @NotNull(message = "L'ID de l'utilisateur est obligatoire")
-    private Integer userId;
+    private Long userId;
 
     @NotNull(message = "L'ID du pôle est obligatoire") // Important pour ton SQL
-    private Integer poleId;
+    private Long poleId;
 
-    private Integer prestationId; // Optionnel car on peut contacter un pôle sans choisir de circuit précis
+    private Long prestationId; // Optionnel car on peut contacter un pôle sans choisir de circuit précis
 
     @NotBlank(message = "La source est obligatoire (ex: Instagram, Google, Direct)")
     @Size(min = 3, max = 50)
