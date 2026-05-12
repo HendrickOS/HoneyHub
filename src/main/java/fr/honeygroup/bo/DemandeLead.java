@@ -36,7 +36,7 @@ import lombok.ToString;
 @NoArgsConstructor 
 @AllArgsConstructor
 @Builder
-@ToString(exclude = {"client", "pole", "prestation", "details"})
+@ToString(exclude = {"user", "pole", "prestation", "specificDetails"})
 public class DemandeLead {
 
     @Id
@@ -56,9 +56,9 @@ public class DemandeLead {
     private String source = "WEB";
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_client", nullable = false)
+    @JoinColumn(name = "id_user", nullable = false)
     @JsonIgnore
-    private User client;
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_pole", nullable = false)
@@ -75,7 +75,7 @@ public class DemandeLead {
     private String commentaireInterne;
 
     @OneToMany(mappedBy = "demandeLead", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DetailsSpecifiques> details;
+    private List<DetailsSpecifiques> specificDetails;
 
     @PrePersist
     public void prePersist() {

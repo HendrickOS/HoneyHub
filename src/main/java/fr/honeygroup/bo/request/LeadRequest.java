@@ -22,5 +22,5 @@ public class LeadRequest {
     private String commentaireInterne; // Optionnel : si le client veut ajouter une note
 
     @NotNull(message = "Les détails du formulaire sont obligatoires")
-    private Map<String, String> details;
+    private Map<String, String> specificDetails;
 }

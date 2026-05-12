@@ -15,12 +15,12 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface LeadMapper {
 
-    @Mapping(source = "client.id", target = "userId")
+    @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "pole.id", target = "poleId")
     @Mapping(source = "prestation.id", target = "prestationId")
     @Mapping(source = "prestation.titreService", target = "prestationTitre")
     // MapStruct va chercher la méthode qualifiedByName pour transformer la liste en Map
-    @Mapping(source = "details", target = "details", qualifiedByName = "mapDetailsList")
+    @Mapping(source = "specificDetails", target = "specificDetails", qualifiedByName = "mapDetailsList")
     LeadResponse toResponse(DemandeLead lead);
 
     @Named("mapDetailsList")

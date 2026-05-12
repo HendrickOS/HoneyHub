@@ -27,7 +27,7 @@ public class User {
     private String password;
 
     @Column(nullable = false, length = 50)
-    private String role = "CLIENT"; // Valeur par défaut pour correspondre au SQL
+    private String role; // Valeur par défaut pour correspondre au SQL
 
     @NotBlank(message = "Le nom est obligatoire")
     @Size(min = 2, max = 100)

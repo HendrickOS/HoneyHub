@@ -17,5 +17,5 @@ public class LeadResponse {
     private Long poleId;       // Ajouté car important dans ton SQL
     private Long prestationId;
     private String prestationTitre;
-    private Map<String, String> details;
+    private Map<String, String> specificDetails;
 }

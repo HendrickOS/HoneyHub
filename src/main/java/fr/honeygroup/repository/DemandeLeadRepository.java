@@ -18,7 +18,7 @@ public interface DemandeLeadRepository extends JpaRepository<DemandeLead, Long> 
     /**
      * Pour l'historique d'un client spécifique.
      */
-    List<DemandeLead> findByClientId(Long clientId);
+    List<DemandeLead> findByUserId(Long userId);
 
     /**
      * Pour filtrer les demandes par pôle (ex: toutes les demandes "Boxe").
