@@ -9,4 +9,6 @@ import java.util.Optional;
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
     // Trouver le profil via l'ID de l'utilisateur lié
     Optional<Profile> findByUserId(Long userId);
+
+	boolean existsByTelephone(String telephone);
 }

@@ -15,18 +15,24 @@ public class Profile {
     @Id
     private Long id; // Pas de @GeneratedValue ici car il utilise l'ID de l'User
 
-    @Lob // Pour correspondre au LONGTEXT du SQL
+    @NotBlank(message = "L'adresse est obligatoire")
+    @Size(min = 5, max = 500, message = "Adresse invalide")
+    @Lob
     private String adresse;
-
-    @NotBlank(message = "Le téléphone est obligatoire")
-    @Pattern(regexp = "^(\\+33|0)[1-9]\\d{8}$", message = "Format de téléphone invalide")
+    @Pattern(
+    	    regexp = "^\\+?[1-9]\\d{7,14}$",
+    	    message = "Numéro de téléphone invalide (format international requis)"
+    	)
     @Column(length = 50)
     private String telephone;
 
+    @NotBlank(message = "Le pays est obligatoire")
+    @Size(min = 2, max = 100, message = "Pays invalide")
     @Column(length = 100)
     private String pays;
 
-    @Lob // Pour correspondre au LONGTEXT du SQL
+    @Lob
+    @Size(max = 1000, message = "Les préférences sont trop longues")
     private String preferences;
 
     @OneToOne

@@ -29,5 +29,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /**
      * Pour filtrer les utilisateurs par rôle (ex: lister tous les ADMINS).
      */
-    List<User> findByRole(String role);
+    List<User> findByRole(enumeration.Role role);
 }
