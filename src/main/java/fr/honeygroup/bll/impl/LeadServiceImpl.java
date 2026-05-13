@@ -43,6 +43,7 @@ public class LeadServiceImpl implements LeadService {
         DemandeLead lead = DemandeLead.builder()
                 .user(user)
                 .prestation(prestation)
+                .pole(prestation.getPole())
                 .source(request.getSource())
                 .build();
 
@@ -70,5 +71,37 @@ public class LeadServiceImpl implements LeadService {
         if (details == null || details.isEmpty()) {
             throw new RuntimeException("Details obligatoires");
         }
+    }
+
+    @Override
+    public List<LeadResponse> getAllLeads() {
+        return demandeLeadRepository.findAll().stream()
+                .map(leadMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public LeadResponse getLeadById(Long id) {
+        return demandeLeadRepository.findById(id)
+                .map(leadMapper::toResponse)
+                .orElseThrow(() -> new RuntimeException("Lead introuvable"));
+    }
+
+    @Override
+    @Transactional
+    public LeadResponse updateLeadStatus(Long id, enumeration.StatutLead statut) {
+        DemandeLead lead = demandeLeadRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Lead introuvable"));
+        lead.setStatut(statut);
+        return leadMapper.toResponse(demandeLeadRepository.save(lead));
+    }
+
+    @Override
+    @Transactional
+    public void deleteLead(Long id) {
+        if (!demandeLeadRepository.existsById(id)) {
+            throw new RuntimeException("Lead introuvable");
+        }
+        demandeLeadRepository.deleteById(id);
     }
 }

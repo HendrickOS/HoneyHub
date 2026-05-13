@@ -2,7 +2,7 @@ package fr.honeygroup.bo;
 
 import java.time.LocalDateTime;
 
-import enumeration.StatutPrestation; // Assure-toi d'avoir cet Enum
+import enumeration.StatutPrestation;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,6 +15,7 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -66,5 +67,12 @@ public class Prestation {
     private StatutPrestation statut = StatutPrestation.ACTIF;
 
     @Column(name = "date_creation", updatable = false)
-    private LocalDateTime dateCreation = LocalDateTime.now();
+    private LocalDateTime dateCreation;
+
+    @PrePersist
+    protected void onCreate() {
+        if (dateCreation == null) {
+            dateCreation = LocalDateTime.now();
+        }
+    }
 }

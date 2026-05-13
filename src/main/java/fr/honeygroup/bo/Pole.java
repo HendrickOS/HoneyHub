@@ -13,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -43,12 +44,18 @@ public class Pole {
     @Column(name = "description")
     private String description;
 
-    @Builder.Default
     @Column(name = "date_creation", updatable = false)
-    private LocalDateTime dateCreation = LocalDateTime.now();
+    private LocalDateTime dateCreation;
 
     // Relation vers les prestations (One-to-Many)
     // mappedBy fait référence au nom de l'attribut "pole" dans la classe Prestation
     @OneToMany(mappedBy = "pole", cascade = CascadeType.ALL)
     private List<Prestation> prestations;
+
+    @PrePersist
+    protected void onCreate() {
+        if (dateCreation == null) {
+            dateCreation = LocalDateTime.now();
+        }
+    }
 }
