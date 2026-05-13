@@ -29,4 +29,6 @@ public interface DemandeLeadRepository extends JpaRepository<DemandeLead, Long> 
      * Bonus : Trouver les demandes les plus récentes en premier.
      */
     List<DemandeLead> findAllByOrderByDateSoumissionDesc();
+    
+    List<DemandeLead> findByPrestation_Pole_Id(Long poleId);
 }

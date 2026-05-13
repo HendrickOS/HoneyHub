@@ -53,7 +53,7 @@ public class DemandeLead {
 
     @NotBlank
     @Column(nullable = false, length = 50)
-    private String source = "WEB";
+    private String source ;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user", nullable = false)

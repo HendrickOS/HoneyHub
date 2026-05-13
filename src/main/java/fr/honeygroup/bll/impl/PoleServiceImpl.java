@@ -10,7 +10,9 @@ import fr.honeygroup.bll.PoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -30,14 +32,14 @@ public class PoleServiceImpl implements PoleService {
         this.messageSource = messageSource;
     }
 
-    // 🌍 i18n helper
+    /* 🌍 i18n helper
     private String msg(String key) {
         return messageSource.getMessage(
                 key,
                 null,
                 LocaleContextHolder.getLocale()
         );
-    }
+    }*/
 
     // ======================
     // GET ALL
@@ -57,7 +59,7 @@ public class PoleServiceImpl implements PoleService {
     public PoleResponse getById(Long id) {
 
         Pole pole = poleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(msg("pole.notfound")));
+                .orElseThrow(() -> new RuntimeException("Pôle introuvable"));
 
         return mapper.toResponse(pole);
     }
@@ -69,7 +71,12 @@ public class PoleServiceImpl implements PoleService {
     public PoleResponse getByNom(String nom) {
 
         Pole pole = poleRepository.findByNom(nom)
-                .orElseThrow(() -> new RuntimeException(msg("pole.nom.notfound")));
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Pôle introuvable avec le nom : " + nom
+                        )
+                );
 
         return mapper.toResponse(pole);
     }
@@ -77,19 +84,19 @@ public class PoleServiceImpl implements PoleService {
     // ======================
     // DELETE BY ID
     // ======================
-    /* @Override
+     @Override
     public void deleteById(Long id) {
 
         Pole pole = poleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(msg("pole.notfound")));
+                .orElseThrow(() -> new RuntimeException("Pôle introuvable"));
 
         // 🔥 règle métier
-        if (pole.getPrestations() != null && !pole.getPrestations().isEmpty()) {
-            throw new RuntimeException(msg("pole.delete.error"));
-        }
+       /* if (pole.getPrestations() != null && !pole.getPrestations().isEmpty()) {
+            throw new RuntimeException("Impossible de supprimer un pôle avec des prestations"));
+        }  */
 
-        poleRepository.delete(pole);
-    }*/
+        poleRepository.deleteById(id);
+    }
 
 	@Override
 	public PoleResponse create(PoleRequest request) {
@@ -103,15 +110,7 @@ public class PoleServiceImpl implements PoleService {
 		return null;
 	}
 
-	@Override
-	public void delete(Long id) {
-		// TODO Auto-generated method stub
-		
-	}
+	
 
-	@Override
-	public void deleteById(Long id) {
-		// TODO Auto-generated method stub
-		
-	}
+	
 }

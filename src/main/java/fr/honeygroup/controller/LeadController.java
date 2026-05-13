@@ -24,4 +24,6 @@ public class LeadController {
         return ResponseEntity.ok(leadService.createLead(request));
     
     }
+    
+    
 }
