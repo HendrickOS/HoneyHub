@@ -13,4 +13,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     
     // Pour ton futur tableau de bord Admin (ex: voir toutes les réservations "EN_ATTENTE")
     List<Booking> findByStatut(String statut);
+    
+    List<Booking> findByUserIdOrderByDateResaDesc(Long userId);
 }
