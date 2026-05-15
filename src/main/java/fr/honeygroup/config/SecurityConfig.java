@@ -36,29 +36,46 @@ public class SecurityConfig {
 	            // 5. Par sécurité, tout le reste demande une authentification
 	            .anyRequest().authenticated()
 	        )
-	        .httpBasic(Customizer.withDefaults()); // Active l'authentification Basic (Username/Password dans Postman)
+	        .httpBasic(Customizer.withDefaults()) // Active l'authentification Basic (Username/Password dans Postman)
+	    
+	        // --- GESTION PERSONNALISÉE DU 403 (FORBIDDEN) ---
+	        .exceptionHandling(handling -> handling
+	            .accessDeniedHandler((request, response, accessDeniedException) -> {
+	                response.setStatus(403);
+	                response.setContentType("application/json;charset=UTF-8");
+	                
+	                // Construction du JSON identique à ton GlobalExceptionHandler
+	                String jsonResponse = String.format(
+	                    "{\"timestamp\": \"%s\", \"status\": 403, \"error\": \"Forbidden\", \"message\": \"Accès refusé : vous n'avez pas les droits nécessaires pour accéder à cette fonctionnalité.\", \"path\": \"%s\"}",
+	                    java.time.LocalDateTime.now(),
+	                    request.getRequestURI()
+	                );
+	                
+	                response.getWriter().write(jsonResponse);
+	            })
+	        );
 
 	    return http.build();
 	}
-    
-    @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        // {noop} indique à Spring que le mot de passe est en clair (pour le dev)
-        UserDetails manager = User.withUsername("manager@honeygroup.fr")
-            .password("{noop}password")
-            .roles(Role.MANAGER.name()) 
-            .build();
 
-        UserDetails client = User.withUsername("client@honeygroup.fr")
-            .password("{noop}password")
-            .roles(Role.CLIENT.name())
-            .build();
+	@Bean
+	public InMemoryUserDetailsManager userDetailsService() {
+		// {noop} indique à Spring que le mot de passe est en clair (pour le dev)
+		UserDetails manager = User	.withUsername("manager@honeygroup.fr")
+									.password("{noop}password")
+									.roles(Role.MANAGER.name())
+									.build();
 
-        UserDetails admin = User.withUsername("admin@honeygroup.fr")
-                .password("{noop}password")
-                .roles(Role.ADMIN.name())
-                .build();
-        
-        return new InMemoryUserDetailsManager(manager, client, admin);
-    }
+		UserDetails client = User	.withUsername("client@honeygroup.fr")
+									.password("{noop}password")
+									.roles(Role.CLIENT.name())
+									.build();
+
+		UserDetails admin = User.withUsername("admin@honeygroup.fr")
+								.password("{noop}password")
+								.roles(Role.ADMIN.name())
+								.build();
+
+		return new InMemoryUserDetailsManager(manager, client, admin);
+	}
 }
