@@ -1,9 +1,9 @@
 package fr.honeygroup.repository;
 
-import fr.honeygroup.bo.Photo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import java.util.List;
+
+import fr.honeygroup.bo.Photo;
 
 @Repository
 public interface PhotoRepository extends JpaRepository<Photo, Long> {

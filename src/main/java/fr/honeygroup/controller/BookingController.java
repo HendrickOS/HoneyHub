@@ -6,8 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -61,5 +63,25 @@ public class BookingController {
         // Appel de la méthode de service qu'on a préparée
         List<BookingResponse> dossier = bookingService.getDossierClientPourStaff(userId);
         return ResponseEntity.ok(dossier);
+    }
+    
+    /**
+     * VUE CLIENT : Demander l'annulation d'une réservation.
+     * PUT http://localhost:8080/api/bookings/cancel-request/{id}
+     */
+    @PutMapping("/cancel-request/{id}")
+    public ResponseEntity<String> demanderAnnulation(@PathVariable(name = "id") Long bookingId) {
+        bookingService.demanderAnnulation(bookingId);
+        return ResponseEntity.ok("Votre demande d'annulation a bien été transmise au manager.");
+    }
+
+    /**
+     * VUE ADMIN : Approuver l'annulation d'une réservation.
+     * PATCH http://localhost:8080/api/bookings/admin/approve-cancel/{id}
+     */
+    @PatchMapping("/admin/approve-cancel/{id}")
+    public ResponseEntity<String> approuverAnnulation(@PathVariable(name = "id") Long bookingId) {
+        bookingService.approuverAnnulation(bookingId);
+        return ResponseEntity.ok("La réservation a été officiellement annulée.");
     }
 }

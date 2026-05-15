@@ -1,5 +1,6 @@
 package fr.honeygroup.bo;
 
+import enumeration.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -27,7 +28,8 @@ public class User {
     private String password;
 
     @Column(nullable = false, length = 50)
-    private String role; // Valeur par défaut pour correspondre au SQL
+    @Enumerated(EnumType.STRING)
+    private Role role; // Valeur par défaut pour correspondre au SQL
 
     @NotBlank(message = "Le nom est obligatoire")
     @Size(min = 2, max = 100)

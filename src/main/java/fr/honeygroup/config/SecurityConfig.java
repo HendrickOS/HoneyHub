@@ -26,10 +26,14 @@ public class SecurityConfig {
 	            // On utilise .authenticated() car getUtilisateurHistoriquePersonnel() filtrera les données par rapport au login
 	            .requestMatchers("/api/bookings/my-bookings").authenticated()
 	            
-	            // 3. Réservation : Il faut être connecté pour réserver
+	            // 3. Demande d'annulation (Client) : Tout utilisateur connecté peut demander l'annulation de SA résa
+	            .requestMatchers("/api/bookings/cancel-request/**").authenticated()
+	            
+	            // 4. Réservation : Il faut être connecté pour réserver
+	            // Accessible par CLIENT (pour lui-même) et STAFF (pour un client)
 	            .requestMatchers("/api/bookings/reserve").authenticated()
 
-	            // 4. Par sécurité, tout le reste demande une authentification
+	            // 5. Par sécurité, tout le reste demande une authentification
 	            .anyRequest().authenticated()
 	        )
 	        .httpBasic(Customizer.withDefaults()); // Active l'authentification Basic (Username/Password dans Postman)

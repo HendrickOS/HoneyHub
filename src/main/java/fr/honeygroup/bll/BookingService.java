@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import enumeration.Role;
 import enumeration.StatutBooking;
 import fr.honeygroup.bo.Booking;
 import fr.honeygroup.bo.Pole;
@@ -33,7 +34,29 @@ public class BookingService {
 
     @Transactional
     public BookingResponse creerReservationSandbox(BookingRequest request) {
-        // 1. Transformation initiale
+        // --- NOUVEAU : VERIFICATION DE SECURITE ---
+        // On récupère l'identité de la personne qui fait la requête (via le Basic Auth)
+        String emailConnecte = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication().getName();
+        User utilisateurConnecte = userRepository.findByEmail(emailConnecte)
+                .orElseThrow(() -> new RuntimeException("Utilisateur connecté introuvable."));
+
+        // Si l'ID dans la requête est différent de l'utilisateur connecté
+        if (request.getUserId() != null && !request.getUserId().equals(utilisateurConnecte.getId())) {
+            // Seuls un ADMIN ou un MANAGER peuvent réserver pour quelqu'un d'autre
+            boolean isStaff = utilisateurConnecte.getRole() == Role.ADMIN || 
+                              utilisateurConnecte.getRole() == Role.MANAGER;
+            
+            if (!isStaff) {
+                throw new RuntimeException("Accès refusé : vous ne pouvez pas réserver pour un autre utilisateur.");
+            }
+        } else {
+            // Si le client n'a pas mis d'ID ou a mis le sien, on s'assure d'utiliser son ID réel
+            request.setUserId(utilisateurConnecte.getId());
+        }
+        // ------------------------------------------
+
+        // 1. Transformation initiale (utilise le userId validé ci-dessus)
         Booking booking = bookingMapper.toEntity(request);
 
         // 2. Chargement des entités complètes
@@ -99,4 +122,33 @@ public class BookingService {
                 .map(bookingMapper::toResponse)
                 .toList();
     }
+    
+    @Transactional
+    public void demanderAnnulation(Long bookingId) {
+        // 1. Récupérer la résa
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Réservation introuvable"));
+
+        // 2. SÉCURITÉ : Vérifier que c'est bien l'utilisateur connecté qui demande
+        String emailConnecte = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!booking.getUser().getEmail().equals(emailConnecte)) {
+            throw new RuntimeException("Vous n'avez pas le droit d'annuler cette réservation.");
+        }
+
+        // 3. Changement de statut
+        booking.setStatut(StatutBooking.DEMANDE_ANNULATION);
+        bookingRepository.save(booking);
+    }
+    
+    @Transactional
+    public void approuverAnnulation(Long bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Réservation introuvable"));
+
+        // Ici, pas besoin de check d'email car le SecurityConfig bloque l'accès
+        // aux seuls ADMIN/MANAGER pour cette méthode.
+        booking.setStatut(StatutBooking.ANNULE);
+        bookingRepository.save(booking);
+    }
+    
 }
