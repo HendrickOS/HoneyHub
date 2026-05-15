@@ -40,14 +40,26 @@ public class BookingController {
     }
     
     /**
-     * Récupérer l'historique d'un utilisateur.
-     * GET http://localhost:8080/api/bookings/user/1
+     * VUE CLIENT : Récupérer son propre historique de manière sécurisée.
+     * Plus d'ID dans l'URL : on utilise l'identité de celui qui est connecté.
+     * GET http://localhost:8080/api/bookings/my-bookings
      */
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<BookingResponse>> getHistorique(@PathVariable(name = "userId") Long userId) {
-        List<BookingResponse> historique = bookingService.getHistoriqueUtilisateur(userId);
-        
-        // On retourne la liste avec un statut 200 OK
+    @GetMapping("/my-bookings")
+    public ResponseEntity<List<BookingResponse>> getMonHistorique() {
+        // Appelle la nouvelle méthode sécurisée du Service
+        List<BookingResponse> historique = bookingService.getUtilisateurHistoriquePersonnel();
         return ResponseEntity.ok(historique);
+    }
+    
+    /**
+     * Dashboard Staff : Récupérer toutes les réservations d'un utilisateur spécifique.
+     * Accessible par : MANAGER, ADMIN
+     * GET http://localhost:8080/api/bookings/admin/user/{userId}
+     */
+    @GetMapping("/admin/user/{userId}")
+    public ResponseEntity<List<BookingResponse>> getDossierClientPourStaff(@PathVariable(name = "userId") Long userId) {
+        // Appel de la méthode de service qu'on a préparée
+        List<BookingResponse> dossier = bookingService.getDossierClientPourStaff(userId);
+        return ResponseEntity.ok(dossier);
     }
 }

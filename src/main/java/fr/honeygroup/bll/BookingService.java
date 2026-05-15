@@ -2,8 +2,8 @@ package fr.honeygroup.bll;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,13 +33,12 @@ public class BookingService {
 
     @Transactional
     public BookingResponse creerReservationSandbox(BookingRequest request) {
-        // 1. Transformation initiale (crée l'objet Booking avec les IDs du DTO)
+        // 1. Transformation initiale
         Booking booking = bookingMapper.toEntity(request);
 
-        // 2. Chargement des entités complètes (Grâce à tes repositories JpaRepository)
-        // On récupère les objets réels pour avoir accès aux champs 'nom', 'titre', etc.
+        // 2. Chargement des entités complètes
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("Utilisateur ID " + request.getUserId() + " introuvable en base."));
+                .orElseThrow(() -> new RuntimeException("Utilisateur ID " + request.getUserId() + " introuvable."));
         
         Prestation prestation = prestationRepository.findById(request.getPrestationId())
                 .orElseThrow(() -> new RuntimeException("Prestation ID " + request.getPrestationId() + " introuvable."));
@@ -47,35 +46,57 @@ public class BookingService {
         Pole pole = poleRepository.findById(request.getPoleId())
                 .orElseThrow(() -> new RuntimeException("Pôle ID " + request.getPoleId() + " introuvable."));
 
-        // 3. Injection des objets complets dans le Booking avant la sauvegarde
+        // 3. Injection des objets complets
         booking.setUser(user);
         booking.setPrestation(prestation);
         booking.setPole(pole);
 
-        // 4. Calcul du montant total (Conversion Double -> BigDecimal)
+        // 4. Calcul du montant total
         BigDecimal prixUnitaire = BigDecimal.valueOf(prestation.getPrixBase());
         BigDecimal total = prixUnitaire.multiply(new BigDecimal(request.getNbPersonnes()));
         booking.setMontantTotal(total);
 
-        // 5. Validation automatique pour le mode Sandbox
+        // 5. Validation automatique
         booking.setStatut(StatutBooking.CONFIRME);
 
-        // 6. Sauvegarde finale dans MySQL (XAMPP)
+        // 6. Sauvegarde
         Booking savedBooking = bookingRepository.save(booking);
 
-        // 7. Mapping vers Response : les objets étant "attachés", MapStruct trouvera les noms
+        // 7. Mapping vers Response
         return bookingMapper.toResponse(savedBooking);
     }
     
     /**
-     * Nouvelle méthode pour l'historique
-     * On utilise readOnly = true pour optimiser la performance des requêtes SELECT
+     * VUE CLIENT (Option A) : Récupère l'historique personnel de l'utilisateur connecté.
+     * Sécurité : Pas d'ID en paramètre, impossible de tricher sur l'identité.
      */
     @Transactional(readOnly = true)
-    public List<BookingResponse> getHistoriqueUtilisateur(Long userId) {
+    public List<BookingResponse> getUtilisateurHistoriquePersonnel() {
+        // Récupération de l'email (username) de l'utilisateur authentifié dans Postman
+        String emailConnecte = SecurityContextHolder.getContext().getAuthentication().getName();
+        
+        // Recherche de l'utilisateur en base pour récupérer son ID réel
+        User user = userRepository.findByEmail(emailConnecte)
+                .orElseThrow(() -> new RuntimeException("Utilisateur [" + emailConnecte + "] non trouvé en base."));
+
+        return bookingRepository.findByUserIdOrderByDateResaDesc(user.getId())
+                .stream()
+                .map(bookingMapper::toResponse)
+                .toList();
+    }
+    
+    /**
+     * VUE ADMIN/MANAGER : Consulter le dossier complet d'un client spécifique.
+     */
+    @Transactional(readOnly = true)
+    public List<BookingResponse> getDossierClientPourStaff(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new RuntimeException("L'utilisateur avec l'ID " + userId + " n'existe pas.");
+        }
+
         return bookingRepository.findByUserIdOrderByDateResaDesc(userId)
                 .stream()
                 .map(bookingMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 }
