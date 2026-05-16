@@ -37,13 +37,13 @@ public class SecurityConfig {
                         
                         // ===== POLES =====
                         // Lecture des pôles ouverte à tous les connectés
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/poles/**").hasAnyRole("ADMIN", "MANAGER", "CLIENT")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/poles/**").permitAll()
                         // Création, modification, suppression réservées à l'ADMIN
                         .requestMatchers("/api/poles/**").hasRole("ADMIN")
                         
                         // ===== PRESTATIONS (Circuits, Cours, etc.) =====
                         // Lecture ouverte à tous
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/prestations/**", "/api/circuits/**", "/api/courslangues/**").hasAnyRole("ADMIN", "MANAGER", "CLIENT")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/prestations/**", "/api/circuits/**", "/api/courslangues/**").permitAll()
                         // Ajout/Suppression/Modif réservés à l'ADMIN
                         .requestMatchers("/api/prestations/**", "/api/circuits/**", "/api/courslangues/**").hasRole("ADMIN")
 
