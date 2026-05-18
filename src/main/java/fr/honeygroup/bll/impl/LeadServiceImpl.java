@@ -9,12 +9,14 @@ import org.springframework.transaction.annotation.Transactional;
 import fr.honeygroup.bll.LeadService;
 import fr.honeygroup.bo.DemandeLead;
 import fr.honeygroup.bo.DetailsSpecifiques;
+import fr.honeygroup.bo.Pole;
 import fr.honeygroup.bo.Prestation;
 import fr.honeygroup.bo.User;
 import fr.honeygroup.bo.request.LeadRequest;
 import fr.honeygroup.bo.response.LeadResponse;
 import fr.honeygroup.mapper.LeadMapper;
 import fr.honeygroup.repository.DemandeLeadRepository;
+import fr.honeygroup.repository.PoleRepository;
 import fr.honeygroup.repository.PrestationRepository;
 import fr.honeygroup.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class LeadServiceImpl implements LeadService {
 
     private final DemandeLeadRepository demandeLeadRepository;
+    private final  PoleRepository poleRepository;
     private final UserRepository userRepository;
     private final PrestationRepository prestationRepository;
     private final LeadMapper leadMapper;
@@ -36,14 +39,16 @@ public class LeadServiceImpl implements LeadService {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User introuvable"));
 //a voir
-        Prestation prestation = prestationRepository.findById(request.getPrestationId())
-                .orElseThrow(() -> new RuntimeException("Prestation introuvable"));
+      /*  Prestation prestation = prestationRepository.findById(request.getPrestationId())
+                .orElseThrow(() -> new RuntimeException("Prestation introuvable"));    */
 
+        Pole pole = poleRepository.findById(request.getPoleId())
+                .orElseThrow(() -> new RuntimeException("Pôle introuvable"));
         // 🟢 création lead
         DemandeLead lead = DemandeLead.builder()
                 .user(user)
-                .prestation(prestation)
-                .pole(prestation.getPole())
+              //.prestation(prestation)
+                .pole(pole)
                 .source(request.getSource())
                 .build();
 

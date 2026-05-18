@@ -49,7 +49,7 @@ public class SecurityConfig {
 
                         // ===== DEMANDES DE LEADS =====
                         // Le client peut soumettre (POST) une demande de lead
-                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/leads/**").hasAnyRole("CLIENT", "ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/leads/**").permitAll()
                         // Le manager et l'admin peuvent lire et traiter (PUT) les leads
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/leads/**").hasAnyRole("MANAGER", "ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/leads/**").hasAnyRole("MANAGER", "ADMIN")
