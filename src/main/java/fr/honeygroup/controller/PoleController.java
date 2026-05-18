@@ -18,10 +18,18 @@ import fr.honeygroup.bo.response.PoleResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Contrôleur REST exposant les points de terminaison (endpoints) de l'API pour la gestion des pôles d'activité.
+ * <p>
+ * Cette classe assure le routage des requêtes HTTP entrantes vers la couche métier (BLL),
+ * déclenche la validation automatique des formulaires soumis et expose les ressources 
+ * nécessaires aux besoins du Frontend sous l'arborescence standardisée {@code /api/poles}.
+ * </p>
+ */
 @RestController
 @RequestMapping("/api/poles")
 @RequiredArgsConstructor
-@CrossOrigin
+@CrossOrigin // Autorise le partage de ressources cross-origin (CORS) pour l'intégration fluide avec le Frontend
 public class PoleController {
 
     private final PoleService poleService;
@@ -29,6 +37,15 @@ public class PoleController {
     // ======================
     // CREATE
     // ======================
+    /**
+     * Enregistre un nouveau pôle d'activité au sein du système.
+     * <p>
+     * L'annotation {@code @Valid} intercepte la requête pour exécuter les contraintes de validation de surface 
+     * du DTO avant de transmettre les données valides à la couche service.
+     * </p>
+     * * @param request Objet DTO contenant les informations du pôle à créer (nom, description).
+     * @return Le {@link PoleResponse} modélisant la ressource nouvellement créée et persistée.
+     */
     @PostMapping
     public PoleResponse create(@Valid @RequestBody PoleRequest request) {
         return poleService.create(request);
@@ -37,6 +54,10 @@ public class PoleController {
     // ======================
     // GET ALL
     // ======================
+    /**
+     * Récupère la liste exhaustive de l'ensemble des pôles d'activité configurés dans l'application.
+     * * @return Une liste de {@link PoleResponse} pour l'affichage global sur l'interface utilisateur.
+     */
     @GetMapping
     public List<PoleResponse> getAll() {
         return poleService.getAll();
@@ -45,6 +66,11 @@ public class PoleController {
     // ======================
     // GET BY ID
     // ======================
+    /**
+     * Récupère les détails d'un pôle d'activité spécifique à partir de son identifiant technique.
+     * * @param id Identifiant unique du pôle passé au sein de l'URI.
+     * @return Le {@link PoleResponse} correspondant au pôle localisé.
+     */
     @GetMapping("/{id}")
     public PoleResponse getById(@PathVariable("id") Long id) {
         return poleService.getById(id);
@@ -53,6 +79,14 @@ public class PoleController {
     // ======================
     // GET BY NOM
     // ======================
+    /**
+     * Recherche un pôle d'activité par son libellé nominatif via un paramètre de requête HTTP (Query Parameter).
+     * <p>
+     * Exemple d'appel : {@code GET /api/poles/search?nom=Écotourisme}
+     * </p>
+     * * @param nom Libellé exact du pôle recherché.
+     * @return Le {@link PoleResponse} correspondant au pôle ciblé.
+     */
     @GetMapping("/search")
     public PoleResponse getByNom(@RequestParam String nom) {
         return poleService.getByNom(nom);
@@ -61,6 +95,14 @@ public class PoleController {
     // ======================
     // DELETE
     // ======================
+    /**
+     * Supprime un pôle d'activité du système en fonction de son identifiant unique.
+     * <p>
+     * Ce point d'accès doit être protégé par des règles de sécurité (ex: rôles d'administration) 
+     * afin d'empêcher toute suppression accidentelle ou non autorisée du catalogue.
+     * </p>
+     * * @param id Identifiant technique du pôle à supprimer.
+     */
     @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") Long id) {
         poleService.deleteById(id);

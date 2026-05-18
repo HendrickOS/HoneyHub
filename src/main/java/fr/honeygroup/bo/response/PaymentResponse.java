@@ -5,14 +5,52 @@ import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * Objet de transfert de données (DTO Response) modélisant la réponse structurée 
+ * d'un règlement financier (Payment) associé à un dossier de réservation.
+ * <p>
+ * Cette classe permet d'exposer l'état d'avancement d'une transaction comptable ou du contrôle 
+ * d'une pièce justificative (virement bancaire ou Mobile Money), offrant une visibilité en temps réel 
+ * à l'utilisateur et aux gestionnaires de Honey Group.
+ * </p>
+ */
 @Data
 @Builder
 public class PaymentResponse {
+
+    /**
+     * Identifiant technique unique du paiement en base de données.
+     */
     private Long id;
-    private String methode;      // ex: STRIPE, VIREMENT
+
+    /**
+     * Canal d'acquisition monétaire utilisé pour la transaction (ex: STRIPE, VIREMENT, MOBILE_MONEY).
+     */
+    private String methode;
+
+    /**
+     * Référence ou numéro de reçu unique émis par l'opérateur financier externe.
+     */
     private String transactionId;
+
+    /**
+     * Montant exact perçu pour cette ligne de transaction financière.
+     */
     private BigDecimal montantPaye;
+
+    /**
+     * Horodatage système marquant la soumission ou l'enregistrement du règlement.
+     */
     private LocalDateTime datePaiement;
-    private String statutPaiement; // ex: VALIDE, EN_ATTENTE
-    private String preuveUrl;      // Pour afficher le lien vers le PDF du virement
+
+    /**
+     * État du traitement comptable de l'opération (ex: EN_VERIFICATION, VALIDE, REJETE).
+     */
+    private String statutPaiement;
+
+    /**
+     * URL ou chemin d'accès sécurisé vers le fichier justificatif téléversé (PDF ou image du reçu).
+     * Permet au personnel d'afficher et d'auditer visuellement la validité du transfert.
+     */
+    private String preuveUrl;
 }

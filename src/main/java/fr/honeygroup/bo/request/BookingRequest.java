@@ -1,6 +1,5 @@
 package fr.honeygroup.bo.request;
 
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -8,32 +7,34 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
+/**
+ * Data Transfer Object (DTO) encapsulant les données d'entrée 
+ * lors d'une requête de création de réservation par le Frontend.
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookingRequest {
 
-    @NotNull(message = "L'ID de la prestation est obligatoire")
-    private Long prestationId;
+    /**
+     * L'ID de l'utilisateur qui effectue la réservation.
+     * Optionnel à la soumission car sécurisé et forcé par le contexte Spring Security.
+     */
+    private Long userId;
 
-    @NotNull(message = "L'ID du pôle est obligatoire")
-    private Long poleId;
+    /**
+     * L'ID de la session de voyage choisie par l'utilisateur.
+     * Remplace définitivement prestationId, poleId et dateSouhaitee.
+     */
+    @NotNull(message = "L'ID de la session est obligatoire")
+    private Long sessionId;
 
-    @NotNull(message = "La date de réservation est obligatoire")
-    @Future(message = "La date de réservation doit être dans le futur")
-    private LocalDateTime dateSouhaitee;
-
+    /**
+     * Le nombre de places que le client souhaite réserver pour ce voyage.
+     * Permet le contrôle de la jauge côté service.
+     */
     @NotNull(message = "Le nombre de personnes est obligatoire")
     @Min(value = 1, message = "Il faut au moins une personne")
     private Integer nbPersonnes;
-
-    /**
-     * L'ID de l'utilisateur qui effectue la réservation.
-     * Obligatoire pour lier la réservation au bon client en base de données.
-     */
-    @NotNull(message = "L'ID de l'utilisateur est obligatoire")
-    private Long userId;
 }
