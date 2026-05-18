@@ -27,8 +27,11 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- =========================================================================
 -- 2. INSERTION DE L'UTILISATEUR TECHNIQUE DE TEST (id = 10)
 -- =========================================================================
+-- Le mot de passe pour ces trois comptes est 'password' (chiffré en BCrypt)
 INSERT IGNORE INTO ao7dvw_honeygroup_db.user (id, nom, prenom, email, password, role) VALUES 
-(10, 'Dupont', 'Jean', 'client.test@honeygroup.fr', '$2a$10$X.yp7v6ZpC7bF2.m0FhGue8U3ZtVlB6gqXW6.CpmZpe4b1eSmI6K.', 'CLIENT');
+(11, 'Client', 'Honey', 'client@honeygroup.fr', '$2a$10$X.yp7v6ZpC7bF2.m0FhGue8U3ZtVlB6gqXW6.CpmZpe4b1eSmI6K.', 'CLIENT'),
+(12, 'Manager', 'Honey', 'manager@honeygroup.fr', '$2a$10$X.yp7v6ZpC7bF2.m0FhGue8U3ZtVlB6gqXW6.CpmZpe4b1eSmI6K.', 'MANAGER'),
+(13, 'Admin', 'Honey', 'admin@honeygroup.fr', '$2a$10$X.yp7v6ZpC7bF2.m0FhGue8U3ZtVlB6gqXW6.CpmZpe4b1eSmI6K.', 'ADMIN');
 
 -- =========================================================================
 -- 3. INSERTION DES PÔLES D'ACTIVITÉ (id_pole de 1 à 4)

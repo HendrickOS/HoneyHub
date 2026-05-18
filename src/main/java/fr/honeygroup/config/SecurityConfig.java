@@ -1,21 +1,23 @@
 package fr.honeygroup.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import enumeration.Role;
-import java.util.List;
+import fr.honeygroup.repository.UserRepository;
 
 /**
  * Classe de configuration principale de la sécurité applicative basée sur Spring Security 6+.
@@ -87,33 +89,58 @@ public class SecurityConfig {
         return http.build();
     }
 
+//    /**
+//     * Structure un fournisseur d'utilisateurs éphémère en mémoire (Sandboxing de développement).
+//     * <p>
+//     * <strong>Note d'architecture :</strong> Ce gestionnaire provisionne un jeu de comptes de test typés 
+//     * pour l'évaluation des rôles de l'application. Le préfixe {@code {noop}} configure le délégué pour ignorer 
+//     * le chiffrement de surface (mots de passe stockés en clair), configuration strictement réservée à l'environnement de recette.
+//     * </p>
+//     * * @return Une instance d'{@link InMemoryUserDetailsManager} pré-alimentée.
+//     */
+//    @Bean
+//    public InMemoryUserDetailsManager userDetailsService() {
+//        UserDetails manager = User.withUsername("manager@honeygroup.fr")
+//                                    .password("{noop}password")
+//                                    .roles(Role.MANAGER.name())
+//                                    .build();
+//
+//        UserDetails client = User.withUsername("client@honeygroup.fr")
+//                                    .password("{noop}password")
+//                                    .roles(Role.CLIENT.name())
+//                                    .build();
+//
+//        UserDetails admin = User.withUsername("admin@honeygroup.fr")
+//                                .password("{noop}password")
+//                                .roles(Role.ADMIN.name())
+//                                .build();
+//
+//        return new InMemoryUserDetailsManager(manager, client, admin);
+//    }
+    
     /**
-     * Structure un fournisseur d'utilisateurs éphémère en mémoire (Sandboxing de développement).
+     * Configure le fournisseur de données d'authentification de l'application.
      * <p>
-     * <strong>Note d'architecture :</strong> Ce gestionnaire provisionne un jeu de comptes de test typés 
-     * pour l'évaluation des rôles de l'application. Le préfixe {@code {noop}} configure le délégué pour ignorer 
-     * le chiffrement de surface (mots de passe stockés en clair), configuration strictement réservée à l'environnement de recette.
+     * Cette méthode substitue la configuration en mémoire par une stratégie de persistance active.
+     * Elle connecte les filtres de Spring Security à la base de données MySQL via le dépôt
+     * {@link UserRepository}, permettant une vérification dynamique des identifiants (e-mail et mot de passe chiffré).
      * </p>
-     * * @return Une instance d'{@link InMemoryUserDetailsManager} pré-alimentée.
+     *
+     * @param userRepository Le dépôt d'accès aux données de l'entité User.
+     * @return Une implémentation fonctionnelle de {@link UserDetailsService} connectée à la base de données.
      */
     @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails manager = User.withUsername("manager@honeygroup.fr")
-                                    .password("{noop}password")
-                                    .roles(Role.MANAGER.name())
-                                    .build();
-
-        UserDetails client = User.withUsername("client@honeygroup.fr")
-                                    .password("{noop}password")
-                                    .roles(Role.CLIENT.name())
-                                    .build();
-
-        UserDetails admin = User.withUsername("admin@honeygroup.fr")
-                                .password("{noop}password")
-                                .roles(Role.ADMIN.name())
-                                .build();
-
-        return new InMemoryUserDetailsManager(manager, client, admin);
+    public UserDetailsService userDetailsService(UserRepository userRepository) {
+        return username -> userRepository.findByEmail(username)
+                .map(user -> org.springframework.security.core.userdetails.User
+                        .withUsername(user.getEmail())
+                        // Récupère l'empreinte de sécurité (BCrypt) directement depuis MySQL
+                        .password(user.getPassword()) 
+                        // Associe le rôle sous forme d'autorité explicite pour éviter les conflits de préfixe ROLE_
+                        .authorities(new SimpleGrantedAuthority(user.getRole().name()))
+                        .build())
+                // Sécurité : Lève une exception standardisée si l'identifiant n'existe pas en base
+                .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé avec l'adresse : " + username));
     }
 
     /**
