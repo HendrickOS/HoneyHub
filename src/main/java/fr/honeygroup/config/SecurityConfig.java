@@ -8,9 +8,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -34,20 +35,12 @@ public class SecurityConfig {
 
     /**
      * Définit la politique d'accès et d'interception des requêtes HTTP (SecurityFilterChain).
-     * <p>
-     * <strong>Mécanisme de sécurité :</strong> Les requêtes sont évaluées de manière séquentielle, du cas le plus 
-     * spécifique au plus générique. Les endpoints sensibles de gestion (Backoffice) sont limités au personnel habilité, 
-     * les parcours transactionnels clients exigent une authentification, tandis que le catalogue d'offres reste public.
-     * </p>
-     * * @param http Objet constructeur de la configuration de sécurité web.
-     * @return La chaîne de filtres configurée et instanciée.
-     * @throws Exception En cas d'erreur de configuration interne des modules Spring Security.
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Injection de la politique CORS globale
-            .csrf(csrf -> csrf.disable()) // Désactivation du jeton CSRF pour fluidifier les tests d'API (Postman)
+            .cors(cors -> cors.configurationSource(corsConfigurationSource())) 
+            .csrf(csrf -> csrf.disable()) 
             .authorizeHttpRequests(auth -> auth
                 
                 // 1. Accès Public : Consultation du catalogue (Pôles/Prestations) et soumission du tunnel de prospection (Leads)
@@ -67,7 +60,7 @@ public class SecurityConfig {
                 // 5. Règle parapluie défensive : Tout autre point d'accès non explicite exige une authentification brute
                 .anyRequest().authenticated()
             )
-            .httpBasic(Customizer.withDefaults()) // Activation du schéma HTTP Basic Authentication pour le développement
+            .httpBasic(Customizer.withDefaults()) 
             
             // --- GESTION PERSONNALISÉE DU REJET D'HABILITATION 403 (FORBIDDEN) ---
             .exceptionHandling(handling -> handling
@@ -75,7 +68,6 @@ public class SecurityConfig {
                     response.setStatus(403);
                     response.setContentType("application/json;charset=UTF-8");
                     
-                    // Unification de la structure de réponse JSON avec celle du GlobalExceptionHandler
                     String jsonResponse = String.format(
                         "{\"timestamp\": \"%s\", \"status\": 403, \"error\": \"Forbidden\", \"message\": \"Accès refusé : vous n'avez pas les droits nécessaires pour accéder à cette fonctionnalité.\", \"path\": \"%s\"}",
                         java.time.LocalDateTime.now(),
@@ -88,42 +80,12 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-//    /**
-//     * Structure un fournisseur d'utilisateurs éphémère en mémoire (Sandboxing de développement).
-//     * <p>
-//     * <strong>Note d'architecture :</strong> Ce gestionnaire provisionne un jeu de comptes de test typés 
-//     * pour l'évaluation des rôles de l'application. Le préfixe {@code {noop}} configure le délégué pour ignorer 
-//     * le chiffrement de surface (mots de passe stockés en clair), configuration strictement réservée à l'environnement de recette.
-//     * </p>
-//     * * @return Une instance d'{@link InMemoryUserDetailsManager} pré-alimentée.
-//     */
-//    @Bean
-//    public InMemoryUserDetailsManager userDetailsService() {
-//        UserDetails manager = User.withUsername("manager@honeygroup.fr")
-//                                    .password("{noop}password")
-//                                    .roles(Role.MANAGER.name())
-//                                    .build();
-//
-//        UserDetails client = User.withUsername("client@honeygroup.fr")
-//                                    .password("{noop}password")
-//                                    .roles(Role.CLIENT.name())
-//                                    .build();
-//
-//        UserDetails admin = User.withUsername("admin@honeygroup.fr")
-//                                .password("{noop}password")
-//                                .roles(Role.ADMIN.name())
-//                                .build();
-//
-//        return new InMemoryUserDetailsManager(manager, client, admin);
-//    }
     
     /**
      * Configure le fournisseur de données d'authentification de l'application.
      * <p>
-     * Cette méthode substitue la configuration en mémoire par une stratégie de persistance active.
-     * Elle connecte les filtres de Spring Security à la base de données MySQL via le dépôt
-     * {@link UserRepository}, permettant une vérification dynamique des identifiants (e-mail et mot de passe chiffré).
+     * Cette méthode connecte les filtres de Spring Security à la base de données MySQL via le dépôt
+     * {@link UserRepository}, permettant une vérification dynamique des identifiants (e-mail et mot de passe chiffré BCrypt).
      * </p>
      *
      * @param userRepository Le dépôt d'accès aux données de l'entité User.
@@ -134,27 +96,35 @@ public class SecurityConfig {
         return username -> userRepository.findByEmail(username)
                 .map(user -> org.springframework.security.core.userdetails.User
                         .withUsername(user.getEmail())
-                        // Récupère l'empreinte de sécurité (BCrypt) directement depuis MySQL
                         .password(user.getPassword()) 
-                        // Associe le rôle sous forme d'autorité explicite pour éviter les conflits de préfixe ROLE_
-                        .authorities(new SimpleGrantedAuthority(user.getRole().name()))
+                        // Utiliser .roles() applique automatiquement le préfixe ROLE_ requis par .hasAnyRole()
+                        .roles(user.getRole().name())
                         .build())
-                // Sécurité : Lève une exception standardisée si l'identifiant n'existe pas en base
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé avec l'adresse : " + username));
     }
 
     /**
-     * Source de configuration globale des politiques de partage de ressources Cross-Origin (CORS).
+     * Déclare le moteur de chiffrement et de vérification des mots de passe pour l'application.
      * <p>
-     * Assure l'ouverture contrôlée de l'API pour autoriser les requêtes asynchrones (AJAX/Fetch) 
-     * provenant d'architectures découplées (Frontend de type SPA), tout en spécifiant les verbes 
-     * HTTP et en-têtes autorisés.
+     * L'implémentation choisie est {@link BCryptPasswordEncoder}, un algorithme de hachage robuste 
+     * intégrant un sel aléatoire, aligné sur les empreintes stockées dans le script d'initialisation de la base.
      * </p>
+     *
+     * @return L'instance du composant d'encodage BCrypt.
+     */
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        // Permet de lire à la fois les mots de passe en {noop}text et d'autres formats standards
+        return org.springframework.security.crypto.factory.PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
+    /**
+     * Source de configuration globale des politiques de partage de ressources Cross-Origin (CORS).
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*")); // En production, restreindre au nom de domaine du front (ex: "http://localhost:3000")
+        configuration.setAllowedOrigins(List.of("*")); 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
         

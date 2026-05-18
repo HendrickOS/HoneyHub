@@ -29,9 +29,9 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- =========================================================================
 -- Le mot de passe pour ces trois comptes est 'password' (chiffré en BCrypt)
 INSERT IGNORE INTO ao7dvw_honeygroup_db.user (id, nom, prenom, email, password, role) VALUES 
-(11, 'Client', 'Honey', 'client@honeygroup.fr', '$2a$10$X.yp7v6ZpC7bF2.m0FhGue8U3ZtVlB6gqXW6.CpmZpe4b1eSmI6K.', 'CLIENT'),
-(12, 'Manager', 'Honey', 'manager@honeygroup.fr', '$2a$10$X.yp7v6ZpC7bF2.m0FhGue8U3ZtVlB6gqXW6.CpmZpe4b1eSmI6K.', 'MANAGER'),
-(13, 'Admin', 'Honey', 'admin@honeygroup.fr', '$2a$10$X.yp7v6ZpC7bF2.m0FhGue8U3ZtVlB6gqXW6.CpmZpe4b1eSmI6K.', 'ADMIN');
+(11, 'Client', 'Honey', 'client@honeygroup.fr', '{noop}password', 'CLIENT'),
+(12, 'Manager', 'Honey', 'manager@honeygroup.fr', '{noop}password', 'MANAGER'),
+(13, 'Admin', 'Honey', 'admin@honeygroup.fr', '{noop}password', 'ADMIN');
 
 -- =========================================================================
 -- 3. INSERTION DES PÔLES D'ACTIVITÉ (id_pole de 1 à 4)
@@ -99,7 +99,7 @@ INSERT IGNORE INTO ao7dvw_honeygroup_db.booking
 (user_id, session_id, date_creation_resa, statut, nb_places, montant_total)
 VALUES
 -- 2 places pour le Trek Nord (id_session = 1) -> 2400.00€
-(10, 1, NOW(), 'CONFIRME', 2, 2400.00),
+(11, 1, NOW(), 'CONFIRME', 2, 2400.00),
 
 -- 1 place pour l'Allée des Baobabs (id_session = 3) -> 1450.00€
-(10, 3, NOW(), 'EN_ATTENTE_PAIEMENT', 1, 1450.00);
+(11, 3, NOW(), 'EN_ATTENTE_PAIEMENT', 1, 1450.00);
