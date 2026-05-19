@@ -59,12 +59,13 @@ public class LeadServiceImpl implements LeadService {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User introuvable"));
 
-//a voir
-      /* Prestation prestation = prestationRepository.findById(request.getPrestationId())
+        //a voir
+        /* Prestation prestation = prestationRepository.findById(request.getPrestationId())
                 .orElseThrow(() -> new RuntimeException("Prestation introuvable"));    */
 
         Pole pole = poleRepository.findById(request.getPoleId())
                 .orElseThrow(() -> new RuntimeException("Pôle introuvable"));
+        
         // 🟢 création lead
         DemandeLead lead = DemandeLead.builder()
                 .user(user)
@@ -110,6 +111,13 @@ public class LeadServiceImpl implements LeadService {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Extrait l'ensemble des dossiers de prospection enregistrés et délègue la transformation 
+     * de la collection d'entités vers la liste de DTOs via l'infrastructure du LeadMapper.
+     * </p>
+     */
     @Override
     public List<LeadResponse> getAllLeads() {
         return demandeLeadRepository.findAll().stream()
@@ -117,6 +125,13 @@ public class LeadServiceImpl implements LeadService {
                 .toList();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Extrait un lead précis par sa clé primaire technique ou lève une exception si la ligne est introuvable.
+     * </p>
+     * @throws RuntimeException Si l'identifiant technique spécifié n'existe pas en base de données.
+     */
     @Override
     public LeadResponse getLeadById(Long id) {
         return demandeLeadRepository.findById(id)
@@ -124,6 +139,14 @@ public class LeadServiceImpl implements LeadService {
                 .orElseThrow(() -> new RuntimeException("Lead introuvable"));
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Modifie l'état du lead de manière transactionnelle. Cette opération permet de piloter 
+     * l'évolution du prospect à travers les échelons du tunnel de conversion commerciale.
+     * </p>
+     * @throws RuntimeException Si l'ID du lead ciblé pour la transition de statut n'existe pas.
+     */
     @Override
     @Transactional
     public LeadResponse updateLeadStatus(Long id, enumeration.StatutLead statut) {
@@ -133,6 +156,14 @@ public class LeadServiceImpl implements LeadService {
         return leadMapper.toResponse(demandeLeadRepository.save(lead));
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Supprime définitivement un lead et purge en cascade l'ensemble des lignes de détails 
+     * spécifiques associées pour maintenir la propreté de la base de données.
+     * </p>
+     * @throws RuntimeException Si la ressource ciblée pour la suppression n'est pas répertoriée.
+     */
     @Override
     @Transactional
     public void deleteLead(Long id) {

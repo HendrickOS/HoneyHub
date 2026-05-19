@@ -25,6 +25,14 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Implementation concrete du service de gestion de la securite et des identites (IAM).
+ * <p>
+ * Cette classe orchestre la securisation des acces de Honey Group. Elle prend en charge 
+ * l'authentification Spring Security, l'encodage des mots de passe, le cycle de rafraichissement 
+ * des jetons d'acces (JWT) et la gestion des processus critiques de reinitialisation.
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -40,6 +48,15 @@ public class AuthServiceImpl implements AuthService {
     // Refresh token expiry: 7 days
     private final long REFRESH_TOKEN_EXPIRATION = 7L * 24 * 60 * 60 * 1000;
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Execute l'inscription au sein d'une transaction unique. Verifie de maniere defensive 
+     * l'unicite des points d'entree (email et telephone) pour eviter les doublons en base, 
+     * chiffre le mot de passe, et lie l'User a son Profile via un cascade de persistence.
+     * </p>
+     * @throws RuntimeException Si l'adresse email ou le numero de telephone saisis sont deja utilises.
+     */
     @Override
     @Transactional
     public User register(RegisterRequest request) {
@@ -68,11 +85,18 @@ public class AuthServiceImpl implements AuthService {
                 .build();
         user.setProfile(profile);
 
-      return   userRepository.save(user);
-
-        
+        return userRepository.save(user);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Delegue la validation des identifiants a l'AuthenticationManager de Spring Security. 
+     * Une fois le jeton d'authentification valide, charge l'utilisateur et genere 
+     * le couple de tokens (Access / Refresh).
+     * </p>
+     * @throws RuntimeException Si l'utilisateur s'avere introuvable apres validation.
+     */
     @Override
     public TokenResponse login(LoginRequest request) {
         authenticationManager.authenticate(
@@ -88,6 +112,14 @@ public class AuthServiceImpl implements AuthService {
         return generateTokens(user);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Utilise une programmation fonctionnelle (Streams Optionnels) pour extraire, verifier 
+     * l'expiration, charger le compte cible et emettre une nouvelle paire de tokens valides.
+     * </p>
+     * @throws RuntimeException Si le jeton de rafraichissement est absent ou expire.
+     */
     @Override
     public TokenResponse refreshToken(RefreshTokenRequest request) {
         return refreshTokenRepository.findByToken(request.getRefreshToken())
@@ -97,6 +129,13 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new RuntimeException("Refresh token is invalid or expired"));
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Invalide la session active en purgeant de maniere transactionnelle le jeton de 
+     * rafraichissement associe a l'utilisateur connecte au sein du referentiel.
+     * </p>
+     */
     @Override
     @Transactional
     public void logout(String email) {
@@ -106,6 +145,14 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Initie le workflow de recuperation. Supprime tout token de recuperation anterieur, 
+     * genere un identifiant unique temporaire (UUID v4) d'une validite d'une heure, 
+     * et simule temporairement l'envoi de la notification.
+     * </p>
+     */
     @Override
     @Transactional
     public void forgotPassword(ForgotPasswordRequest request) {
@@ -130,6 +177,15 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Consomme le jeton temporaire d'oubli. Verifie sa validite temporelle, encode le nouveau 
+     * mot de passe saisi et execute une purge totale des tokens de session (Refresh) et de 
+     * recuperation associes pour des raisons strictes de securite post-modification.
+     * </p>
+     * @throws RuntimeException Si le jeton est introuvable ou si la date limite de validite est depassee.
+     */
     @Override
     @Transactional
     public void resetPassword(ResetPasswordRequest request) {
@@ -150,6 +206,11 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenRepository.deleteByUser(user);
     }
 
+    /**
+     * Routine interne de generation conjointe des jetons d'identification.
+     * @param user L'entite utilisateur cible.
+     * @return Le DTO de reponse unifie TokenResponse.
+     */
     private TokenResponse generateTokens(User user) {
         String jwtToken = jwtService.generateToken(user);
         String refreshToken = createRefreshToken(user).getToken();
@@ -159,6 +220,15 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+    /**
+     * Routine interne d'instanciation de jeton de rafraichissement.
+     * <p>
+     * Assure le nettoyage prealable de l'ancien jeton (pattern single-session) avant d'attribuer 
+     * un UUID cryptographique unique persiste sous forme de timestamp Instant.
+     * </p>
+     * @param user L'entite utilisateur proprietaire.
+     * @return L'entite RefreshToken persistee.
+     */
     private RefreshToken createRefreshToken(User user) {
         // Delete old refresh token if exists
         refreshTokenRepository.deleteByUser(user);
@@ -171,6 +241,16 @@ public class AuthServiceImpl implements AuthService {
         return refreshTokenRepository.save(refreshToken);
     }
 
+    /**
+     * Valide la conformite temporelle du Refresh Token extrait.
+     * <p>
+     * Si le jeton a depasse sa date limite, il est automatiquement purge de la base de donnees 
+     * pour eviter l'encombrement de tables orphelines.
+     * </p>
+     * @param token Le jeton a inspecter.
+     * @return Le jeton valide s'il n'a pas expire.
+     * @throws RuntimeException Si le jeton est obsolete, invitant a une reconnexion complete.
+     */
     private RefreshToken verifyExpiration(RefreshToken token) {
         if (token.getExpiryDate().compareTo(Instant.now()) < 0) {
             refreshTokenRepository.delete(token);
