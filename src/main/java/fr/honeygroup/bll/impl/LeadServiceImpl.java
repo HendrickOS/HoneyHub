@@ -9,13 +9,13 @@ import org.springframework.transaction.annotation.Transactional;
 import fr.honeygroup.bll.LeadService;
 import fr.honeygroup.bo.DemandeLead;
 import fr.honeygroup.bo.DetailsSpecifiques;
-import fr.honeygroup.bo.Prestation;
+import fr.honeygroup.bo.Pole;
 import fr.honeygroup.bo.User;
 import fr.honeygroup.bo.request.LeadRequest;
 import fr.honeygroup.bo.response.LeadResponse;
 import fr.honeygroup.mapper.LeadMapper;
 import fr.honeygroup.repository.DemandeLeadRepository;
-import fr.honeygroup.repository.PrestationRepository;
+import fr.honeygroup.repository.PoleRepository;
 import fr.honeygroup.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -32,20 +32,20 @@ import lombok.RequiredArgsConstructor;
 public class LeadServiceImpl implements LeadService {
 
     private final DemandeLeadRepository demandeLeadRepository;
+    private final PoleRepository poleRepository;
     private final UserRepository userRepository;
-    private final PrestationRepository prestationRepository;
     private final LeadMapper leadMapper;
 
     /**
      * Crée et enregistre un nouveau dossier de prospection (Lead) avec ses spécifications personnalisées.
      * <p>
      * La méthode valide la présence de critères optionnels, associe l'utilisateur demandeur ainsi 
-     * que la prestation catalogue ciblée, puis convertit la structure clé/valeur reçue en entités de 
+     * que le pôle ciblé, puis convertit la structure clé/valeur reçue en entités de 
      * détails persistables rattachées bidirectionnellement au lead parent.
      * </p>
-     * * @param request Objet DTO contenant l'identité du prospect, la prestation et la cartographie des besoins spécifiques.
+     * @param request Objet DTO contenant l'identité du prospect, le pôle d'activité et la cartographie des besoins spécifiques.
      * @return Le {@link LeadResponse} enrichi et converti après insertion réussie en base de données.
-     * @throws RuntimeException Si la structure des détails est vide ou absente, ou si l'utilisateur ou la prestation 
+     * @throws RuntimeException Si la structure des détails est vide ou absente, ou si l'utilisateur ou le pôle 
      * cibles s'avèrent introuvables.
      */
     @Override
@@ -59,14 +59,17 @@ public class LeadServiceImpl implements LeadService {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User introuvable"));
 
-        // Récupération de la prestation cible (permet également d'en déduire indirectement le pôle d'activité parent)
-        Prestation prestation = prestationRepository.findById(request.getPrestationId())
-                .orElseThrow(() -> new RuntimeException("Prestation introuvable"));
+//a voir
+      /* Prestation prestation = prestationRepository.findById(request.getPrestationId())
+                .orElseThrow(() -> new RuntimeException("Prestation introuvable"));    */
 
-        // Construction du dossier de lead initial via le Builder pattern
+        Pole pole = poleRepository.findById(request.getPoleId())
+                .orElseThrow(() -> new RuntimeException("Pôle introuvable"));
+        // 🟢 création lead
         DemandeLead lead = DemandeLead.builder()
                 .user(user)
-                .prestation(prestation)
+              //.prestation(prestation)
+                .pole(pole)
                 .source(request.getSource())
                 .build();
 
@@ -98,12 +101,44 @@ public class LeadServiceImpl implements LeadService {
      * Bloque le traitement en amont si aucune caractéristique ou note spécifique n'accompagne 
      * l'expression de besoin sur-mesure du formulaire de contact.
      * </p>
-     * * @param details La cartographie dictionnaire des critères techniques ou organisationnels fournis.
+     * @param details La cartographie dictionnaire des critères techniques ou organisationnels fournis.
      * @throws RuntimeException Si le dictionnaire s'avère nul ou ne contient aucun élément.
      */
     private void validateDetails(Map<String, String> details) {
         if (details == null || details.isEmpty()) {
             throw new RuntimeException("Details obligatoires");
         }
+    }
+
+    @Override
+    public List<LeadResponse> getAllLeads() {
+        return demandeLeadRepository.findAll().stream()
+                .map(leadMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public LeadResponse getLeadById(Long id) {
+        return demandeLeadRepository.findById(id)
+                .map(leadMapper::toResponse)
+                .orElseThrow(() -> new RuntimeException("Lead introuvable"));
+    }
+
+    @Override
+    @Transactional
+    public LeadResponse updateLeadStatus(Long id, enumeration.StatutLead statut) {
+        DemandeLead lead = demandeLeadRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Lead introuvable"));
+        lead.setStatut(statut);
+        return leadMapper.toResponse(demandeLeadRepository.save(lead));
+    }
+
+    @Override
+    @Transactional
+    public void deleteLead(Long id) {
+        if (!demandeLeadRepository.existsById(id)) {
+            throw new RuntimeException("Lead introuvable");
+        }
+        demandeLeadRepository.deleteById(id);
     }
 }

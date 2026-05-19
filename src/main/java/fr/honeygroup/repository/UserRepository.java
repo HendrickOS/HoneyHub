@@ -64,5 +64,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * * @param role Le libellé textuel du rôle cible (ex: "ROLE_ADMIN").
      * @return Une liste de {@link User} partageant le rôle spécifié.
      */
-    List<User> findByRole(String role);
+    List<User> findByRole(enumeration.Role role);
 }

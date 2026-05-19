@@ -32,21 +32,25 @@ public class Profile {
      * Adresse postale complète de résidence de l'utilisateur.
      * L'annotation @Lob mappe ce champ en tant qu'objet textuel de taille importante (TEXT/LONGTEXT) en base MariaDB.
      */
+    @NotBlank(message = "L'adresse est obligatoire")
+    @Size(min = 5, max = 500, message = "Adresse invalide")
     @Lob
     private String adresse;
 
     /**
      * Numéro de téléphone de contact principal de l'utilisateur.
-     * Soumis à une expression régulière restrictive validant les formats français (fixes et mobiles).
+     * Soumis à une expression régulière restrictive permettant les formats nationaux et internationaux.
      */
     @NotBlank(message = "Le téléphone est obligatoire")
-    @Pattern(regexp = "^(\\+33|0)[1-9]\\d{8}$", message = "Format de téléphone invalide")
+    @Pattern(regexp = "^\\+?[1-9]\\d{7,14}$", message = "Numéro de téléphone invalide (format international requis)")
     @Column(length = 50)
     private String telephone;
 
     /**
      * Pays de résidence actuel déclaré par l'utilisateur.
      */
+    @NotBlank(message = "Le pays est obligatoire")
+    @Size(min = 2, max = 100, message = "Pays invalide")
     @Column(length = 100)
     private String pays;
 
@@ -56,6 +60,7 @@ public class Profile {
      * L'annotation @Lob permet d'y stocker de longs volumes de chaînes ou des structures textuelles de type JSON.
      */
     @Lob
+    @Size(max = 1000, message = "Les préférences sont trop longues")
     private String preferences;
 
     /**

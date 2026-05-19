@@ -78,7 +78,7 @@ public class DemandeLead {
      */
     @NotBlank
     @Column(nullable = false, length = 50)
-    private String source = "WEB";
+    private String source ;
 
     /**
      * L'utilisateur (prospect ou client enregistré) ayant soumis la demande de contact.

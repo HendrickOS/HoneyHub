@@ -2,14 +2,16 @@ package fr.honeygroup.exception;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * Intercepteur global des anomalies de l'application (AOP - Aspect Oriented Programming).
@@ -19,13 +21,24 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
  * (statuts HTTP adaptés) pour le Frontend.
  * </p>
  */
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Map<String, String>> handleBadCredentials(BadCredentialsException ex) {
+
+        Map<String, String> error = new HashMap<>();
+        error.put("message", "Email ou mot de passe incorrect");
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(error);
+    }
 
     /**
      * Capture les erreurs d'intégrité ou de capacité liées à la logistique des sessions temporelles
      * (ex: jauge maximale d'inscrits atteinte, session expirée).
-     * * @param ex L'exception de capacité ou de validité de session capturée.
+     * @param ex L'exception de capacité ou de validité de session capturée.
      * @return Une réponse HTTP 400 BAD_REQUEST contenant le détail textuel du blocage métier.
      */
     @ExceptionHandler(SessionCapacityException.class)
@@ -42,7 +55,7 @@ public class GlobalExceptionHandler {
     /**
      * Capture les violations de sécurité contextuelles détectées au cœur de la logique métier 
      * (ex: tentative de fraude IDOR, substitution d'identité non autorisée pour un tiers).
-     * * @param ex L'exception de sécurité applicative interceptée.
+     * @param ex L'exception de sécurité applicative interceptée.
      * @return Une réponse HTTP 403 FORBIDDEN scellée.
      */
     @ExceptionHandler(BusinessSecurityException.class)
@@ -58,11 +71,12 @@ public class GlobalExceptionHandler {
 
     /**
      * Gestion globale des erreurs d'exécution internes imprévues (RuntimeException non spécialisées).
-     * * @param ex L'anomalie système ou l'erreur de logique brute interceptée.
-     * @return Une réponse HTTP 505 INTERNAL_SERVER_ERROR masquant les détails sensibles de l'infrastructure.
+     * @param ex L'anomalie système ou l'erreur de logique brute interceptée.
+     * @return Une réponse HTTP 500 INTERNAL_SERVER_ERROR masquant les détails sensibles de l'infrastructure.
      */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Object> handleRuntimeException(RuntimeException ex) {
+        // On renvoie le message de l'exception avec un code 500 structuré pour l'API globale
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -75,7 +89,7 @@ public class GlobalExceptionHandler {
     /**
      * Intercepte les refus d'accès d'infrastructure émis nativement par Spring Security 
      * (ex: un client tentant de solliciter un endpoint annoté @PreAuthorize("hasRole('ADMIN')")).
-     * * @param ex L'anomalie de droits Spring Security.
+     * @param ex L'anomalie de droits Spring Security.
      * @return Une réponse HTTP 403 FORBIDDEN formalisée.
      */
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
@@ -92,7 +106,7 @@ public class GlobalExceptionHandler {
     /**
      * Formate et isole les erreurs de validation de surface levées par Jakarta Validation 
      * sur les DTOs d'entrée annotés {@code @Valid} au niveau des contrôleurs.
-     * * @param ex L'anomalie contenant l'arbre des champs non conformes.
+     * @param ex L'anomalie contenant l'arbre des champs non conformes.
      * @return Une réponse HTTP 400 BAD_REQUEST portant le libellé d'erreur (éventuellement internationalisé).
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -114,7 +128,7 @@ public class GlobalExceptionHandler {
     }
 
     // ============================================================================
-    // CLASSES EXTENSIONS D'EXCEPTIONS MÉTIERS (À isoler ou maintenir ici)
+    // CLASSES EXTENSIONS D'EXCEPTIONS MÉTIERS
     // ============================================================================
 
     /**

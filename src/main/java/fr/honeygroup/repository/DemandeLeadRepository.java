@@ -60,4 +60,6 @@ public interface DemandeLeadRepository extends JpaRepository<DemandeLead, Long> 
      * * @return Une liste chronologique descendante de toutes les {@link DemandeLead}.
      */
     List<DemandeLead> findAllByOrderByDateSoumissionDesc();
+    
+    List<DemandeLead> findByPrestation_Pole_Id(Long poleId);
 }

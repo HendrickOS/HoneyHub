@@ -4,6 +4,11 @@ import enumeration.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Entité représentant un utilisateur (User) au sein du système Honey Group.
@@ -19,7 +24,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class User implements UserDetails {
 
     /**
      * Identifiant unique et clé primaire de l'utilisateur.
@@ -51,8 +56,8 @@ public class User {
      * Rôle ou niveau d'habilitation applicative de l'utilisateur (ex: CLIENT, MANAGER, ADMIN).
      * Persisté explicitement sous sa forme textuelle (STRING) afin de faciliter la maintenance de la base de données.
      */
-    @Column(nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
     private Role role;
 
     /**
@@ -61,7 +66,7 @@ public class User {
      */
     @NotBlank(message = "Le nom est obligatoire")
     @Size(min = 2, max = 100)
-    @Pattern(regexp = "^[A-Za-zÀ-ÖØ-öø-ÿ -]{2,100}$", message = "Le nom contient des caractères invalides")
+    @Pattern(regexp = "^[A-Za-zÀ-ÖØ-öø-ÿ -]{2,100}$", message = "Le nom contains des caractères invalides")
     @Column(nullable = false, length = 100)
     private String nom;
 
@@ -83,4 +88,34 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     @ToString.Exclude
     private Profile profile;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

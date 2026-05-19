@@ -17,8 +17,6 @@ public interface PoleService {
 
     PoleResponse update(Long id, PoleRequest request);
 
-    void delete(Long id);
-
     PoleResponse getByNom(String nom);
 
     void deleteById(Long id);

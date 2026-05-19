@@ -18,6 +18,7 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -109,12 +110,22 @@ public class Prestation {
      * Propriété figée à la création (updatable = false).
      */
     @Column(name = "date_creation", updatable = false)
-    private LocalDateTime dateCreation = LocalDateTime.now();
-    
+    private LocalDateTime dateCreation;
+
     /**
      * Agrégation bidirectionnelle recensant l'historique et les programmations de sessions futures.
      * Spécifique au pôle Écotourisme pour lister dynamiquement les dates d'ouvertures d'un voyage.
      */
     @OneToMany(mappedBy = "prestation", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Session> sessions;
+
+    /**
+     * Intercepteur de cycle de vie JPA injectant la date système au moment de la persistance initiale.
+     */
+    @PrePersist
+    protected void onCreate() {
+        if (dateCreation == null) {
+            dateCreation = LocalDateTime.now();
+        }
+    }
 }

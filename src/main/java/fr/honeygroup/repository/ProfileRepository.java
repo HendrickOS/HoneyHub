@@ -26,4 +26,6 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
      * @return Un {@link Optional} englobant le profil s'il est configuré en base de données, ou vide.
      */
     Optional<Profile> findByUserId(Long userId);
+
+	boolean existsByTelephone(String telephone);
 }

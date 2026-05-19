@@ -1,18 +1,19 @@
 package fr.honeygroup.bll.impl;
 
+import java.util.List;
+
+import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import fr.honeygroup.bll.PoleService;
 import fr.honeygroup.bo.Pole;
 import fr.honeygroup.bo.request.PoleRequest;
 import fr.honeygroup.bo.response.PoleResponse;
 import fr.honeygroup.mapper.PoleMapper;
 import fr.honeygroup.repository.PoleRepository;
-import fr.honeygroup.bll.PoleService;
-
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 /**
  * Implémentation du service métier gérant les pôles d'activité (Pole) de Honey Group.
@@ -31,7 +32,7 @@ public class PoleServiceImpl implements PoleService {
 
     /**
      * Constructeur unique permettant l'injection de dépendances native par Spring.
-     * * @param poleRepository Le dépôt de données dédié aux pôles.
+     * @param poleRepository Le dépôt de données dédié aux pôles.
      * @param mapper Le convertisseur de structures (MapStruct) entre entités et DTOs.
      * @param messageSource Le gestionnaire de bundles de messages pour l'internationalisation.
      */
@@ -43,15 +44,7 @@ public class PoleServiceImpl implements PoleService {
         this.messageSource = messageSource;
     }
 
-    /**
-     * Méthode utilitaire d'internationalisation (i18n).
-     * <p>
-     * Extrait les libellés et messages d'erreur traduits depuis les fichiers de propriétés externes 
-     * en se basant sur la langue (Locale) du contexte de la requête de l'utilisateur courant.
-     * </p>
-     * * @param key Clé unique du message cible définie dans les bundles de propriétés.
-     * @return Le message textuel traduit correspondant à la clé.
-     */
+    /* 🌍 i18n helper
     private String msg(String key) {
         return messageSource.getMessage(
                 key,
@@ -59,10 +52,11 @@ public class PoleServiceImpl implements PoleService {
                 LocaleContextHolder.getLocale()
         );
     }
+    */
 
     /**
      * Récupère l'intégralité des pôles d'activité enregistrés dans le système.
-     * * @return Une liste de {@link PoleResponse} modélisant l'ensemble des pôles.
+     * @return Une liste de {@link PoleResponse} modélisant l'ensemble des pôles.
      */
     @Override
     @Transactional(readOnly = true)
@@ -75,7 +69,7 @@ public class PoleServiceImpl implements PoleService {
 
     /**
      * Recherche et récupère un pôle d'activité par son identifiant technique unique.
-     * * @param id Identifiant technique du pôle à localiser.
+     * @param id Identifiant technique du pôle à localiser.
      * @return Le {@link PoleResponse} correspondant au pôle trouvé.
      * @throws RuntimeException Si aucun enregistrement ne correspond à l'identifiant fourni (message internationalisé).
      */
@@ -83,24 +77,46 @@ public class PoleServiceImpl implements PoleService {
     @Transactional(readOnly = true)
     public PoleResponse getById(Long id) {
         Pole pole = poleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(msg("pole.notfound")));
+                .orElseThrow(() -> new RuntimeException("Pôle introuvable"));
 
         return mapper.toResponse(pole);
     }
 
     /**
      * Recherche un pôle d'activité en fonction de son libellé nominatif exact.
-     * * @param nom Libellé textuel du pôle recherché (ex: "Écotourisme").
+     * @param nom Libellé textuel du pôle recherché (ex: "Écotourisme").
      * @return Le {@link PoleResponse} correspondant au pôle localisé.
-     * @throws RuntimeException Si le pôle associé au nom fourni reste introuvable (message internationalisé).
+     * @throws ResponseStatusException Si le pôle associé au nom fourni reste introuvable.
      */
     @Override
     @Transactional(readOnly = true)
     public PoleResponse getByNom(String nom) {
         Pole pole = poleRepository.findByNom(nom)
-                .orElseThrow(() -> new RuntimeException(msg("pole.nom.notfound")));
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Pôle introuvable avec le nom : " + nom
+                        )
+                );
 
         return mapper.toResponse(pole);
+    }
+
+    // ======================
+    // DELETE BY ID
+    // ======================
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
+        Pole pole = poleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pôle introuvable"));
+
+        // 🔥 règle métier
+       /* if (pole.getPrestations() != null && !pole.getPrestations().isEmpty()) {
+            throw new RuntimeException("Impossible de supprimer un pôle avec des prestations"));
+        }  */
+
+        poleRepository.deleteById(id);
     }
 
     @Override
@@ -115,17 +131,5 @@ public class PoleServiceImpl implements PoleService {
     public PoleResponse update(Long id, PoleRequest request) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    @Override
-    @Transactional
-    public void delete(Long id) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    @Transactional
-    public void deleteById(Long id) {
-        // TODO Auto-generated method stub
     }
 }
