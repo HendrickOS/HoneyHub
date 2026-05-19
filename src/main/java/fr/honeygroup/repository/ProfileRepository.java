@@ -6,26 +6,33 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 /**
- * Dépôt de données (Repository) Spring Data JPA dédié à la persistance et à la gestion de l'entité {@link Profile}.
+ * Depot de donnees (Repository) Spring Data JPA dedie a la persistance et a la gestion de l'entite {@link Profile}.
  * <p>
- * Ce composant administre les métadonnées et informations complémentaires privées (coordonnées, 
- * préférences, avatars anonymisés) rattachées aux comptes des utilisateurs de Honey Group.
+ * Ce composant administre les metadonnees et informations complementaires privees 
+ * (coordonnees, preferences) rattachees aux comptes des utilisateurs de Honey Group.
  * </p>
  */
 @Repository
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
 
     /**
-     * Localise les informations de profil complémentaires à partir de l'identifiant technique de l'utilisateur associé.
+     * Localise les informations de profil complementaires a partir de l'identifiant technique 
+     * de l'utilisateur associe.
      * <p>
-     * <strong>Sécurité & Ergonomie :</strong> Cette méthode résout la relation un-à-un (OneToOne) en cascade. 
-     * Elle permet au système d'extraire la fiche descriptive exclusive de l'appelant authentifié 
-     * sur la base de son ID de session, empêchant tout contournement ou injection d'identifiant de profil tiers.
+     * Securite et Ergonomie : Cette methode resout la relation un-a-un (OneToOne) en cascade. 
+     * Elle permet au systeme d'extraire la fiche descriptive exclusive de l'appelant authentifie 
+     * sur la base de son ID de session, empechant tout contournement ou injection d'identifiant 
+     * de profil tiers.
      * </p>
-     * * @param userId Identifiant technique unique de l'entité {@code User} propriétaire du profil.
-     * @return Un {@link Optional} englobant le profil s'il est configuré en base de données, ou vide.
+     * @param userId Identifiant technique unique de l'entite {@code User} proprietaire du profil.
+     * @return Un {@link Optional} englobant le profil s'il est configure en base de donnees, ou vide.
      */
     Optional<Profile> findByUserId(Long userId);
 
-	boolean existsByTelephone(String telephone);
+    /**
+     * Verifie l'unicite ou l'existence d'un numero de telephone dans le referentiel des profils.
+     * @param telephone Le numero de telephone a verifier.
+     * @return true si le numero est deja utilise par un profil, false sinon.
+     */
+    boolean existsByTelephone(String telephone);
 }

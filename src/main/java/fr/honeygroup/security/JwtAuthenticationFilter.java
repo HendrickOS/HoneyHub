@@ -16,6 +16,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * Filtre d'authentification par jeton JWT.
+ * <p>
+ * Ce composant intercepte chaque requete entrante pour verifier la presence et la validite 
+ * d'un jeton JWT dans l'en-tete Authorization. Si le jeton est valide, le contexte de 
+ * securite de Spring est peuple avec les informations de l'utilisateur.
+ * </p>
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -23,6 +31,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
+    /**
+     * Methode principale executant la logique de filtrage par requete.
+     * <p>
+     * Le filtre :
+     * 1. Verifie l'entete "Authorization".
+     * 2. Extrait l'email utilisateur du token via {@link JwtService}.
+     * 3. Valide le token par rapport aux donnees de l'utilisateur.
+     * 4. Enregistre l'authentification dans le {@link SecurityContextHolder}.
+     * </p>
+     * @param request La requete HTTP entrante.
+     * @param response La reponse HTTP sortante.
+     * @param filterChain La chaine de filtres a poursuivre.
+     */
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
@@ -34,17 +55,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String userEmail;
         
+        // Si l'entete est absente ou ne respecte pas le format "Bearer ", on passe au filtre suivant
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
         
+        // Extraction du jeton et de l'email
         jwt = authHeader.substring(7);
         userEmail = jwtService.extractUsername(jwt);
         
+        // Verification si l'utilisateur n'est pas encore authentifie dans le contexte
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
             
+            // Validation du token et mise a jour du contexte de securite
             if (jwtService.isTokenValid(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
