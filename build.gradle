@@ -53,10 +53,6 @@ dependencies {
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
-    
-        // SQL SERVER DRIVER
-    // ===============================
-    runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
 
     // --- TESTS (Bloc 3 : Tes dépendances spécifiques) ---
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
