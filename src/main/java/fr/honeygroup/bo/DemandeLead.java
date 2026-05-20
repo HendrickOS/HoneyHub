@@ -85,9 +85,13 @@ public class DemandeLead {
      * Mappé en Lazy Loading pour l'optimisation des requêtes. Le champ est ignoré lors des sérialisations JSON.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_user", nullable = false)
+    @JoinColumn(name = "id_user", nullable = true)
     @JsonIgnore
     private User user;
+    
+ // ✅ infos visiteur (si non connecté)
+    private String nomContact;
+    private String emailContact;
 
     /**
      * Le pôle d'activité concerné par cette opportunité d'affaires (Écotourisme ou IT Outsourcing).
@@ -100,18 +104,18 @@ public class DemandeLead {
     /**
      * La prestation du catalogue visée par la demande (optionnelle pour l'IT Outsourcing sur-mesure).
      */
-    @ManyToOne(fetch = FetchType.LAZY)
+   /* @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_prestation")
     @JsonIgnore
-    private Prestation prestation;
+    private Prestation prestation;*/
 
     /**
      * Bloc de notes ou compte-rendu interne complété par les équipes de Honey Group.
      * L'annotation @Lob permet d'y stocker un historique de commentaires au format TEXT ou LONGTEXT.
      */
-    @Lob
+   /* @Lob
     @Column(name = "commentaire_interne")
-    private String commentaireInterne;
+    private String commentaireInterne;*/
 
     /**
      * Liste des caractéristiques ou critères sur-mesure rattachés à cette demande d'informations.

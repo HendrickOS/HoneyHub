@@ -3,7 +3,10 @@ package fr.honeygroup.bo.response;
 import lombok.Builder;
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
+
+import fr.honeygroup.bo.DetailsSpecifiques;
 
 /**
  * Objet de transfert de données (DTO Response) modélisant la réponse structurée renvoyée
@@ -53,16 +56,20 @@ public class LeadResponse {
      * Identifiant technique unique du pôle d'activité concerné (Écotourisme ou IT Outsourcing).
      */
     private Long poleId;
+    
+    private String nomContact;
+    private String emailContact;
+    private String poleNom;
 
     /**
      * Identifiant unique de la prestation catalogue ciblée (peut être nul si expression de besoin purement sur-mesure).
      */
-    private Long prestationId;
+   // private Long prestationId;
 
     /**
      * Libellé commercial de la prestation catalogue ciblée.
      */
-    private String prestationTitre;
+    //private String prestationTitre;
 
     /**
      * Cartographie dictionnaire des besoins ou critères spécifiques extraits de la base de données.

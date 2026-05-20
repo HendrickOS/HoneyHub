@@ -15,11 +15,17 @@ import java.util.Map;
  */
 @Data
 public class LeadRequest {
+	@Size(min = 2, max = 100)
+	private String nom;
+	
+	
+	@Email(message = "Email invalide")
+    private String email;
 
     /**
      * Identifiant technique unique de l'utilisateur (client ou prospect) initiant la demande.
      */
-    @NotNull(message = "L'ID de l'utilisateur est obligatoire")
+   // @NotNull(message = "L'ID de l'utilisateur est obligatoire")
     private Long userId;
 
     /**
@@ -47,7 +53,7 @@ public class LeadRequest {
      * Bloc de texte optionnel permettant à l'utilisateur d'ajouter une note libre ou 
      * un commentaire contextuel lors de la saisie de son formulaire.
      */
-    private String commentaireInterne;
+    //private String commentaireInterne;
 
     /**
      * Dictionnaire dynamique de critères complémentaires soumis via le formulaire de contact.

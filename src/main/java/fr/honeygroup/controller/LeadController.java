@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
  */
 @RestController
 @RequestMapping("/api/leads")
+@CrossOrigin
 @RequiredArgsConstructor
 public class LeadController {
 

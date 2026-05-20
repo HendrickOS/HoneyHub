@@ -50,38 +50,59 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        
+     
         final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        final String userEmail;
-        
-        // Si l'entete est absente ou ne respecte pas le format "Bearer ", on passe au filtre suivant
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+     
+        // =========================
+        // 🔥 SAFE CHECK (IMPORTANT)
+        // =========================
+        if (authHeader == null ||
+            authHeader.isBlank() ||
+            !authHeader.startsWith("Bearer ")) {
+     
             filterChain.doFilter(request, response);
             return;
         }
-        
-        // Extraction du jeton et de l'email
-        jwt = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(jwt);
-        
-        // Verification si l'utilisateur n'est pas encore authentifie dans le contexte
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-            
-            // Validation du token et mise a jour du contexte de securite
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
+     
+        String jwt = authHeader.substring(7);
+     
+        if (jwt == null || jwt.equals("null")) {
+            filterChain.doFilter(request, response);
+            return;
         }
+     
+        try {
+            String userEmail = jwtService.extractUsername(jwt);
+     
+            if (userEmail != null &&
+                SecurityContextHolder.getContext().getAuthentication() == null) {
+     
+                UserDetails userDetails =
+                        this.userDetailsService.loadUserByUsername(userEmail);
+     
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+     
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
+     
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request)
+                    );
+     
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            }
+     
+        } catch (Exception e) {
+            // 🔥 IMPORTANT: NE JAMAIS CRASHER
+            filterChain.doFilter(request, response);
+            return;
+        }
+     
         filterChain.doFilter(request, response);
     }
 }

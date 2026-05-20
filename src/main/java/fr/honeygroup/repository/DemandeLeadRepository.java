@@ -68,5 +68,5 @@ public interface DemandeLeadRepository extends JpaRepository<DemandeLead, Long> 
      * @param poleId L'identifiant technique du pole.
      * @return Une liste de {@link DemandeLead} filtrees par le pole de la prestation.
      */
-    List<DemandeLead> findByPrestation_Pole_Id(Long poleId);
+   // List<DemandeLead> findByPrestation_Pole_Id(Long poleId);
 }
