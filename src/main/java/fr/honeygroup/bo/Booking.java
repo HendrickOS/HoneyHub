@@ -61,9 +61,10 @@ public class Booking {
     /**
      * Date et heure de l'enregistrement de la réservation par le système.
      * Non modifiable après l'insertion initiale pour garantir l'intégrité de l'audit.
+     * Gérée automatiquement via le cycle de vie JPA (@PrePersist).
      */
-    @Column(name = "date_creation_resa", updatable = false)
-    private LocalDateTime dateCreationResa = LocalDateTime.now();
+    @Column(name = "date_creation_resa", updatable = false, nullable = false)
+    private LocalDateTime dateCreationResa;
 
     /**
      * Statut actuel du dossier dans le Workflow métier de Honey Group.
@@ -90,4 +91,13 @@ public class Booking {
      */
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Payment> payments;
+
+    /**
+     * Hook de cycle de vie JPA exécuté automatiquement avant l'insertion en base de données.
+     * Garantit l'intégrité de l'audit temporel sans surcharger la couche de service technique (BLL).
+     */
+    @PrePersist
+    protected void onCreate() {
+        this.dateCreationResa = LocalDateTime.now();
+    }
 }
