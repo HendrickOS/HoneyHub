@@ -50,10 +50,7 @@ public class DetailsSpecifiques {
      * Conteneur alternatif permettant d'encapsuler des structures ou des configurations complexes au format JSON.
      * Garantit une interopérabilité de type NoSQL au sein de l'environnement relationnel SQL.
      */
-    @Lob
-    @Column(name = "valeur_json")
-    private String valeurJson;
-
+   
     /**
      * Le dossier de prospection (DemandeLead) auquel est rattaché ce complément d'information.
      * <p>
