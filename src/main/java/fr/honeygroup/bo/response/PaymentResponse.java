@@ -2,8 +2,12 @@ package fr.honeygroup.bo.response;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import fr.honeygroup.enumeration.StatutPayment;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Objet de transfert de données (DTO Response) modélisant la réponse structurée 
@@ -16,6 +20,8 @@ import lombok.Data;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PaymentResponse {
 
     /**
@@ -44,9 +50,11 @@ public class PaymentResponse {
     private LocalDateTime datePaiement;
 
     /**
-     * État du traitement comptable de l'opération (ex: EN_VERIFICATION, VALIDE, REJETE).
+     * État du traitement comptable de l'opération.
+     * Utilise directement l'énumération {@link StatutPayment} pour garantir la cohérence 
+     * entre la BLL et les couches d'exposition.
      */
-    private String statutPaiement;
+    private StatutPayment statutPaiement;
 
     /**
      * URL ou chemin d'accès sécurisé vers le fichier justificatif téléversé (PDF ou image du reçu).

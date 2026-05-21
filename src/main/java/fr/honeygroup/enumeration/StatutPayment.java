@@ -17,7 +17,12 @@ public enum StatutPayment {
      * par le système et se trouve en attente d'un contrôle visuel et bancaire de la part du gérant.
      * </p>
      */
-    EN_VERIFICATION,
+    EN_VERIFICATION {
+        @Override
+        public boolean peutBasculerVers(StatutPayment nouveauStatut) {
+            return nouveauStatut == VALIDE || nouveauStatut == REJETE;
+        }
+    },
 
     /**
      * Signifie que le gérant a validé manuellement la conformité du justificatif 
@@ -26,7 +31,12 @@ public enum StatutPayment {
      * Ce statut déclenche généralement la validation définitive de la réservation (Booking) associée.
      * </p>
      */
-    VALIDE,
+    VALIDE {
+        @Override
+        public boolean peutBasculerVers(StatutPayment nouveauStatut) {
+            return false; // État final après validation
+        }
+    },
 
     /**
      * Signifie que le paiement a été refusé par l'équipe de gestion.
@@ -35,5 +45,18 @@ public enum StatutPayment {
      * n'a jamais été reçu après le délai légal. Un rejet nécessite une nouvelle action du client.
      * </p>
      */
-    REJETE
+    REJETE {
+        @Override
+        public boolean peutBasculerVers(StatutPayment nouveauStatut) {
+            return false; // État final après rejet
+        }
+    };
+
+    /**
+     * Valide de manière défensive si la transition vers un nouvel état est légale
+     * selon les règles du workflow Honey Group.
+     * * @param nouveauStatut Le statut cible vers lequel le paiement tente de migrer.
+     * @return true si le changement d'état respecte le workflow, sinon false.
+     */
+    public abstract boolean peutBasculerVers(StatutPayment nouveauStatut);
 }

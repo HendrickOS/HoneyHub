@@ -36,6 +36,10 @@ import fr.honeygroup.enumeration.Role;
  * </ul>
  * </p>
  */
+/**
+ * Configuration maîtresse de la sécurité applicative (Spring Security 6+ & JWT).
+ * Active la sécurisation fine par annotations (@PreAuthorize) au niveau des méthodes.
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity // Active la sécurisation fine par annotations (@PreAuthorize) au niveau de la BLL
@@ -178,6 +182,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("*")); // Permet l'accès depuis n'importe quelle origine source
+        // TODO: En production, remplacer "*" par l'URL réelle de ton application Frontend
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
         
