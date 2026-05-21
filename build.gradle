@@ -27,7 +27,7 @@ repositories {
 dependencies {
 
     // ==========================================
-    // 🧱 BLOC 1 : ECOSYSTEME CORE & SECURITE (SPRING BOOT)
+    // BLOC 1 : ECOSYSTEME CORE & SECURITE (SPRING BOOT)
     // ==========================================
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -42,7 +42,7 @@ dependencies {
     runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
     
     // ==========================================
-    // 🗄️ BLOC 2 : PERSISTANCE & PERSPECTIVES DEV
+    // BLOC 2 : PERSISTANCE & PERSPECTIVES DEV
     // ==========================================
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.mysql:mysql-connector-j'
@@ -51,7 +51,7 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.16'
     
     // ==========================================
-    // ⚙️ BLOC 3 : COMPILATION, AUTOMATISATION & MAPPING (APT)
+    // BLOC 3 : COMPILATION, AUTOMATISATION & MAPPING (APT)
     // ==========================================
     // Lombok : Génération automatisée des Getters, Setters, et patterns Builder
     compileOnly 'org.projectlombok:lombok'
@@ -63,7 +63,7 @@ dependencies {
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
     // ==========================================
-    // 🧪 BLOC 4 : ASSURANCE QUALITE & CAHIER DE RECETTE (TESTS)
+    // BLOC 4 : ASSURANCE QUALITE & CAHIER DE RECETTE (TESTS)
     // ==========================================
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     /*
