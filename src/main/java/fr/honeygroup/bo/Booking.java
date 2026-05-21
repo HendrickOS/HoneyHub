@@ -1,6 +1,7 @@
 package fr.honeygroup.bo;
 
 import enumeration.StatutBooking;
+import enumeration.TypeReservation;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -57,6 +58,19 @@ public class Booking {
     @NotNull
     @Column(name = "nb_places", nullable = false)
     private Integer nbPlaces = 1;
+    
+    /**
+     * Définit la nature de la réservation pour orienter le workflow métier.
+     * <p>
+     * Le type "SESSION" correspond au catalogue standard (tourisme), 
+     * tandis que "SUR_MESURE" est réservé aux prestations IT spécifiques.
+     * Cette contrainte est obligatoire pour assurer la traçabilité des dossiers.
+     * </p>
+     */
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type_reservation", nullable = false, length = 20)
+    private TypeReservation typeReservation;
 
     /**
      * Date et heure de l'enregistrement de la réservation par le système.
@@ -98,6 +112,8 @@ public class Booking {
      */
     @PrePersist
     protected void onCreate() {
-        this.dateCreationResa = LocalDateTime.now();
+        if (this.dateCreationResa == null) {
+            this.dateCreationResa = LocalDateTime.now();
+        }
     }
 }

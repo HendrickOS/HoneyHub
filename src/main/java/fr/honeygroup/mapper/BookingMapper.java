@@ -69,6 +69,7 @@ public interface BookingMapper {
     @Mapping(target = "payments", ignore = true)
     @Mapping(target = "montantTotal", ignore = true)
     @Mapping(target = "statut", ignore = true)
+    @Mapping(target = "dateCreationResa", ignore = true)
     @Mapping(source = "userId", target = "user.id")
     
     // Liaison pivot de la requête vers la structure Session

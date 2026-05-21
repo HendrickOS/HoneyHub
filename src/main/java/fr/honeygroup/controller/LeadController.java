@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
  */
 @RestController
 @RequestMapping("/api/leads")
-@CrossOrigin
+@CrossOrigin(origins = "*") // Permet l'interconnexion globale de l'API avec les applications Frontend (React, Vue, Angular)
 @RequiredArgsConstructor
 public class LeadController {
 

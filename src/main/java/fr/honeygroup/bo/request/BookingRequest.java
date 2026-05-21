@@ -1,5 +1,6 @@
 package fr.honeygroup.bo.request;
 
+import enumeration.TypeReservation;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -37,4 +38,12 @@ public class BookingRequest {
     @NotNull(message = "Le nombre de personnes est obligatoire")
     @Min(value = 1, message = "Il faut au moins une personne")
     private Integer nbPersonnes;
+    
+    /**
+     * Le type de la réservation sélectionné par le client.
+     * Permet d'orienter le workflow métier (ex: "SESSION" pour le catalogue, 
+     * "SUR_MESURE" pour l'IT).
+     */
+    @NotNull(message = "Le type de réservation est obligatoire")
+    private TypeReservation typeReservation;
 }

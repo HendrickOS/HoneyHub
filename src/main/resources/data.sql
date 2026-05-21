@@ -3,26 +3,26 @@
 -- =========================================================================
 
 -- 1. NETTOYAGE SÉCURISÉ DES TABLES (CONTOURNEMENT DES RESTRICTIONS TRUNCATE)
-SET FOREIGN_KEY_CHECKS = 0;
+--SET FOREIGN_KEY_CHECKS = 0;
 
-DELETE FROM ao7dvw_honeygroup_db.payment;
-DELETE FROM ao7dvw_honeygroup_db.booking;
-DELETE FROM ao7dvw_honeygroup_db.session;
-DELETE FROM ao7dvw_honeygroup_db.prestation;
-DELETE FROM ao7dvw_honeygroup_db.photo;
-DELETE FROM ao7dvw_honeygroup_db.pole;
-DELETE FROM ao7dvw_honeygroup_db.user;
+--DELETE FROM ao7dvw_honeygroup_db.payment;
+--DELETE FROM ao7dvw_honeygroup_db.booking;
+--DELETE FROM ao7dvw_honeygroup_db.session;
+--DELETE FROM ao7dvw_honeygroup_db.prestation;
+--DELETE FROM ao7dvw_honeygroup_db.photo;
+--DELETE FROM ao7dvw_honeygroup_db.pole;
+--DELETE FROM ao7dvw_honeygroup_db.user;
 
 -- Réinitialisation des compteurs d'auto-incrément pour repartir à 1
-ALTER TABLE ao7dvw_honeygroup_db.payment AUTO_INCREMENT = 1;
-ALTER TABLE ao7dvw_honeygroup_db.booking AUTO_INCREMENT = 1;
-ALTER TABLE ao7dvw_honeygroup_db.session AUTO_INCREMENT = 1;
-ALTER TABLE ao7dvw_honeygroup_db.prestation AUTO_INCREMENT = 1;
-ALTER TABLE ao7dvw_honeygroup_db.photo AUTO_INCREMENT = 1;
-ALTER TABLE ao7dvw_honeygroup_db.pole AUTO_INCREMENT = 1;
-ALTER TABLE ao7dvw_honeygroup_db.user AUTO_INCREMENT = 1;
-
-SET FOREIGN_KEY_CHECKS = 1;
+--ALTER TABLE ao7dvw_honeygroup_db.payment AUTO_INCREMENT = 1;
+--ALTER TABLE ao7dvw_honeygroup_db.booking AUTO_INCREMENT = 1;
+--ALTER TABLE ao7dvw_honeygroup_db.session AUTO_INCREMENT = 1;
+--ALTER TABLE ao7dvw_honeygroup_db.prestation AUTO_INCREMENT = 1;
+--ALTER TABLE ao7dvw_honeygroup_db.photo AUTO_INCREMENT = 1;
+--ALTER TABLE ao7dvw_honeygroup_db.pole AUTO_INCREMENT = 1;
+--ALTER TABLE ao7dvw_honeygroup_db.user AUTO_INCREMENT = 1;
+--
+--SET FOREIGN_KEY_CHECKS = 1;
 
 -- =========================================================================
 -- 2. INSERTION DE L'UTILISATEUR TECHNIQUE DE TEST (id = 10)
@@ -96,10 +96,10 @@ VALUES
 -- 7. INSERTION DES RÉSERVATIONS DE TEST (Booking)
 -- =========================================================================
 INSERT IGNORE INTO ao7dvw_honeygroup_db.booking 
-(user_id, session_id, date_creation_resa, statut, nb_places, montant_total)
+(user_id, session_id, date_creation_resa, statut, nb_places, montant_total, type_reservation)
 VALUES
 -- 2 places pour le Trek Nord (id_session = 1) -> 2400.00€
-(11, 1, NOW(), 'CONFIRME', 2, 2400.00),
+(11, 1, NOW(), 'CONFIRME', 2, 2400.00, 'SESSION'),
 
 -- 1 place pour l'Allée des Baobabs (id_session = 3) -> 1450.00€
-(11, 3, NOW(), 'EN_ATTENTE_PAIEMENT', 1, 1450.00);
+(11, 3, NOW(), 'EN_ATTENTE_PAIEMENT', 1, 1450.00, 'SESSION');

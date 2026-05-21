@@ -14,6 +14,8 @@ import fr.honeygroup.bo.Session;
 import fr.honeygroup.bo.User;
 import fr.honeygroup.bo.request.BookingRequest;
 import fr.honeygroup.bo.response.BookingResponse;
+import fr.honeygroup.exception.GlobalExceptionHandler.BusinessSecurityException;
+import fr.honeygroup.exception.GlobalExceptionHandler.SessionCapacityException;
 import fr.honeygroup.mapper.BookingMapper;
 import fr.honeygroup.repository.BookingRepository;
 import fr.honeygroup.repository.SessionRepository;
@@ -71,7 +73,8 @@ public class BookingService {
                               utilisateurConnecte.getRole() == Role.MANAGER;
             
             if (!isStaff) {
-                throw new RuntimeException("Accès refusé : Vos privilèges actuels ne vous permettent pas de réserver pour un tiers.");
+                // CORRECTION ICI : Utilisation de l'exception spécifique pour déclencher le 403
+                throw new BusinessSecurityException("Accès refusé : Vos privilèges actuels ne vous permettent pas de réserver pour un tiers.");
             }
         } else {
             // Si le champ userId est omis ou conforme, on force l'injection de l'ID de l'utilisateur authentifié
@@ -97,7 +100,8 @@ public class BookingService {
         int placesDemandees = request.getNbPersonnes() != null ? request.getNbPersonnes() : 1;
         
         if (session.getNbInscrits() + placesDemandees > session.getCapaciteMax()) {
-            throw new RuntimeException("Opération impossible : La capacité maximale de cette session est atteinte. Places restantes : " 
+            // CORRECTION ICI : Utilisation de l'exception spécifique pour déclencher le 400
+            throw new SessionCapacityException("Opération impossible : La capacité maximale de cette session est atteinte. Places restantes : " 
                     + (session.getCapaciteMax() - session.getNbInscrits()));
         }
 
@@ -193,7 +197,8 @@ public class BookingService {
         // Validation stricte de la propriété du dossier
         String emailConnecte = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!booking.getUser().getEmail().equals(emailConnecte)) {
-            throw new RuntimeException("Violation d'accès : Vous n'êtes pas propriétaire de ce dossier de réservation.");
+            // CORRECTION ICI : Utilisation de l'exception spécifique pour déclencher le 403
+            throw new BusinessSecurityException("Violation d'accès : Vous n'êtes pas propriétaire de ce dossier de réservation.");
         }
 
         // Mutation du statut vers l'étape d'examen par le personnel de Honey Group

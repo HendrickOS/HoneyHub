@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import enumeration.TypeReservation;
 import lombok.Builder;
 import lombok.Data;
 
@@ -24,6 +25,15 @@ public class BookingResponse {
      * Identifiant technique unique de la réservation.
      */
     private Long id;
+    
+    /**
+     * Type de la réservation permettant d'identifier le workflow métier associé.
+     * <p>
+     * Indique s'il s'agit d'une session de catalogue standard ("SESSION") 
+     * ou d'une prestation spécifique ("SUR_MESURE").
+     * </p>
+     */
+    private TypeReservation typeReservation;
     
     // ============================================================================
     // INFORMATIONS CLIENT

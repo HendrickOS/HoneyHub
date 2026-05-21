@@ -70,20 +70,20 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Gestion globale des erreurs d'exécution internes imprévues (RuntimeException non spécialisées).
-     * @param ex L'anomalie système ou l'erreur de logique brute interceptée.
-     * @return Une réponse HTTP 500 INTERNAL_SERVER_ERROR masquant les détails sensibles de l'infrastructure.
+     * Intercepte les exceptions d'accès ou de logique métier frauduleuse (ex: réservation pour autrui)
+     * afin d'attribuer un statut HTTP 403 sémantiquement exact au lieu d'une erreur 500.
+     * @param ex L'exception de logique métier interceptée.
+     * @return Une réponse HTTP 403 FORBIDDEN structurée.
      */
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Object> handleRuntimeException(RuntimeException ex) {
-        // On renvoie le message de l'exception avec un code 500 structuré pour l'API globale
+    @ExceptionHandler(BusinessLogicException.class)
+    public ResponseEntity<Object> handleBusinessLogicException(BusinessLogicException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        body.put("status", HttpStatus.FORBIDDEN.value());
         body.put("error", "Business Logic Error");
         body.put("message", ex.getMessage());
 
-        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
     }
 
     /**
@@ -127,6 +127,22 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Gestion globale des erreurs d'exécution internes imprévues (RuntimeException non spécialisées).
+     * @param ex L'anomalie système ou l'erreur de logique brute interceptée.
+     * @return Une réponse HTTP 500 INTERNAL_SERVER_ERROR masquant les détails sensibles de l'infrastructure.
+     */
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Object> handleRuntimeException(RuntimeException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        body.put("error", "Internal Server Error");
+        body.put("message", ex.getMessage());
+
+        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     // ============================================================================
     // CLASSES EXTENSIONS D'EXCEPTIONS MÉTIERS
     // ============================================================================
@@ -145,6 +161,15 @@ public class GlobalExceptionHandler {
      */
     public static class BusinessSecurityException extends RuntimeException {
         public BusinessSecurityException(String message) {
+            super(message);
+        }
+    }
+
+    /**
+     * Exception levée lors d'un conflit de validation ou d'un droit non accordé au niveau des services métiers.
+     */
+    public static class BusinessLogicException extends RuntimeException {
+        public BusinessLogicException(String message) {
             super(message);
         }
     }
