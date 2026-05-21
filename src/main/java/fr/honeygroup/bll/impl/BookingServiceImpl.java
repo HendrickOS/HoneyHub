@@ -7,14 +7,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import enumeration.Role;
-import enumeration.StatutBooking;
 import fr.honeygroup.bll.BookingService;
 import fr.honeygroup.bo.Booking;
 import fr.honeygroup.bo.Session;
 import fr.honeygroup.bo.User;
 import fr.honeygroup.bo.request.BookingRequest;
 import fr.honeygroup.bo.response.BookingResponse;
+import fr.honeygroup.enumeration.Role;
+import fr.honeygroup.enumeration.StatutBooking;
 import fr.honeygroup.exception.GlobalExceptionHandler.BusinessSecurityException;
 import fr.honeygroup.exception.GlobalExceptionHandler.SessionCapacityException;
 import fr.honeygroup.mapper.BookingMapper;

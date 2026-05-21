@@ -55,7 +55,7 @@ public interface LeadService {
      * @param statut La nouvelle valeur de l'enumeration StatutLead a appliquer.
      * @return Le DTO LeadResponse mis a jour avec son nouveau positionnement transitionnel.
      */
-    LeadResponse updateLeadStatus(Long id, enumeration.StatutLead statut);
+    LeadResponse updateLeadStatus(Long id, fr.honeygroup.enumeration.StatutLead statut);
 
     /**
      * Supprime definitivement une opportunite commerciale du systeme d'information.

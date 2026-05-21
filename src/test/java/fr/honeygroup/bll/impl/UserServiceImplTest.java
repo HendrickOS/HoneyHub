@@ -14,11 +14,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import enumeration.Role;
 import fr.honeygroup.bo.Profile;
 import fr.honeygroup.bo.User;
 import fr.honeygroup.bo.request.ProfileUpdateRequest;
 import fr.honeygroup.bo.response.UserProfileResponse;
+import fr.honeygroup.enumeration.Role;
 import fr.honeygroup.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)

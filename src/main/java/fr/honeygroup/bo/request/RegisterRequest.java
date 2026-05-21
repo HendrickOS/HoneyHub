@@ -1,6 +1,6 @@
 package fr.honeygroup.bo.request;
 
-import enumeration.Role;
+import fr.honeygroup.enumeration.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

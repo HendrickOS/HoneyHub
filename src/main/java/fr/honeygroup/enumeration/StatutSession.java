@@ -1,4 +1,4 @@
-package enumeration;
+package fr.honeygroup.enumeration;
 
 /**
  * Cycle de vie opérationnel d'une session fixe du pôle Écotourisme.

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;
 
-import enumeration.Role;
+import fr.honeygroup.enumeration.Role;
 
 @DisplayName("Tests unitaires de l'entité User (Sécurité & Profil)")
 class UserTest {

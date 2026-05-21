@@ -1,6 +1,5 @@
 package fr.honeygroup.bll.impl;
 
-import enumeration.Role;
 import fr.honeygroup.bll.AuthService;
 import fr.honeygroup.bo.PasswordResetToken;
 import fr.honeygroup.bo.Profile;
@@ -8,6 +7,7 @@ import fr.honeygroup.bo.RefreshToken;
 import fr.honeygroup.bo.User;
 import fr.honeygroup.bo.request.*;
 import fr.honeygroup.bo.response.TokenResponse;
+import fr.honeygroup.enumeration.Role;
 import fr.honeygroup.repository.PasswordResetTokenRepository;
 import fr.honeygroup.repository.ProfileRepository;
 import fr.honeygroup.repository.RefreshTokenRepository;

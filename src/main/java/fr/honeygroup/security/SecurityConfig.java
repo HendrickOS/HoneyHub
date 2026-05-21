@@ -22,7 +22,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import enumeration.Role;
+import fr.honeygroup.enumeration.Role;
 
 /**
  * Configuration maîtresse de la sécurité applicative (Spring Security 6+ & JWT).

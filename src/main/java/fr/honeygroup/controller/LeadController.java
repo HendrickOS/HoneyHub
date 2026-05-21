@@ -78,7 +78,7 @@ public class LeadController {
      * @return Une ResponseEntity contenant le DTO LeadResponse mis a jour et un code 200 OK.
      */
     @PutMapping("/{id}/status")
-    public ResponseEntity<LeadResponse> updateLeadStatus(@PathVariable Long id, @RequestParam enumeration.StatutLead statut) {
+    public ResponseEntity<LeadResponse> updateLeadStatus(@PathVariable Long id, @RequestParam fr.honeygroup.enumeration.StatutLead statut) {
         return ResponseEntity.ok(leadService.updateLeadStatus(id, statut));
     }
 

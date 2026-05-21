@@ -1,4 +1,4 @@
-package enumeration;
+package fr.honeygroup.enumeration;
 
 /**
  * Énumération définissant les rôles et niveaux d'habilitation (RBAC) 

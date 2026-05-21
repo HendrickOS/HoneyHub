@@ -1,6 +1,5 @@
 package fr.honeygroup.bll.impl;
 
-import enumeration.StatutPrestation;
 import fr.honeygroup.bll.PrestationService;
 import fr.honeygroup.bo.Circuit;
 import fr.honeygroup.bo.CoursLangue;
@@ -10,6 +9,7 @@ import fr.honeygroup.bo.request.CircuitRequest;
 import fr.honeygroup.bo.request.CoursLangueRequest;
 import fr.honeygroup.bo.request.PrestationRequest;
 import fr.honeygroup.bo.response.PrestationResponse;
+import fr.honeygroup.enumeration.StatutPrestation;
 import fr.honeygroup.mapper.PrestationMapper;
 import fr.honeygroup.repository.CircuitRepository;
 import fr.honeygroup.repository.CoursLangueRepository;

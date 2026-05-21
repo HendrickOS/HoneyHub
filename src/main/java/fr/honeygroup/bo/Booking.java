@@ -1,13 +1,14 @@
 package fr.honeygroup.bo;
 
-import enumeration.StatutBooking;
-import enumeration.TypeReservation;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import fr.honeygroup.enumeration.StatutBooking;
+import fr.honeygroup.enumeration.TypeReservation;
 
 /**
  * Entité représentant une réservation (Booking) au sein du pôle Écotourisme.

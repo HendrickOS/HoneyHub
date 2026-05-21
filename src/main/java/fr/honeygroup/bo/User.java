@@ -1,12 +1,14 @@
 package fr.honeygroup.bo;
 
-import enumeration.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import fr.honeygroup.enumeration.Role;
+
 import java.util.Collection;
 import java.util.List;
 

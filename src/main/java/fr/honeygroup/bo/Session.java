@@ -3,7 +3,7 @@ package fr.honeygroup.bo;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import enumeration.StatutSession;
+import fr.honeygroup.enumeration.StatutSession;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

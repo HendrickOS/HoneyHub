@@ -1,4 +1,4 @@
-package enumeration;
+package fr.honeygroup.enumeration;
 
 /**
  * Représente les différents états possibles d'un flux financier ou règlement (Payment) 

@@ -1,6 +1,6 @@
 package fr.honeygroup.bo.request;
 
-import enumeration.StatutPrestation;
+import fr.honeygroup.enumeration.StatutPrestation;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

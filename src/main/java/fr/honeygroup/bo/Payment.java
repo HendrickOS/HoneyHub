@@ -7,7 +7,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import enumeration.StatutPayment;
+import fr.honeygroup.enumeration.StatutPayment;
 
 /**
  * Entité représentant un flux financier ou un règlement (Payment) adossé à un dossier.

@@ -12,8 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import enumeration.StatutBooking;
-import enumeration.TypeReservation;
+import fr.honeygroup.enumeration.StatutBooking;
+import fr.honeygroup.enumeration.TypeReservation;
 
 @DisplayName("Tests unitaires de l'entité Booking (Réservation)")
 class BookingTest {

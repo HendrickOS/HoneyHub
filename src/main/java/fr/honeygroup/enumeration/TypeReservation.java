@@ -1,4 +1,4 @@
-package enumeration;
+package fr.honeygroup.enumeration;
 
 /**
  * Énumération des types de services proposés par Honey Group.

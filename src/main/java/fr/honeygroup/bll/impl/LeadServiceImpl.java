@@ -172,7 +172,7 @@ public class LeadServiceImpl implements LeadService {
      */
     @Override
     @Transactional
-    public LeadResponse updateLeadStatus(Long id, enumeration.StatutLead statut) {
+    public LeadResponse updateLeadStatus(Long id, fr.honeygroup.enumeration.StatutLead statut) {
 
         DemandeLead lead = demandeLeadRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Lead introuvable"));

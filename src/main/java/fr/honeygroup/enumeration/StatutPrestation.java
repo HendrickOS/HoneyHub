@@ -1,4 +1,4 @@
-package enumeration;
+package fr.honeygroup.enumeration;
 
 /**
  * Énumération modélisant les états de visibilité et de cycle de vie des prestations

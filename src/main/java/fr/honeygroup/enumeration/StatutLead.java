@@ -1,4 +1,4 @@
-package enumeration;
+package fr.honeygroup.enumeration;
 
 /**
  * Énumération modélisant les étapes successives du tunnel de conversion commerciale (CRM)

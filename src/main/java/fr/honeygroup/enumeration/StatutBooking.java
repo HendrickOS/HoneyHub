@@ -1,4 +1,4 @@
-package enumeration;
+package fr.honeygroup.enumeration;
 
 /**
  * Énumération modélisant les états successifs du cycle de vie d'une réservation (Workflow Booking)
