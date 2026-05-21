@@ -7,6 +7,8 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import enumeration.StatutPayment;
+
 /**
  * Entité représentant un flux financier ou un règlement (Payment) adossé à un dossier.
  * <p>
@@ -78,9 +80,13 @@ public class Payment {
     private LocalDateTime datePaiement = LocalDateTime.now();
 
     /**
-     * État d'avancement de la vérification comptable du paiement (ex: EN VERIFICATION, VALIDE, REJETE).
-     * Initialisé par défaut au statut de contrôle restrictif "EN VERIFICATION".
+     * État d'avancement de la vérification comptable du paiement.
+     * Persisté sous forme de chaîne de caractères (String) en base de données pour une meilleure lisibilité SQL.
+     * Initialisé par défaut au statut de contrôle restrictif {@link StatutPayment#EN_VERIFICATION}.
      */
-    @Column(name = "statut_paiement", length = 50)
-    private String statutPaiement = "EN VERIFICATION";
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "statut_paiement", nullable = false, length = 50)
+    @Builder.Default
+    private StatutPayment statutPaiement = StatutPayment.EN_VERIFICATION;
 }
