@@ -1,12 +1,10 @@
 package fr.honeygroup.bo.response;
 
-import lombok.Builder;
-import lombok.Data;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
-import fr.honeygroup.bo.DetailsSpecifiques;
+import lombok.Builder;
+import lombok.Data;
 
 /**
  * Objet de transfert de données (DTO Response) modélisant la réponse structurée renvoyée
@@ -14,7 +12,8 @@ import fr.honeygroup.bo.DetailsSpecifiques;
  * <p>
  * Ce DTO sécurise l'exposition des opportunités commerciales. Il transforme la collection 
  * relationnelle de spécifications en une structure clé/valeur (Map) épurée, facilitant l'affichage 
- * des besoins sur-mesure (pôle IT ou Écotourisme) côté Frontend.
+ * des besoins sur-mesure (pôle IT ou Écotourisme) côté Frontend. Il supporte de manière transparente 
+ * la restitution des profils clients enregistrés ou des simples visiteurs anonymes.
  * </p>
  */
 @Data
@@ -42,13 +41,13 @@ public class LeadResponse {
     private String source;
 
     /**
-     * Identifiant technique unique de l'utilisateur ou prospect émetteur.
+     * Identifiant technique unique de l'utilisateur émetteur (nul si la demande provient d'un visiteur anonyme).
      */
     private Long userId;
 
     /**
-     * Identité civile agrégée de l'émetteur, formatée en "NOM Prénom" par le composant de mapping 
-     * pour simplifier l'exploitation sur le tableau de bord des gestionnaires.
+     * Identité civile agrégée de l'émetteur enregistré, formatée en "NOM Prénom" par le composant de mapping 
+     * pour simplifier l'exploitation sur le tableau de bord des gestionnaires (nul si parcours visiteur).
      */
     private String userNomComplet;
 
@@ -57,19 +56,28 @@ public class LeadResponse {
      */
     private Long poleId;
     
+    /**
+     * Nom renseigné par le prospect (utilisé principalement pour qualifier un visiteur non authentifié).
+     */
     private String nomContact;
+    
+    /**
+     * Adresse électronique de messagerie déclarée pour recontacter le prospect.
+     */
     private String emailContact;
+
+    /**
+     * Libellé ou dénomination commerciale du pôle d'activité concerné (ex: "Écotourisme").
+     * Évite au client Frontend d'effectuer un appel d'API supplémentaire de résolution d'identité.
+     */
     private String poleNom;
 
-    /**
-     * Identifiant unique de la prestation catalogue ciblée (peut être nul si expression de besoin purement sur-mesure).
+    /* * Note de maintenance : Les références directes au catalogue de prestations standardisées 
+     * ont été retirées. Les détails de l'offre ou de la réservation sont désormais entièrement déportés 
+     * dans le dictionnaire dynamique specificDetails.
+     * * private Long prestationId;
+     * * private String prestationTitre;
      */
-   // private Long prestationId;
-
-    /**
-     * Libellé commercial de la prestation catalogue ciblée.
-     */
-    //private String prestationTitre;
 
     /**
      * Cartographie dictionnaire des besoins ou critères spécifiques extraits de la base de données.

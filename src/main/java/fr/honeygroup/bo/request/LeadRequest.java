@@ -10,22 +10,31 @@ import java.util.Map;
  * <p>
  * Cette classe porte les contraintes de validation de surface (Jakarta Validation) 
  * appliquées dès la réception de la requête HTTP afin de sécuriser l'intégrité des données 
- * entrantes du Frontend avant traitement par la couche métier.
+ * entrantes du Frontend avant traitement par la couche métier. Elle prend en charge de manière 
+ * polymorphe les requêtes issues de clients authentifiés ou de visiteurs anonymes.
  * </p>
  */
 @Data
 public class LeadRequest {
-	@Size(min = 2, max = 100)
-	private String nom;
-	
-	
-	@Email(message = "Email invalide")
+
+    /**
+     * Nom ou identité renseignée par le contact lors de la saisie du formulaire.
+     */
+    @Size(min = 2, max = 100)
+    private String nom;
+    
+    /**
+     * Adresse électronique de contact pour le suivi commercial du dossier.
+     */
+    @Email(message = "Email invalide")
     private String email;
 
     /**
-     * Identifiant technique unique de l'utilisateur (client ou prospect) initiant la demande.
+     * Identifiant technique unique de l'utilisateur (client ou prospect enregistré).
+     * Note d'architecture : Ce champ est facultatif (nullable). S'il est omis, le système interprète 
+     * la demande comme provenant d'un visiteur anonyme et s'appuie sur les champs nom et email.
      */
-   // @NotNull(message = "L'ID de l'utilisateur est obligatoire")
+    // @NotNull(message = "L'ID de l'utilisateur est obligatoire")
     private Long userId;
 
     /**
@@ -38,7 +47,7 @@ public class LeadRequest {
     /**
      * Identifiant optionnel d'une prestation spécifique du catalogue.
      * Laissée volontairement optionnelle afin de permettre à un prospect de contacter un pôle 
-     * (notamment le pôle IT Outsourcing pour des besoins sur-mesure) sans sélectionner d'offre standardisée.
+     * (notamment pour des besoins d'hébergements complexes ou de services sur-mesure) sans sélectionner d'offre standardisée.
      */
     private Long prestationId;
 
@@ -49,11 +58,11 @@ public class LeadRequest {
     @Size(min = 3, max = 50)
     private String source;
 
-    /**
-     * Bloc de texte optionnel permettant à l'utilisateur d'ajouter une note libre ou 
-     * un commentaire contextuel lors de la saisie de son formulaire.
+    /* * Note de maintenance : Propriété supprimée du formulaire public d'entrée. 
+     * L'historique des notes et échanges internes est géré exclusivement en aval par le personnel Staff 
+     * au niveau de la couche de persistance ou du CRM.
+     * * private String commentaireInterne;
      */
-    //private String commentaireInterne;
 
     /**
      * Dictionnaire dynamique de critères complémentaires soumis via le formulaire de contact.

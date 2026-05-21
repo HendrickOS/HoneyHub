@@ -6,15 +6,16 @@ plugins {
 
 group = 'fr.honeygroup'
 version = '0.0.1-SNAPSHOT'
-description = 'Projet Honey Group  - Unification des portails'
+description = 'Projet Honey Group - Unification des portails'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
 ext {
+    // Versions centralisées pour faciliter la maintenance des briques techniques complémentaires
     mapstructVersion = '1.5.5.Final'
     jjwtVersion = '0.11.5'
 }
@@ -25,7 +26,9 @@ repositories {
 
 dependencies {
 
-    // --- Spring Boot Core & Web ---
+    // ==========================================
+    // 🧱 BLOC 1 : ECOSYSTEME CORE & SECURITE (SPRING BOOT)
+    // ==========================================
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -33,28 +36,35 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     
-    // JWT
+    // --- Gestion des Jetons d'Accès (Stateless Architecture JWT) ---
     implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
     runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
     runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
     
-    // --- Dev & Database ---
+    // ==========================================
+    // 🗄️ BLOC 2 : PERSISTANCE & PERSPECTIVES DEV
+    // ==========================================
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.mysql:mysql-connector-j'
 
-    // OPENAPI
+    // --- Documentation d'Architecture (Interface Swagger UI) ---
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.16'
     
-    // --- LOMBOK (Bloc 1 : Compilation et Annotation Processing) ---
+    // ==========================================
+    // ⚙️ BLOC 3 : COMPILATION, AUTOMATISATION & MAPPING (APT)
+    // ==========================================
+    // Lombok : Génération automatisée des Getters, Setters, et patterns Builder
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    // MAPSTRUCT
+    // MapStruct : Compilation de mappers DTO / BO découplés et hautement performants
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
-    // --- TESTS (Bloc 3 : Tes dépendances spécifiques) ---
+    // ==========================================
+    // 🧪 BLOC 4 : ASSURANCE QUALITE & CAHIER DE RECETTE (TESTS)
+    // ==========================================
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     /*
     testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
@@ -64,7 +74,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
     */
     
-    // Lombok pour les tests
+    // Intégration Lombok pour l'écriture des tests unitaires et d'intégration
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
     

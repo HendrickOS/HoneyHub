@@ -6,11 +6,11 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 /**
- * Entité représentant les critères techniques ou spécifications (DetailsSpecifiques) d'un prospect.
+ * Entité représentant les critères spécifiques, caractéristiques ou spécifications métiers d'un prospect.
  * <p>
- * Cette classe implémente un modèle flexible de type clé/valeur (Entity-Attribute-Value) complété 
- * par un support de documents JSON. Elle permet d'étendre dynamiquement les besoins sur-mesure d'une 
- * demande de contact du pôle IT Outsourcing sans altérer rigidement le schéma relationnel de la base.
+ * Cette classe implémente un modèle flexible de type clé/valeur (Entity-Attribute-Value). Elle permet 
+ * d'étendre dynamiquement les besoins sur-mesure d'une demande de contact (comme les options d'hébergement pour 
+ * l'Écotourisme ou les besoins techniques pour l'IT) sans altérer rigidement le schéma relationnel de la base de données.
  * </p>
  */
 @Entity
@@ -31,7 +31,7 @@ public class DetailsSpecifiques {
     private Long id;
 
     /**
-     * Libellé ou identifiant du critère technique recherché (ex: "techno_cible", "architecture", "delai").
+     * Libellé ou identifiant du critère recherché (ex: "techno_cible", "type_logement", "delai").
      * Contrainte de validation stricte interdisant la soumission de clés vides.
      */
     @NotBlank(message = "La clé du champ est obligatoire")
@@ -39,16 +39,19 @@ public class DetailsSpecifiques {
     private String champCle;
 
     /**
-     * Valeur textuelle brute associée à la clé spécifiée (ex: "Spring Boot", "Microservices", "3 mois").
-     * L'annotation @Lob configure le stockage sous forme d'objet textuel lourd (LONGTEXT/TEXT).
+     * Valeur textuelle brute associée à la clé spécifiée (ex: "Spring Boot", "Cabane insolite", "3 mois").
+     * L'annotation @Lob configure le stockage sous forme d'objet textuel lourd (LONGTEXT/TEXT) en base.
      */
     @Lob
     @Column(name = "valeur")
     private String valeur;
 
-    /**
-     * Conteneur alternatif permettant d'encapsuler des structures ou des configurations complexes au format JSON.
-     * Garantit une interopérabilité de type NoSQL au sein de l'environnement relationnel SQL.
+    /* * Note de maintenance : Le support alternatif des structures JSON lourdes complexes via NoSQL 
+     * a été désactivé. Le format d'extraction clé/valeur standard à plat suffit à couvrir l'ensemble 
+     * des besoins des formulaires dynamiques des pôles actuels.
+     * * @Lob
+     * @Column(name = "valeur_json")
+     * private String valeurJson;
      */
    
     /**
