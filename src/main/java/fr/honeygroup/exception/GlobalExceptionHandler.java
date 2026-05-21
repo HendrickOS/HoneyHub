@@ -2,7 +2,6 @@ package fr.honeygroup.exception;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -14,163 +13,127 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * Intercepteur global des anomalies de l'application (AOP - Aspect Oriented Programming).
+ * Intercepteur global des anomalies de l'application (AOP).
  * <p>
- * Centralise la capture des exceptions levées par les couches inférieures (BLL, Repositories) 
- * afin de les reformater dans une structure JSON standardisée et sémantiquement correcte 
- * (statuts HTTP adaptés) pour le Frontend.
+ * Centralise la capture des exceptions levées par les différentes couches (BLL, Repositories),
+ * les reformate dans une structure JSON standardisée et applique les statuts HTTP 
+ * sémantiquement appropriés pour le Frontend.
  * </p>
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Méthode utilitaire interne pour construire une réponse d'erreur unifiée.
+     * * @param status  Le statut HTTP à retourner.
+     * @param error   La catégorie de l'erreur.
+     * @param message Le message détaillé expliquant l'anomalie.
+     * @return Une instance de {@link ResponseEntity} contenant le corps d'erreur formaté.
+     */
+    private ResponseEntity<Object> buildResponse(HttpStatus status, String error, String message) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", status.value());
+        body.put("error", error);
+        body.put("message", message);
+        return new ResponseEntity<>(body, status);
+    }
+
+    /**
+     * Capture les échecs d'authentification (Spring Security).
+     * * @param ex L'exception de mauvaises informations d'identification.
+     * @return Une réponse 401 UNAUTHORIZED.
+     */
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Map<String, String>> handleBadCredentials(BadCredentialsException ex) {
-
-        Map<String, String> error = new HashMap<>();
-        error.put("message", "Email ou mot de passe incorrect");
-
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(error);
+    public ResponseEntity<Object> handleBadCredentials(BadCredentialsException ex) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Unauthorized", "Email ou mot de passe incorrect");
     }
 
     /**
-     * Capture les erreurs d'intégrité ou de capacité liées à la logistique des sessions temporelles
-     * (ex: jauge maximale d'inscrits atteinte, session expirée).
-     * @param ex L'exception de capacité ou de validité de session capturée.
-     * @return Une réponse HTTP 400 BAD_REQUEST contenant le détail textuel du blocage métier.
-     */
-    @ExceptionHandler(SessionCapacityException.class)
-    public ResponseEntity<Object> handleSessionCapacityException(SessionCapacityException ex) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("error", "Session Restriction Error");
-        body.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    }
-
-    /**
-     * Capture les violations de sécurité contextuelles détectées au cœur de la logique métier 
-     * (ex: tentative de fraude IDOR, substitution d'identité non autorisée pour un tiers).
-     * @param ex L'exception de sécurité applicative interceptée.
-     * @return Une réponse HTTP 403 FORBIDDEN scellée.
-     */
-    @ExceptionHandler(BusinessSecurityException.class)
-    public ResponseEntity<Object> handleBusinessSecurityException(BusinessSecurityException ex) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.FORBIDDEN.value());
-        body.put("error", "Forbidden");
-        body.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
-    }
-
-    /**
-     * Intercepte les exceptions d'accès ou de logique métier frauduleuse (ex: réservation pour autrui)
-     * afin d'attribuer un statut HTTP 403 sémantiquement exact au lieu d'une erreur 500.
-     * @param ex L'exception de logique métier interceptée.
-     * @return Une réponse HTTP 403 FORBIDDEN structurée.
+     * Gère les incohérences métier détectées dans la BLL.
+     * Distinction sémantique : 404 pour les ressources manquantes, 400 pour les règles métier non respectées.
+     * * @param ex L'exception métier levée par le service.
+     * @return Une réponse 404 ou 400 selon la nature du message d'erreur.
      */
     @ExceptionHandler(BusinessLogicException.class)
     public ResponseEntity<Object> handleBusinessLogicException(BusinessLogicException ex) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.FORBIDDEN.value());
-        body.put("error", "Business Logic Error");
-        body.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
+        String message = ex.getMessage();
+        HttpStatus status = message.toLowerCase().contains("introuvable") 
+                            ? HttpStatus.NOT_FOUND 
+                            : HttpStatus.BAD_REQUEST;
+        return buildResponse(status, "Business Logic Error", message);
     }
 
     /**
-     * Intercepte les refus d'accès d'infrastructure émis nativement par Spring Security 
-     * (ex: un client tentant de solliciter un endpoint annoté @PreAuthorize("hasRole('ADMIN')")).
-     * @param ex L'anomalie de droits Spring Security.
-     * @return Une réponse HTTP 403 FORBIDDEN formalisée.
+     * Capture les erreurs liées aux capacités logistiques d'une session.
+     * * @param ex L'exception de capacité atteinte.
+     * @return Une réponse 400 BAD_REQUEST.
+     */
+    @ExceptionHandler(SessionCapacityException.class)
+    public ResponseEntity<Object> handleSessionCapacityException(SessionCapacityException ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "Session Restriction Error", ex.getMessage());
+    }
+
+    /**
+     * Capture les violations de sécurité métier (ex: accès à une ressource non autorisée).
+     * * @param ex L'exception de sécurité métier.
+     * @return Une réponse 403 FORBIDDEN.
+     */
+    @ExceptionHandler(BusinessSecurityException.class)
+    public ResponseEntity<Object> handleBusinessSecurityException(BusinessSecurityException ex) {
+        return buildResponse(HttpStatus.FORBIDDEN, "Forbidden", ex.getMessage());
+    }
+
+    /**
+     * Intercepte les refus d'accès émis par Spring Security.
+     * * @param ex L'exception d'accès refusé.
+     * @return Une réponse 403 FORBIDDEN.
      */
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
     public ResponseEntity<Object> handleAccessDenied(Exception ex) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.FORBIDDEN.value());
-        body.put("error", "Forbidden");
-        body.put("message", "Vous n'avez pas les droits nécessaires pour cette action.");
-
-        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
+        return buildResponse(HttpStatus.FORBIDDEN, "Forbidden", "Vous n'avez pas les droits nécessaires pour cette action.");
     }
-    
+
     /**
-     * Formate et isole les erreurs de validation de surface levées par Jakarta Validation 
-     * sur les DTOs d'entrée annotés {@code @Valid} au niveau des contrôleurs.
-     * @param ex L'anomalie contenant l'arbre des champs non conformes.
-     * @return Une réponse HTTP 400 BAD_REQUEST portant le libellé d'erreur (éventuellement internationalisé).
+     * Formate les erreurs de validation (Jakarta Validation sur les DTOs).
+     * * @param ex L'exception de validation contenant le résultat des erreurs.
+     * @return Une réponse 400 BAD_REQUEST avec le premier message d'erreur trouvé.
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("error", "Erreur de validation");
-        
-        String message = "Erreur de validation";
-        FieldError fieldError = ex.getBindingResult().getFieldError();
-        if (fieldError != null) {
-            message = fieldError.getDefaultMessage();
-        }
-        
-        body.put("message", message);
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .map(FieldError::getDefaultMessage)
+                .findFirst()
+                .orElse("Erreur de validation des données");
+        return buildResponse(HttpStatus.BAD_REQUEST, "Erreur de validation", message);
     }
 
     /**
-     * Gestion globale des erreurs d'exécution internes imprévues (RuntimeException non spécialisées).
-     * @param ex L'anomalie système ou l'erreur de logique brute interceptée.
-     * @return Une réponse HTTP 500 INTERNAL_SERVER_ERROR masquant les détails sensibles de l'infrastructure.
+     * Gestion de secours pour toute exception non interceptée.
+     * * @param ex L'exception système non prévue.
+     * @return Une réponse 500 INTERNAL_SERVER_ERROR.
      */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Object> handleRuntimeException(RuntimeException ex) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        body.put("error", "Internal Server Error");
-        body.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", "Une erreur inattendue est survenue.");
     }
 
     // ============================================================================
-    // CLASSES EXTENSIONS D'EXCEPTIONS MÉTIERS
+    // CLASSES D'EXCEPTIONS MÉTIERS
     // ============================================================================
 
-    /**
-     * Exception levée lorsque les capacités matérielles d'une session fixe sont dépassées.
-     */
+    /** Exception levée lorsque les capacités matérielles d'une session sont dépassées. */
     public static class SessionCapacityException extends RuntimeException {
-        public SessionCapacityException(String message) {
-            super(message);
-        }
+        public SessionCapacityException(String message) { super(message); }
     }
 
-    /**
-     * Exception levée lors d'un manquement ou d'une tentative de contournement de la sécurité métier (IDOR).
-     */
+    /** Exception levée lors d'un manquement ou d'une tentative de contournement de la sécurité métier. */
     public static class BusinessSecurityException extends RuntimeException {
-        public BusinessSecurityException(String message) {
-            super(message);
-        }
+        public BusinessSecurityException(String message) { super(message); }
     }
 
-    /**
-     * Exception levée lors d'un conflit de validation ou d'un droit non accordé au niveau des services métiers.
-     */
+    /** Exception levée lors d'un conflit de validation au niveau des services métiers. */
     public static class BusinessLogicException extends RuntimeException {
-        public BusinessLogicException(String message) {
-            super(message);
-        }
+        public BusinessLogicException(String message) { super(message); }
     }
 }
