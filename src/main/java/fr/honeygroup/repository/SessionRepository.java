@@ -42,8 +42,9 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
      * @return Une liste filtrée de {@link Session} éligibles à une nouvelle contractualisation.
      */
     @Query("SELECT s FROM Session s WHERE s.prestation.id = :prestationId " +
-           "AND s.dateDebut > :now " +
-           "AND s.nbInscrits < s.capaciteMax")
+    	       "AND s.dateDebut > :now " +
+    	       "AND s.nbInscrits < s.capaciteMax " +
+    	       "AND s.statutSession = 'OUVERT'") // Filtre explicite sur le statut
     List<Session> findAvailableSessionsByPrestationId(@Param("prestationId") Long prestationId, 
                                                       @Param("now") LocalDateTime now);
 }

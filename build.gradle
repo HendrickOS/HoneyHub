@@ -74,6 +74,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
     */
     
+    //Ajout pour les tests d'integration
+    testImplementation 'org.springframework.security:spring-security-test'
+    
     // Intégration Lombok pour l'écriture des tests unitaires et d'intégration
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
