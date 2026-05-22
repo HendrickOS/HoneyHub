@@ -1,10 +1,12 @@
 package fr.honeygroup.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -128,19 +130,33 @@ public class PrestationController {
     
     /**
      * Ajoute ou met à jour une métadonnée spécifique pour une prestation donnée.
-     * * @param id Identifiant de la prestation
-     * @param metadata Map contenant la clé et la valeur à mettre à jour
-     * @return Réponse 200 OK en cas de succès
+     * 
+     * @param id Identifiant de la prestation
+     * @param metadata Map contenant les clés et valeurs à mettre à jour
+     * @return ResponseEntity contenant un message de confirmation et un code 200 OK
      */
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PatchMapping("/{id}/metadata")
-    public ResponseEntity<Void> updateMetadata(
-            @PathVariable Long id, 
+    public ResponseEntity<Map<String, Object>> updateMetadata(
+            @PathVariable("id") Long id, 
             @RequestBody Map<String, Object> metadata) {
         
-        // On itère sur la map reçue pour mettre à jour chaque entrée
+        // 1. Validation basique du payload
+        if (metadata == null || metadata.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "La liste des métadonnées est vide."));
+        }
+
+        // 2. Mise à jour via le service
         metadata.forEach((key, value) -> prestationService.addOrUpdateMetadata(id, key, value));
         
-        return ResponseEntity.ok().build();
+        // 3. Construction de la réponse explicite
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", "Métadonnées mises à jour avec succès pour la prestation " + id);
+        response.put("updatedFields", metadata.keySet());
+        response.put("timestamp", java.time.LocalDateTime.now());
+        
+        return ResponseEntity.ok(response);
     }
     
     /**

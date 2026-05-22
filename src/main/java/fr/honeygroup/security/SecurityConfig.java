@@ -83,6 +83,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/leads/**").hasRole(Role.ADMIN.name())
 
                 // 3. GESTION DES REFERENTIELS (POLES & PRESTATIONS)
+                // Exception : Autorise les ADMIN et MANAGER à modifier les métadonnées (PATCH)
+                .requestMatchers(HttpMethod.PATCH, "/api/prestations/*/metadata").hasAnyRole(Role.ADMIN.name(), Role.MANAGER.name())
                 // Seul l'administrateur système est habilité à modifier l'offre commerciale globale
                 .requestMatchers("/api/poles/**", "/api/prestations/**", "/api/circuits/**", "/api/courslangues/**").hasRole(Role.ADMIN.name())
                 

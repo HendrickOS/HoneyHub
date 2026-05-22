@@ -1,16 +1,18 @@
 package fr.honeygroup.bo;
 
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
+import fr.honeygroup.configuration.HashMapConverter;
 import fr.honeygroup.enumeration.StatutPrestation;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -106,7 +108,9 @@ public class Prestation {
      * Permet d'ajouter des attributs spécifiques (ex: lieu de départ, technologie) 
      * sans modifier le schéma de base de données.
      */
-    @JdbcTypeCode(SqlTypes.JSON)
+    //@JdbcTypeCode(SqlTypes.JSON)
+    @JdbcTypeCode(Types.LONGVARCHAR)
+    @Convert(converter = HashMapConverter.class)
     @Column(name = "metadata", columnDefinition = "json")
     @Builder.Default
     private Map<String, Object> metadata = new HashMap<>();
