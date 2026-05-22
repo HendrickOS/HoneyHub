@@ -1,6 +1,8 @@
 package fr.honeygroup.bo.response;
 
 import java.time.LocalDateTime;
+import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +12,7 @@ import lombok.NoArgsConstructor;
  * Objet de transfert de donnees (DTO) unifie representant une prestation du catalogue.
  * <p>
  * Ce payload adopte une structure aplatie regroupant a la fois les attributs generiques du catalogue 
- * et les proprietes specifiques aux sous-types (Circuits touristiques ou Cours de langues). 
+ * et les proprietes specifiques aux sous-types (Circuits touristiques ou Cours de langues ou Meta-donnees dynamiques). 
  * Cette conception simplifie grandement la consommation et le rendu polymorphique des donnees 
  * par l'application cliente grace a la presence d'un indicateur de type.
  * </p>
@@ -67,6 +69,12 @@ public class PrestationResponse {
      * Horodatage precis de la creation de la prestation pour le suivi du catalogue.
      */
     private LocalDateTime dateCreation;
+    
+    /**
+     * Structure de donnees flexible permettant d'ajouter des attributs techniques ou specifiques 
+     * sans modifier le schema du DTO.
+     */
+    private Map<String, Object> metadata;
     
     // ==========================================
     // Champs Specifiques aux Offres de "CIRCUIT"

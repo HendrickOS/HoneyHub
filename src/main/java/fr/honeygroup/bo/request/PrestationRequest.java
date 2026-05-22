@@ -1,10 +1,14 @@
 package fr.honeygroup.bo.request;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import fr.honeygroup.enumeration.StatutPrestation;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -70,4 +74,11 @@ public class PrestationRequest {
      * </p>
      */
     private StatutPrestation statut;
+    
+    /**
+     * Données techniques flexibles initialisées lors de la création de la prestation.
+     * Permet de définir les spécificités du pôle dès l'instanciation de l'offre.
+     */
+    @Builder.Default
+    private Map<String, Object> metadata = new HashMap<>();
 }

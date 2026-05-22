@@ -63,21 +63,21 @@ INSERT IGNORE INTO ao7dvw_honeygroup_db.photo (id_photo, url_fichier, legende) V
 -- 5. INSERTION DES PRESTATIONS (id_prestation de 1 à 10)
 -- =========================================================================
 INSERT IGNORE INTO ao7dvw_honeygroup_db.prestation 
-(id_prestation, id_pole, id_photo, titre_service, description, prix_base, statut, date_creation)
+(id_prestation, id_pole, id_photo, titre_service, description, prix_base, statut, date_creation, metadata)
 VALUES
--- Prestations du Pôle IT (id_pole = 1)
-(1, 1, 1, 'Hébergement Web (Standard)', 'Solution d’hébergement web fiable pour sites vitrines et PME.', 100.0, 'ACTIF', NOW()),
-(2, 1, 2, 'Cloud Managé (Haute Performance)', 'Infrastructure cloud optimisée avec haute disponibilité et performance.', 250.0, 'ACTIF', NOW()),
-(3, 1, 3, 'Services Cloud', 'Hébergement haute performance avec avantages partenaires (remise 10%).', 50.0, 'ACTIF', NOW()),
-(4, 1, 4, 'Solutions Bureautiques (kSuite)', 'Suite collaborative complète pour email, documents et productivité.', 30.0, 'ACTIF', NOW()),
-(5, 1, 5, 'Stockage Sécurisé (kDrive)', 'Stockage cloud sécurisé pour fichiers professionnels et personnels.', 10.0, 'ACTIF', NOW()),
-(6, 1, 6, 'Intelligence Artificielle (API LLM)', 'API LLM pour intégrer l’intelligence artificielle dans vos applications.', 200.0, 'ACTIF', NOW()),
-(7, 1, 7, 'Public Cloud (Infrastructure)', 'Infrastructure cloud publique scalable et performante.', 300.0, 'ACTIF', NOW()),
-(8, 1, 8, 'Serveurs VPS Cloud', 'Serveurs VPS cloud flexibles et performants pour projets avancés.', 150.0, 'ACTIF', NOW()),
+-- Prestations du Pôle IT (id_pole = 1) - Pas de métadonnées géographiques spécifiques
+(1, 1, 1, 'Hébergement Web (Standard)', 'Solution d’hébergement web fiable pour sites vitrines et PME.', 100.0, 'ACTIF', NOW(), '{}'),
+(2, 1, 2, 'Cloud Managé (Haute Performance)', 'Infrastructure cloud optimisée avec haute disponibilité et performance.', 250.0, 'ACTIF', NOW(), '{}'),
+(3, 1, 3, 'Services Cloud', 'Hébergement haute performance avec avantages partenaires (remise 10%).', 50.0, 'ACTIF', NOW(), '{}'),
+(4, 1, 4, 'Solutions Bureautiques (kSuite)', 'Suite collaborative complète pour email, documents et productivité.', 30.0, 'ACTIF', NOW(), '{}'),
+(5, 1, 5, 'Stockage Sécurisé (kDrive)', 'Stockage cloud sécurisé pour fichiers professionnels et personnels.', 10.0, 'ACTIF', NOW(), '{}'),
+(6, 1, 6, 'Intelligence Artificielle (API LLM)', 'API LLM pour intégrer l’intelligence artificielle dans vos applications.', 200.0, 'ACTIF', NOW(), '{}'),
+(7, 1, 7, 'Public Cloud (Infrastructure)', 'Infrastructure cloud publique scalable et performante.', 300.0, 'ACTIF', NOW(), '{}'),
+(8, 1, 8, 'Serveurs VPS Cloud', 'Serveurs VPS cloud flexibles et performants pour projets avancés.', 150.0, 'ACTIF', NOW(), '{}'),
 
--- Prestations du Pôle Écotourisme (id_pole = 2)
-(9, 2, 9, 'Trek & Découverte : Le Nord Sauvage', 'Une aventure immersive de Diego-Suarez à Nosy Be, découvrez les Tsingy et la faune locale.', 1200.0, 'ACTIF', NOW()),
-(10, 2, 10, 'L''Allée des Baobabs et Majestueux Sud', 'Parcours photographique et solidaire à travers Morondava et les parcs nationaux du Sud.', 1450.0, 'ACTIF', NOW());
+-- Prestations du Pôle Écotourisme (id_pole = 2) - Avec métadonnées de trajet
+(9, 2, 9, 'Trek & Découverte : Le Nord Sauvage', 'Une aventure immersive de Diego-Suarez à Nosy Be, découvrez les Tsingy et la faune locale.', 1200.0, 'ACTIF', NOW(), '{"lieu_depart": "Diego-Suarez", "lieu_arrivee": "Nosy Be"}'),
+(10, 2, 10, 'L''Allée des Baobabs et Majestueux Sud', 'Parcours photographique et solidaire à travers Morondava et les parcs nationaux du Sud.', 1450.0, 'ACTIF', NOW(), '{"lieu_depart": "Morondava", "lieu_arrivee": "Sud-Madagascar"}');
 
 -- =========================================================================
 -- 6. INSERTION DES SESSIONS (id_session de 1 à 3)

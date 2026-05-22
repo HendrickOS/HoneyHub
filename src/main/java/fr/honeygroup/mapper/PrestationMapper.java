@@ -26,6 +26,7 @@ public interface PrestationMapper {
      */
     @Mapping(source = "pole.id", target = "poleId")
     @Mapping(target = "type", constant = "GENERIQUE")
+    @Mapping(target = "metadata", source = "metadata")
     PrestationResponse toResponse(Prestation prestation);
 
     /**
@@ -35,6 +36,7 @@ public interface PrestationMapper {
      */
     @Mapping(source = "pole.id", target = "poleId")
     @Mapping(target = "type", constant = "CIRCUIT")
+    @Mapping(target = "metadata", source = "metadata")
     PrestationResponse toResponse(Circuit circuit);
 
     /**
@@ -44,6 +46,7 @@ public interface PrestationMapper {
      */
     @Mapping(source = "pole.id", target = "poleId")
     @Mapping(target = "type", constant = "COURS_LANGUE")
+    @Mapping(target = "metadata", source = "metadata")
     PrestationResponse toResponse(CoursLangue coursLangue);
 
     /**

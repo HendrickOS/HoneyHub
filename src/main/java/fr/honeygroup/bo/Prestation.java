@@ -1,7 +1,12 @@
 package fr.honeygroup.bo;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import fr.honeygroup.enumeration.StatutPrestation;
 import jakarta.persistence.CascadeType;
@@ -95,6 +100,16 @@ public class Prestation {
     @NotNull
     @Column(name = "prix_base", nullable = false)
     private Double prixBase;
+    
+    /**
+     * Données techniques flexibles stockées au format JSON.
+     * Permet d'ajouter des attributs spécifiques (ex: lieu de départ, technologie) 
+     * sans modifier le schéma de base de données.
+     */
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "metadata", columnDefinition = "json")
+    @Builder.Default
+    private Map<String, Object> metadata = new HashMap<>();
 
     /**
      * État de visibilité de l'offre (ex: ACTIF, ARCHIVE).

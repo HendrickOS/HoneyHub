@@ -1,11 +1,11 @@
 package fr.honeygroup.bll;
 
+import java.util.List;
+
 import fr.honeygroup.bo.request.CircuitRequest;
 import fr.honeygroup.bo.request.CoursLangueRequest;
 import fr.honeygroup.bo.request.PrestationRequest;
 import fr.honeygroup.bo.response.PrestationResponse;
-
-import java.util.List;
 
 /**
  * Contrat d'interface definissant la logique metier associee a la gestion du catalogue.
@@ -34,6 +34,30 @@ public interface PrestationService {
      * @return Le DTO PrestationResponse correspondant a la ressource trouvee.
      */
     PrestationResponse getPrestationById(Long id);
+    
+    /**
+     * Ajoute ou met a jour une information dynamique dans les meta-donnees d'une prestation.
+     * <p>
+     * Utilise le support JSON pour permettre une extension flexible des caracteristiques 
+     * d'une offre sans modification du schema relationnel.
+     * </p>
+     * * @param id L'identifiant unique de la prestation.
+     * @param key La cle de la meta-donnee.
+     * @param value La valeur associee.
+     */
+    void addOrUpdateMetadata(Long id, String key, Object value);
+    
+    /**
+     * Recherche les prestations correspondant à un trajet complet.
+     * <p>
+     * Assure la transformation unifiée des résultats de type {@link Prestation} 
+     * en DTOs de réponse prêts pour la consommation Front-end.
+     * </p>
+     * @param depart Lieu de départ
+     * @param arrivee Lieu d'arrivée
+     * @return Liste des prestations correspondantes
+     */
+    List<PrestationResponse> findByTrajet(String depart, String arrivee);
 
     /**
      * Traite et persiste une nouvelle prestation de nature generique (sans options additionnelles).

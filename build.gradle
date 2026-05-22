@@ -50,6 +50,9 @@ dependencies {
     // --- Documentation d'Architecture (Interface Swagger UI) ---
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.16'
     
+    // Support Hibernate pour les types JSON (MySQL/PostgreSQL)
+    implementation 'io.hypersistence:hypersistence-utils-hibernate-60:3.7.0'
+    
     // ==========================================
     // BLOC 3 : COMPILATION, AUTOMATISATION & MAPPING (APT)
     // ==========================================

@@ -1,5 +1,11 @@
 package fr.honeygroup.bll.impl;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import fr.honeygroup.bll.PrestationService;
 import fr.honeygroup.bo.Circuit;
 import fr.honeygroup.bo.CoursLangue;
@@ -16,16 +22,12 @@ import fr.honeygroup.repository.CoursLangueRepository;
 import fr.honeygroup.repository.PoleRepository;
 import fr.honeygroup.repository.PrestationRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Implementation concrete du service de gestion du catalogue des prestations.
  * <p>
- * Cette classe orchestre la logique metier polymorphe liee aux offres de Honey Group.
+ * Cette classe orchestre la logique metier polymorphe liee aux offres de Honey Group,
+ * incluant la gestion des donnees dynamiques via le support JSON.
  * Elle interagit avec les differents depots (Repositories) dedies aux sous-types 
  * afin de garantir la bonne persistance de l'heritage relationnel (strategy JOINED ou SINGLE_TABLE).
  * </p>
@@ -75,6 +77,46 @@ public class PrestationServiceImpl implements PrestationService {
         Prestation prestation = prestationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Prestation introuvable"));
         return prestationMapper.toGenericResponse(prestation);
+    }
+    
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Met a jour ou ajoute une entree dans la structure JSON des meta-donnees de la prestation.
+     * </p>
+     * * @param id L'identifiant technique de la prestation.
+     * @param key La cle de la donnee a inserer.
+     * @param value La valeur associee a la cle.
+     */
+    @Override
+    @Transactional
+    public void addOrUpdateMetadata(Long id, String key, Object value) {
+        Prestation prestation = prestationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Prestation introuvable pour l'id : " + id));
+        
+        prestation.getMetadata().put(key, value);
+        prestationRepository.save(prestation);
+    }
+    
+    /**
+     * Recherche les prestations correspondant à un itinéraire spécifique et réalise 
+     * leur transformation en objets de réponse.
+     * <p>
+     * Cette méthode orchestre l'appel à la couche de persistance pour filtrer les 
+     * prestations par lieu de départ et d'arrivée via les métadonnées JSON, puis 
+     * assure le mapping polymorphique des résultats vers le modèle DTO unifié.
+     * </p>
+     * * @param depart  La chaîne de caractères identifiant le point de départ souhaité.
+     * @param arrivee La chaîne de caractères identifiant la destination finale.
+     * @return Une {@link List} de {@link PrestationResponse} contenant les prestations 
+     * correspondant aux critères géographiques.
+     */
+    @Override
+    public List<PrestationResponse> findByTrajet(String depart, String arrivee) {
+        return prestationRepository.findByTrajet(depart, arrivee)
+                .stream()
+                .map(prestationMapper::toGenericResponse)
+                .collect(Collectors.toList());
     }
 
     /**

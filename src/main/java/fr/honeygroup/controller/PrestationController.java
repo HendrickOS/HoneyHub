@@ -1,16 +1,29 @@
 package fr.honeygroup.controller;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import fr.honeygroup.bll.PrestationService;
+import fr.honeygroup.bo.Prestation;
 import fr.honeygroup.bo.request.CircuitRequest;
 import fr.honeygroup.bo.request.CoursLangueRequest;
 import fr.honeygroup.bo.request.PrestationRequest;
 import fr.honeygroup.bo.response.PrestationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * Controleur REST exposant les endpoints de gestion du catalogue des prestations.
@@ -31,6 +44,8 @@ public class PrestationController {
 
     /** Service metier encapsulant la logique de traitement des prestations. */
     private final PrestationService prestationService;
+    private final fr.honeygroup.repository.PrestationRepository prestationRepository;
+    private final fr.honeygroup.mapper.PrestationMapper prestationMapper;
 
     /**
      * Recupere l'integralite du catalogue des prestations (generiques et specifiques).
@@ -109,5 +124,86 @@ public class PrestationController {
     public ResponseEntity<Void> deletePrestation(@PathVariable Long id) {
         prestationService.deletePrestation(id);
         return ResponseEntity.ok().build();
+    }
+    
+    /**
+     * Ajoute ou met à jour une métadonnée spécifique pour une prestation donnée.
+     * * @param id Identifiant de la prestation
+     * @param metadata Map contenant la clé et la valeur à mettre à jour
+     * @return Réponse 200 OK en cas de succès
+     */
+    @PatchMapping("/{id}/metadata")
+    public ResponseEntity<Void> updateMetadata(
+            @PathVariable Long id, 
+            @RequestBody Map<String, Object> metadata) {
+        
+        // On itère sur la map reçue pour mettre à jour chaque entrée
+        metadata.forEach((key, value) -> prestationService.addOrUpdateMetadata(id, key, value));
+        
+        return ResponseEntity.ok().build();
+    }
+    
+    /**
+     * Récupère uniquement les métadonnées d'une prestation.
+     * @param id Identifiant de la prestation
+     * @return Map contenant les métadonnées
+     */
+    @GetMapping("/{id}/metadata")
+    public ResponseEntity<Map<String, Object>> getMetadata(@PathVariable Long id) {
+        // On récupère la prestation complète via le service existant
+        PrestationResponse prestation = prestationService.getPrestationById(id);
+        
+        // Note : Il faudra s'assurer que ton Mapper inclut bien le champ 'metadata' 
+        // dans la classe PrestationResponse.
+        return ResponseEntity.ok(prestation.getMetadata());
+    }
+    
+    /**
+     * Recherche avancée de prestations par critères géographiques issus des métadonnées.
+     * <p>
+     * Cette méthode permet de filtrer le catalogue dynamiquement selon le lieu de départ 
+     * ou d'arrivée souhaité par le client.
+     * </p>
+     * * @param depart Optionnel. Filtre les prestations par lieu de départ.
+     * @param arrivee Optionnel. Filtre les prestations par lieu d'arrivée.
+     * @return Une liste de prestations filtrées.
+     */
+    @GetMapping("/search")
+    public ResponseEntity<List<PrestationResponse>> searchByLocation(
+            @RequestParam(required = false) String depart,
+            @RequestParam(required = false) String arrivee) {
+        
+        List<Prestation> resultats;
+
+        if (depart != null) {
+            resultats = prestationRepository.findByLieuDepart(depart);
+        } else if (arrivee != null) {
+            resultats = prestationRepository.findByLieuArrivee(arrivee);
+        } else {
+            // Si aucun filtre n'est fourni, on renvoie tout le catalogue
+            return getAllPrestations();
+        }
+
+        return ResponseEntity.ok(resultats.stream()
+                .map(prestationMapper::toGenericResponse)
+                .collect(Collectors.toList()));
+    }
+    
+    /**
+     * Recherche avancée de prestations par filtrage d'itinéraire.
+     * <p>
+     * Endpoint optimisé permettant au Front-end d'extraire les offres de voyages 
+     * correspondant à un trajet complet (Départ -> Arrivée).
+     * </p>
+     * @param depart Le lieu de départ.
+     * @param arrivee Le lieu d'arrivée.
+     * @return Une ResponseEntity contenant la liste des résultats et un code 200 OK.
+     */
+    @GetMapping("/search/trajet")
+    public ResponseEntity<List<PrestationResponse>> getByTrajet(
+            @RequestParam String depart, 
+            @RequestParam String arrivee) {
+        
+        return ResponseEntity.ok(prestationService.findByTrajet(depart, arrivee));
     }
 }
