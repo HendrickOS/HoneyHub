@@ -66,7 +66,7 @@ public class Payment {
      * @see fr.honeygroup.enumeration.TypePayment
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "methode", length = 50)
+    @Column(name = "methode", length = 50, nullable = true)
     private TypePayment methode;
 
     /**

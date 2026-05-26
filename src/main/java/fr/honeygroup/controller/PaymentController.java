@@ -1,6 +1,8 @@
 package fr.honeygroup.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -66,15 +68,20 @@ public class PaymentController {
      * </p>
      * * @param paymentId L'identifiant technique du paiement rattaché à la réservation.
      * @param request Le DTO contenant les informations du paiement (méthode, ID transaction, URL).
-     * @return {@link ResponseEntity#ok()} si la soumission est enregistrée avec succès.
+     * @return Un {@link ResponseEntity} contenant un message de confirmation et le nouveau statut.
      */
     @PostMapping("/{paymentId}/confirmer")
-    public ResponseEntity<Void> confirmerPaiement(
-            @PathVariable Long paymentId,
+    public ResponseEntity<Map<String, String>> confirmerPaiement(
+            @PathVariable("paymentId") Long paymentId, 
             @RequestBody PaymentRequest request) {
         
         paymentService.confirmerPaiement(paymentId, request);
-        return ResponseEntity.ok().build();
+        
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Votre demande a bien été envoyée, un staff se chargera de la validation.");
+        response.put("status", "EN_VERIFICATION");
+        
+        return ResponseEntity.ok(response);
     }
     
     /**

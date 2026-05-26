@@ -125,4 +125,6 @@ public class BookingResponse {
      * Collection des flux de versements, acomptes et liens de pièces justificatives (preuves d'upload) adossés au dossier.
      */
     private List<PaymentResponse> payments;
+    
+    private Long paymentId; // À mapper avec le premier paiement de la liste
 }

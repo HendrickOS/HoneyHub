@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import fr.honeygroup.bll.PaymentService;
+import fr.honeygroup.bo.Booking;
 import fr.honeygroup.bo.Payment;
 import fr.honeygroup.bo.request.PaymentRequest;
 import fr.honeygroup.bo.response.PaymentResponse;
@@ -15,6 +16,7 @@ import fr.honeygroup.enumeration.StatutPayment;
 import fr.honeygroup.exception.GlobalExceptionHandler.BusinessLogicException;
 import fr.honeygroup.exception.GlobalExceptionHandler.BusinessSecurityException;
 import fr.honeygroup.mapper.PaymentMapper;
+import fr.honeygroup.repository.BookingRepository;
 import fr.honeygroup.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
+    private final BookingRepository bookingRepository;
     private final PaymentMapper paymentMapper;
 
     /**
@@ -110,36 +113,40 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     /**
-     * Valide un paiement et synchronise automatiquement le statut de la réservation associée.
+     * Valide officiellement une transaction et confirme la réservation associée.
      * <p>
-     * Cette méthode garantit que le workflow financier est cohérent avec le workflow opérationnel :
-     * 1. Vérification de la transition d'état via l'automate de l'énumération.
-     * 2. Mise à jour du statut du paiement vers {@code VALIDE}.
-     * 3. Basculement automatique de la réservation liée vers le statut {@code CONFIRME}.
+     * Vérifie au préalable que le dossier de réservation n'a pas été annulé 
+     * entre la soumission de la preuve et la validation comptable.
      * </p>
-     * @param paymentId Identifiant technique du paiement.
-     * @throws BusinessSecurityException Si la transition est illégale ou si la réservation associée est introuvable.
+     * @param paymentId L'identifiant technique du paiement.
+     * @throws BusinessSecurityException Si le paiement est invalide, incomplet, ou si la réservation est annulée.
      */
     @Override
     @Transactional
     public void validerPaiement(Long paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new BusinessLogicException("Paiement introuvable : ID " + paymentId));
+        
+        // 1. Vérification de la transition de paiement
+        payment.getStatutPaiement().verifierTransition(StatutPayment.VALIDE);
 
-        // 1. Vérification de la transition (Automate d'état)
-        if (!payment.getStatutPaiement().peutBasculerVers(StatutPayment.VALIDE)) {
-            throw new BusinessSecurityException("Action refusée : Transition illégale depuis le statut actuel (" + payment.getStatutPaiement() + ").");
+        // 2. Vérification des données transmises par le client
+        if (payment.getMethode() == null || payment.getTransactionId() == null) {
+            throw new BusinessSecurityException("Impossible de valider : informations de paiement incomplètes.");
         }
-
-        // 2. Mise à jour du paiement
+        
+        // 3. Sécurité métier : On ne valide pas un paiement pour une réservation annulée
+        Booking booking = payment.getBooking();
+        if (booking.getStatut() == StatutBooking.ANNULE) {
+            throw new BusinessSecurityException("Validation impossible : Le dossier de réservation correspondant a été annulé.");
+        }
+        
+        // 4. Exécution des mutations
         payment.setStatutPaiement(StatutPayment.VALIDE);
+        booking.setStatut(StatutBooking.CONFIRME);
+        
         paymentRepository.save(payment);
-
-        // 3. Mise à jour du Booking associé (Workflow croisé)
-        if (payment.getBooking() != null) {
-            payment.getBooking().setStatut(StatutBooking.CONFIRME);
-            // La sauvegarde est gérée par la cascade ou par le contexte de persistance @Transactional
-        }
+        bookingRepository.save(booking);
     }
     
     /**
@@ -155,7 +162,7 @@ public class PaymentServiceImpl implements PaymentService {
      */
     @Override
     @Transactional
-    public void confirmerPaiement(Long paymentId, PaymentRequest request) {
+    public String confirmerPaiement(Long paymentId, PaymentRequest request) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new BusinessLogicException("Paiement introuvable : ID " + paymentId));
 
@@ -171,6 +178,7 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setStatutPaiement(StatutPayment.EN_VERIFICATION);
         
         paymentRepository.save(payment);
+        return "Votre demande a bien été envoyée, un staff se chargera de la validation.";
     }
 
     /**

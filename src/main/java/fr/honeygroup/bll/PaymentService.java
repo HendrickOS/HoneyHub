@@ -72,5 +72,5 @@ public interface PaymentService {
      * * @param paymentId L'identifiant technique du paiement.
      * @param request Le DTO contenant les informations de transaction.
      */
-    void confirmerPaiement(Long paymentId, PaymentRequest request);
+    String confirmerPaiement(Long paymentId, PaymentRequest request);
 }
