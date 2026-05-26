@@ -122,9 +122,14 @@ public class BookingResponse {
     // ============================================================================
     
     /**
+     * Identifiant technique unique du paiement associé à la réservation, permettant 
+     * d'initier le processus de soumission de preuve de règlement.
+     */
+    private Long paymentId;
+    
+    /**
      * Collection des flux de versements, acomptes et liens de pièces justificatives (preuves d'upload) adossés au dossier.
      */
     private List<PaymentResponse> payments;
     
-    private Long paymentId; // À mapper avec le premier paiement de la liste
 }

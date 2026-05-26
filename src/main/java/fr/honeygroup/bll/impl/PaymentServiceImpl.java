@@ -71,7 +71,7 @@ public class PaymentServiceImpl implements PaymentService {
      */
     @Override
     @Transactional(readOnly = true)
-    public List<PaymentResponse> getMyPayments() {
+    public List<PaymentResponse> getPaymentsForCurrentUser() {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         return paymentRepository.findByBookingUserEmail(userEmail)
                 .stream()
@@ -131,9 +131,11 @@ public class PaymentServiceImpl implements PaymentService {
         payment.getStatutPaiement().verifierTransition(StatutPayment.VALIDE);
 
         // 2. Vérification des données transmises par le client
-        if (payment.getMethode() == null || payment.getTransactionId() == null) {
-            throw new BusinessSecurityException("Impossible de valider : informations de paiement incomplètes.");
-        }
+        if (payment.getMethode() == null || 
+                payment.getTransactionId() == null || 
+                payment.getPreuveUrl() == null) {
+                throw new BusinessSecurityException("Impossible de valider : informations de paiement incomplètes ou preuve manquante.");
+            }
         
         // 3. Sécurité métier : On ne valide pas un paiement pour une réservation annulée
         Booking booking = payment.getBooking();
@@ -164,7 +166,7 @@ public class PaymentServiceImpl implements PaymentService {
      */
     @Override
     @Transactional
-    public String confirmerPaiement(Long paymentId, PaymentRequest request) {
+    public void confirmerPaiement(Long paymentId, PaymentRequest request) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new BusinessLogicException("Paiement introuvable : ID " + paymentId));
 
@@ -180,7 +182,6 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setStatutPaiement(StatutPayment.EN_VERIFICATION);
         
         paymentRepository.save(payment);
-        return "Votre demande a bien été envoyée, un staff se chargera de la validation.";
     }
 
     /**

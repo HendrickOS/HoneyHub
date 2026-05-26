@@ -31,7 +31,7 @@ public interface PaymentService {
      * </p>
      * @return Liste des paiements rattachés à l'utilisateur authentifié.
      */
-    List<PaymentResponse> getMyPayments();
+    List<PaymentResponse> getPaymentsForCurrentUser();
 
     /**
      * Récupère tous les paiements liés à une session de voyage spécifique.
@@ -72,5 +72,5 @@ public interface PaymentService {
      * * @param paymentId L'identifiant technique du paiement.
      * @param request Le DTO contenant les informations de transaction.
      */
-    String confirmerPaiement(Long paymentId, PaymentRequest request);
+    void confirmerPaiement(Long paymentId, PaymentRequest request);
 }

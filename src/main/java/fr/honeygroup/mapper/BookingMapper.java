@@ -37,6 +37,7 @@ public interface BookingMapper {
     @Mapping(source = "user", target = "userNomComplet", qualifiedByName = "mapNomComplet")
     @Mapping(source = "dateCreationResa", target = "dateResa")
     @Mapping(source = "nbPlaces", target = "nbPersonnes")
+    @Mapping(target = "paymentId", expression = "java(booking.getPayments() != null && !booking.getPayments().isEmpty() ? booking.getPayments().get(0).getId() : null)")
     
     // Extraction des données de Pôle et Prestation transitant par la Session (Modèle Normalisé)
     @Mapping(source = "session.id", target = "sessionId")

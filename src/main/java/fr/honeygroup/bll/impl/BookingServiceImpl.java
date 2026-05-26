@@ -127,8 +127,13 @@ public class BookingServiceImpl implements BookingService {
         initialPayment.setStatutPaiement(StatutPayment.EN_ATTENTE_PREUVE);
         initialPayment.setMontantPaye(savedBooking.getMontantTotal());
         
-        paymentRepository.save(initialPayment);
+        // On récupère l'instance retournée par le repository pour obtenir son ID généré
+        Payment savedPayment = paymentRepository.save(initialPayment);
 
+        // 3. Transformation en réponse et injection manuelle du paymentId
+        paymentRepository.save(initialPayment);
+        savedBooking.setPayments(List.of(savedPayment));
+        
         return bookingMapper.toResponse(savedBooking);
     }
     

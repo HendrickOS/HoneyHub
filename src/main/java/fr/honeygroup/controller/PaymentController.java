@@ -92,7 +92,6 @@ public class PaymentController {
         
         Map<String, String> response = new HashMap<>();
         response.put("message", "Votre demande a bien été envoyée, un staff se chargera de la validation.");
-        response.put("status", "EN_VERIFICATION");
         
         return ResponseEntity.ok(response);
     }
@@ -135,5 +134,19 @@ public class PaymentController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<PaymentResponse>> getPaymentsByUser(@PathVariable(name = "userId") Long userId) {
         return ResponseEntity.ok(paymentService.getPaymentsByUser(userId));
+    }
+    
+    /**
+     * Récupère l'historique exhaustif des paiements associés aux dossiers de réservation de l'utilisateur authentifié.
+     * <p>
+     * Cette méthode interroge le contexte de sécurité pour identifier le porteur du jeton JWT et 
+     * filtre les flux financiers exclusivement liés à ses réservations, garantissant ainsi l'isolation 
+     * et la confidentialité des données (protection contre les fuites IDOR).
+     * </p>
+     * * @return Un {@link ResponseEntity} contenant la liste des {@link PaymentResponse} ordonnée par date.
+     */
+    @GetMapping("/me")
+    public ResponseEntity<List<PaymentResponse>> getMyPayments() {
+        return ResponseEntity.ok(paymentService.getPaymentsForCurrentUser());
     }
 }
