@@ -1,8 +1,14 @@
 package fr.honeygroup.bll.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
@@ -65,6 +71,10 @@ class UserServiceImplTest {
         updateRequest.setPreferences("Aventure");
     }
 
+    // ============================================================================
+    // WORKFLOW DE LECTURE (getCurrentUserProfile)
+    // ============================================================================
+
     @Test
     @DisplayName("Récupération profil : Succès et conversion complète en DTO")
     void getCurrentUserProfile_Succes() {
@@ -84,6 +94,23 @@ class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("Récupération profil : Succès de la conversion DTO (Null-Safe) même si le profil est absent")
+    void getCurrentUserProfile_SuccesProfilNull() {
+        // ARRANGE
+        userMock.setProfile(null);
+        when(userRepository.findByEmail("client1@honeygroup.fr")).thenReturn(Optional.of(userMock));
+
+        // ACT
+        UserProfileResponse response = userService.getCurrentUserProfile("client1@honeygroup.fr");
+
+        // ASSERT
+        assertNotNull(response);
+        assertNull(response.getAdresse());
+        assertNull(response.getTelephone());
+        verify(userRepository, times(1)).findByEmail("client1@honeygroup.fr");
+    }
+
+    @Test
     @DisplayName("Récupération profil : Échec si l'utilisateur n'existe pas")
     void getCurrentUserProfile_ErreurUserIntrouvable() {
         // ARRANGE
@@ -96,6 +123,10 @@ class UserServiceImplTest {
 
         assertEquals("User not found", exception.getMessage());
     }
+
+    // ============================================================================
+    // WORKFLOW DE MISE À JOUR (updateProfile)
+    // ============================================================================
 
     @Test
     @DisplayName("Mise à jour profil : Succès avec modification complète des données et du profil existant")
@@ -132,8 +163,44 @@ class UserServiceImplTest {
         // ASSERT
         assertNotNull(response);
         assertNotNull(userMock.getProfile(), "Le profil orphelin doit avoir été initialisé à la volée.");
+        assertEquals(userMock, userMock.getProfile().getUser(), "La relation bidirectionnelle OneToOne doit être configurée.");
         assertEquals("0607080910", response.getTelephone());
         assertEquals("Belgique", response.getPays());
         verify(userRepository, times(1)).save(userMock);
+    }
+
+    @Test
+    @DisplayName("Mise à jour profil : Les chaînes vides ou nulles pour l'identité ne doivent pas écraser l'existant")
+    void updateProfile_ChampsIdentiteVidesOuNulls_NeDoiventPasModifierLUser() {
+        // ARRANGE
+        updateRequest.setNom("");       // Chaîne vide soumise
+        updateRequest.setPrenom(null);  // Valeur nulle soumise
+        when(userRepository.findByEmail("client1@honeygroup.fr")).thenReturn(Optional.of(userMock));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // ACT
+        UserProfileResponse response = userService.updateProfile("client1@honeygroup.fr", updateRequest);
+
+        // ASSERT
+        assertNotNull(response);
+        assertEquals("nomClient1", response.getNom(), "Le nom d'origine doit être préservé si la requête fournit du texte vide.");
+        assertEquals("prenomClient1", response.getPrenom(), "Le prénom d'origine doit être préservé si la requête fournit une valeur nulle.");
+        assertEquals("0607080910", response.getTelephone(), "Les autres champs du profil doivent quant à eux être mis à jour.");
+        verify(userRepository, times(1)).save(userMock);
+    }
+
+    @Test
+    @DisplayName("Mise à jour profil : Échec si l'utilisateur à modifier n'existe pas")
+    void updateProfile_ErreurUserIntrouvable() {
+        // ARRANGE
+        when(userRepository.findByEmail("inconnu@honeygroup.fr")).thenReturn(Optional.empty());
+
+        // ACT & ASSERT
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            userService.updateProfile("inconnu@honeygroup.fr", updateRequest);
+        });
+
+        assertEquals("User not found", exception.getMessage());
+        verify(userRepository, never()).save(any());
     }
 }

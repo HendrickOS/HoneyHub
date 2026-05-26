@@ -1,7 +1,9 @@
 package fr.honeygroup.bo.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Objet de transfert de données (DTO Response) modélisant la réponse épurée 
@@ -13,6 +15,8 @@ import lombok.Data;
  * </p>
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class PoleResponse {
 

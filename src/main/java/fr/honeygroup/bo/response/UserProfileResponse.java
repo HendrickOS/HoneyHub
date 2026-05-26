@@ -1,6 +1,5 @@
 package fr.honeygroup.bo.response;
 
-import fr.honeygroup.bo.Profile;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

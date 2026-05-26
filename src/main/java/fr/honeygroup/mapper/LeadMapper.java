@@ -1,16 +1,17 @@
 package fr.honeygroup.mapper;
 
-import fr.honeygroup.bo.DemandeLead;
-import fr.honeygroup.bo.DetailsSpecifiques;
-import fr.honeygroup.bo.response.LeadResponse;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+
+import fr.honeygroup.bo.DemandeLead;
+import fr.honeygroup.bo.DetailsSpecifiques;
+import fr.honeygroup.bo.response.LeadResponse;
 
 /**
  * Composant de mapping MapStruct gérant l'aplatissement et la transformation 

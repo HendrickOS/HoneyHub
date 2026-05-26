@@ -3,8 +3,10 @@ package fr.honeygroup.bo.response;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Objet de transfert de données (DTO Response) modélisant la réponse structurée renvoyée
@@ -17,6 +19,8 @@ import lombok.Data;
  * </p>
  */
 @Data
+@NoArgsConstructor 
+@AllArgsConstructor
 @Builder
 public class LeadResponse {
 

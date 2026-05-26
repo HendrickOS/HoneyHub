@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import fr.honeygroup.bo.Booking;
+import fr.honeygroup.bo.Payment;
 import fr.honeygroup.bo.Prestation;
 import fr.honeygroup.bo.Session;
 import fr.honeygroup.bo.User;
@@ -35,6 +37,7 @@ import fr.honeygroup.exception.GlobalExceptionHandler.BusinessSecurityException;
 import fr.honeygroup.exception.GlobalExceptionHandler.SessionCapacityException;
 import fr.honeygroup.mapper.BookingMapper;
 import fr.honeygroup.repository.BookingRepository;
+import fr.honeygroup.repository.PaymentRepository;
 import fr.honeygroup.repository.SessionRepository;
 import fr.honeygroup.repository.UserRepository;
 
@@ -46,6 +49,7 @@ class BookingServiceImplTest {
     @Mock private SessionRepository sessionRepository;
     @Mock private UserRepository userRepository;
     @Mock private BookingMapper bookingMapper;
+    @Mock private PaymentRepository paymentRepository; // Ajout crucial pour éviter les NullPointerExceptions
 
     @Mock private SecurityContext securityContext;
     @Mock private Authentication authentication;
@@ -54,21 +58,33 @@ class BookingServiceImplTest {
     private BookingServiceImpl bookingService;
 
     private User clientConnecte;
+    private User autreClient;
+    private User staffConnecte;
     private Session sessionDisponible;
     private BookingRequest requestValide;
 
     @BeforeEach
     void setUp() {
-        // Mocking du contexte de sécurité global pour simuler un utilisateur authentifié
         SecurityContextHolder.setContext(securityContext);
 
-        // Initialisation des données avec nomenclature professionnelle standardisée
         clientConnecte = User.builder()
                 .id(100L)
                 .email("client1@honeygroup.fr")
                 .nom("nomClient1")
                 .prenom("prenomClient1")
                 .role(Role.CLIENT)
+                .build();
+
+        autreClient = User.builder()
+                .id(999L)
+                .email("tiers@honeygroup.fr")
+                .role(Role.CLIENT)
+                .build();
+
+        staffConnecte = User.builder()
+                .id(50L)
+                .email("staff@honeygroup.fr")
+                .role(Role.MANAGER)
                 .build();
         
         Prestation prestation = new Prestation();
@@ -87,8 +103,12 @@ class BookingServiceImplTest {
         requestValide.setNbPersonnes(2);
     }
 
+    // ============================================================================
+    // WORKFLOW DE CRÉATION (creerReservationSandbox)
+    // ============================================================================
+
     @Test
-    @DisplayName("Création Sandbox : Succès complet avec calcul financier et incrémentation de jauge")
+    @DisplayName("Création Sandbox : Succès complet avec calcul financier, jauge et cycle de paiement")
     void creerReservationSandbox_Succes() {
         // ARRANGE
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -102,6 +122,7 @@ class BookingServiceImplTest {
         when(sessionRepository.findById(10L)).thenReturn(Optional.of(sessionDisponible));
         
         when(bookingRepository.save(any(Booking.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(paymentRepository.save(any(Payment.class))).thenAnswer(invocation -> invocation.getArgument(0));
         
         BookingResponse expectedResponse = BookingResponse.builder().build();
         when(bookingMapper.toResponse(any(Booking.class))).thenReturn(expectedResponse);
@@ -116,6 +137,25 @@ class BookingServiceImplTest {
         assertEquals(StatutBooking.EN_ATTENTE_PAIEMENT, bookingInitial.getStatut(), "Le dossier doit s'initialiser au statut d'attente de paiement.");
         
         verify(bookingRepository, times(1)).save(bookingInitial);
+        verify(paymentRepository, times(2)).save(any(Payment.class)); // Appelé deux fois consécutivement dans ton implémentation
+    }
+
+    @Test
+    @DisplayName("Création Sandbox : Autorisé si un membre du Staff réserve pour un tiers")
+    void creerReservationSandbox_SuccesStaffPourTiers() {
+        // ARRANGE
+        requestValide.setUserId(999L); // Demande pour le tiers
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("staff@honeygroup.fr");
+        when(userRepository.findByEmail("staff@honeygroup.fr")).thenReturn(Optional.of(staffConnecte));
+        when(bookingMapper.toEntity(requestValide)).thenReturn(new Booking());
+        when(userRepository.findById(999L)).thenReturn(Optional.of(autreClient));
+        when(sessionRepository.findById(10L)).thenReturn(Optional.of(sessionDisponible));
+        when(bookingRepository.save(any(Booking.class))).thenReturn(new Booking());
+        when(paymentRepository.save(any(Payment.class))).thenReturn(new Payment());
+
+        // ACT & ASSERT
+        assertNotNull(bookingService.creerReservationSandbox(requestValide));
     }
 
     @Test
@@ -126,14 +166,13 @@ class BookingServiceImplTest {
         when(authentication.getName()).thenReturn("client1@honeygroup.fr");
         when(userRepository.findByEmail("client1@honeygroup.fr")).thenReturn(Optional.of(clientConnecte));
 
-        // Le client1 (ID 100) tente frauduleusement de passer une requête pour un compte tiers (ID 999)
         BookingRequest requestFraudeuse = new BookingRequest();
         requestFraudeuse.setUserId(999L); 
 
         // ACT & ASSERT
         assertThrows(BusinessSecurityException.class, () -> {
             bookingService.creerReservationSandbox(requestFraudeuse);
-        }, "Le système doit bloquer la requête en levant une exception de sécurité.");
+        });
 
         verify(bookingRepository, never()).save(any());
     }
@@ -148,15 +187,103 @@ class BookingServiceImplTest {
         when(bookingMapper.toEntity(requestValide)).thenReturn(new Booking());
         when(userRepository.findById(100L)).thenReturn(Optional.of(clientConnecte));
         
-        // Session saturée à 9 inscrits pour 10 places max. Les 2 places demandées doivent faire échouer le traitement.
-        sessionDisponible.setNbInscrits(9);
+        sessionDisponible.setNbInscrits(9); // Max 10, demande 2 -> Échec
         when(sessionRepository.findById(10L)).thenReturn(Optional.of(sessionDisponible));
 
         // ACT & ASSERT
         assertThrows(SessionCapacityException.class, () -> {
             bookingService.creerReservationSandbox(requestValide);
-        }, "L'écriture doit avorter si la capacité de places est insuffisante.");
+        });
 
+        verify(bookingRepository, never()).save(any());
+    }
+
+    // ============================================================================
+    // WORKFLOWS DE LECTURE & HISTORIQUES
+    // ============================================================================
+
+    @Test
+    @DisplayName("Historique Personnel : Extraction exclusive des dossiers de l'utilisateur connecté")
+    void getUtilisateurHistoriquePersonnel_Succes() {
+        // ARRANGE
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("client1@honeygroup.fr");
+        when(userRepository.findByEmail("client1@honeygroup.fr")).thenReturn(Optional.of(clientConnecte));
+        
+        Booking b = new Booking();
+        when(bookingRepository.findByUserIdOrderByDateCreationResaDesc(100L)).thenReturn(List.of(b));
+        when(bookingMapper.toResponse(b)).thenReturn(BookingResponse.builder().build());
+
+        // ACT
+        List<BookingResponse> result = bookingService.getUtilisateurHistoriquePersonnel();
+
+        // ASSERT
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(bookingRepository, times(1)).findByUserIdOrderByDateCreationResaDesc(100L);
+    }
+
+    @Test
+    @DisplayName("Dossier Client pour Staff : Récupération validée si l'ID cible existe")
+    void getDossierClientPourStaff_Succes() {
+        // ARRANGE
+        when(userRepository.existsById(999L)).thenReturn(true);
+        Booking b = new Booking();
+        when(bookingRepository.findByUserIdOrderByDateCreationResaDesc(999L)).thenReturn(List.of(b));
+        when(bookingMapper.toResponse(b)).thenReturn(BookingResponse.builder().build());
+
+        // ACT
+        List<BookingResponse> result = bookingService.getDossierClientPourStaff(999L);
+
+        // ASSERT
+        assertNotNull(result);
+        assertEquals(1, result.size());
+    }
+
+    // ============================================================================
+    // WORKFLOWS D'ANNULATION (demanderAnnulation / approuverAnnulation)
+    // ============================================================================
+
+    @Test
+    @DisplayName("Demander Annulation : Succès si l'appelant est bien le propriétaire légitime")
+    void demanderAnnulation_Succes() {
+        // ARRANGE
+        Booking bookingValide = Booking.builder()
+                .id(200L)
+                .user(clientConnecte)
+                .statut(StatutBooking.EN_ATTENTE_PAIEMENT)
+                .build();
+
+        when(bookingRepository.findById(200L)).thenReturn(Optional.of(bookingValide));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("client1@honeygroup.fr");
+
+        // ACT
+        bookingService.demanderAnnulation(200L);
+
+        // ASSERT
+        assertEquals(StatutBooking.DEMANDE_ANNULATION, bookingValide.getStatut());
+        verify(bookingRepository, times(1)).save(bookingValide);
+    }
+
+    @Test
+    @DisplayName("Demander Annulation : Échec (IDOR) si l'appelant n'est pas le propriétaire du dossier")
+    void demanderAnnulation_ErreurIdor() {
+        // ARRANGE
+        Booking bookingTiers = Booking.builder()
+                .id(200L)
+                .user(autreClient) // Appartient à ID 999
+                .statut(StatutBooking.EN_ATTENTE_PAIEMENT)
+                .build();
+
+        when(bookingRepository.findById(200L)).thenReturn(Optional.of(bookingTiers));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("client1@honeygroup.fr"); // ID 100
+
+        // ACT & ASSERT
+        assertThrows(BusinessSecurityException.class, () -> {
+            bookingService.demanderAnnulation(200L);
+        });
         verify(bookingRepository, never()).save(any());
     }
 

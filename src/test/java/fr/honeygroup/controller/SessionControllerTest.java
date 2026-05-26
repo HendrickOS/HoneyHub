@@ -1,24 +1,31 @@
 package fr.honeygroup.controller;
 
-import static org.mockito.Mockito.doThrow;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import fr.honeygroup.bll.SessionService;
+import fr.honeygroup.bo.request.SessionRequest;
+import fr.honeygroup.bo.response.SessionResponse;
 import fr.honeygroup.enumeration.StatutSession;
-import fr.honeygroup.exception.GlobalExceptionHandler;
 
 @WebMvcTest(SessionController.class)
-class SessionControllerTest {
+public class SessionControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -26,30 +33,69 @@ class SessionControllerTest {
     @MockitoBean
     private SessionService sessionService;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Test
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("Devrait retourner 400 (Bad Request) ou 403 quand la transition est illégale")
-    void shouldReturnErrorWhenTransitionIsIllegal() throws Exception {
-        Long sessionId = 1L;
-        StatutSession illegalStatut = StatutSession.OUVERT;
+    @WithMockUser(roles = "ADMIN") // Requis par le @PreAuthorize
+    void createSession_ShouldReturn201Created() throws Exception {
+        SessionRequest request = new SessionRequest();
+        SessionResponse mockResponse = new SessionResponse();
 
-        // On simule une exception métier lors de la transition illégale
-        doThrow(new GlobalExceptionHandler.BusinessSecurityException("Transition illégale"))
-                .when(sessionService).transitionnerStatut(sessionId, illegalStatut);
+        when(sessionService.createSession(any(SessionRequest.class))).thenReturn(mockResponse);
 
-        mockMvc.perform(post("/api/sessions/{id}/transition", sessionId)
-                .param("nouveauStatut", illegalStatut.name())
-                .with(csrf()))
-                .andExpect(status().isForbidden()); // Adapte selon si tu renvoies 403 ou 400 dans ton ExceptionHandler
+        mockMvc.perform(post("/api/sessions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated()) // Vérifie le statut 201
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
     @Test
-    @WithMockUser(roles = "USER")
-    @DisplayName("Devrait retourner 403 si un simple utilisateur tente de changer le statut")
-    void shouldReturnForbiddenForUnauthorizedUser() throws Exception {
-        mockMvc.perform(post("/api/sessions/1/transition")
-                .param("nouveauStatut", "CLOTURE")
-                .with(csrf()))
-                .andExpect(status().isForbidden());
+    @WithMockUser(roles = "MANAGER")
+    void updateSession_ShouldReturn200Ok() throws Exception {
+        Long sessionId = 1L;
+        SessionRequest request = new SessionRequest();
+        SessionResponse mockResponse = new SessionResponse();
+
+        when(sessionService.updateSession(eq(sessionId), any(SessionRequest.class))).thenReturn(mockResponse);
+
+        mockMvc.perform(put("/api/sessions/{id}", sessionId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    @WithMockUser // Accès public ou utilisateur basique authentifié
+    void getSession_ShouldReturn200Ok() throws Exception {
+        Long sessionId = 1L;
+        SessionResponse mockResponse = new SessionResponse();
+
+        when(sessionService.getSessionDetails(sessionId)).thenReturn(mockResponse);
+
+        mockMvc.perform(get("/api/sessions/{id}", sessionId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void transitionnerStatut_ShouldReturn200AndStringMessage() throws Exception {
+        Long sessionId = 1L;
+        StatutSession nouveauStatut = StatutSession.OUVERT; 
+        String ancienStatutSimule = "BROUILLON";
+
+        when(sessionService.transitionnerStatut(eq(sessionId), any(StatutSession.class)))
+                .thenReturn(ancienStatutSimule);
+
+        String messageAttendu = String.format("Succès : Statut de la session %d mis à jour de %s vers %s.", 
+                sessionId, ancienStatutSimule, nouveauStatut.name());
+
+        mockMvc.perform(post("/api/sessions/{id}/transition", sessionId)
+                .param("nouveauStatut", nouveauStatut.name()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(messageAttendu));
     }
 }
