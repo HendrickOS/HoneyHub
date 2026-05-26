@@ -9,12 +9,25 @@ package fr.honeygroup.enumeration;
  * </p>
  */
 public enum StatutPayment {
+	
+	/**
+     * État initial : Le paiement est créé mais le client n'a pas encore 
+     * soumis son justificatif (virement ou Mobile Money).
+     */
+    EN_ATTENTE_PREUVE {
+        @Override
+        public boolean peutBasculerVers(StatutPayment nouveauStatut) {
+            // Le client peut soumettre sa preuve pour passer à la vérification
+            return nouveauStatut == EN_VERIFICATION;
+        }
+    },
 
     /**
-     * Statut initial par défaut d'un paiement dès sa soumission par le client.
+     * Statut de transition suite à la soumission d'une preuve de paiement par le client.
      * <p>
-     * Signifie que la pièce justificative (URL ou PDF) a été correctement réceptionnée 
-     * par le système et se trouve en attente d'un contrôle visuel et bancaire de la part du gérant.
+     * Signifie que la pièce justificative (URL ou PDF) a été transmise au système 
+     * et se trouve désormais en attente d'un contrôle visuel et bancaire 
+     * rigoureux de la part de l'équipe de gestion.
      * </p>
      */
     EN_VERIFICATION {
@@ -59,4 +72,15 @@ public enum StatutPayment {
      * @return true si le changement d'état respecte le workflow, sinon false.
      */
     public abstract boolean peutBasculerVers(StatutPayment nouveauStatut);
+    
+    /**
+     * Valide de manière défensive si la transition vers un nouvel état est légale.
+     * @param nouveauStatut Le statut cible.
+     * @throws IllegalStateException si la transition est interdite.
+     */
+    public void verifierTransition(StatutPayment nouveauStatut) {
+        if (!this.peutBasculerVers(nouveauStatut)) {
+            throw new IllegalStateException("Transition illégale de " + this + " vers " + nouveauStatut);
+        }
+    }
 }

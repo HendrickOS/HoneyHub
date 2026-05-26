@@ -1,11 +1,12 @@
 package fr.honeygroup.repository;
 
-import fr.honeygroup.bo.Payment;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
+import fr.honeygroup.bo.Payment;
 
 /**
  * Dépôt de données (Repository) Spring Data JPA dédié à la persistance et à la gestion de l'entité {@link Payment}.
@@ -39,4 +40,32 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
      * @return Une liste de {@link Payment} rattachés contractuellement à ce dossier.
      */
     List<Payment> findByBookingId(Long bookingId);
+    
+    /**
+     * Récupère l'ensemble des transactions effectuées par un utilisateur spécifique.
+     * <p>
+     * Utilisé pour la vue "Mes Paiements" (Dashboard client) afin de filtrer 
+     * les paiements via la relation {@code booking.user.email}.
+     * </p>
+     * @param email L'adresse email (identifiant unique) de l'utilisateur.
+     * @return Liste des paiements associés à l'utilisateur.
+     */
+    List<Payment> findByBookingUserEmail(String email);
+
+    /**
+     * Récupère l'ensemble des transactions rattachées à une session de voyage donnée.
+     * <p>
+     * Utilisé par les administrateurs pour le suivi financier consolidé d'une session.
+     * </p>
+     * @param sessionId L'identifiant technique de la session.
+     * @return Liste des paiements associés à la session.
+     */
+    List<Payment> findByBookingSessionId(Long sessionId);
+    
+    /**
+     * Récupère tous les paiements liés à un utilisateur donné.
+     * @param userId L'identifiant technique de l'utilisateur.
+     * @return Liste des paiements associés à cet utilisateur.
+     */
+    List<Payment> findByBookingUserId(Long userId);
 }

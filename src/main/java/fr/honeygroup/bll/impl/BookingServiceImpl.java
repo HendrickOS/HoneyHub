@@ -9,16 +9,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import fr.honeygroup.bll.BookingService;
 import fr.honeygroup.bo.Booking;
+import fr.honeygroup.bo.Payment;
 import fr.honeygroup.bo.Session;
 import fr.honeygroup.bo.User;
 import fr.honeygroup.bo.request.BookingRequest;
 import fr.honeygroup.bo.response.BookingResponse;
 import fr.honeygroup.enumeration.Role;
 import fr.honeygroup.enumeration.StatutBooking;
+import fr.honeygroup.enumeration.StatutPayment;
 import fr.honeygroup.exception.GlobalExceptionHandler.BusinessSecurityException;
 import fr.honeygroup.exception.GlobalExceptionHandler.SessionCapacityException;
 import fr.honeygroup.mapper.BookingMapper;
 import fr.honeygroup.repository.BookingRepository;
+import fr.honeygroup.repository.PaymentRepository;
 import fr.honeygroup.repository.SessionRepository;
 import fr.honeygroup.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,17 +43,23 @@ public class BookingServiceImpl implements BookingService {
     private final SessionRepository sessionRepository;
     private final UserRepository userRepository;
     private final BookingMapper bookingMapper;
+    private final PaymentRepository paymentRepository;
 
     /**
      * Crée et persiste une nouvelle réservation en base de données pour une session de voyage spécifique.
      * <p>
-     * Cette méthode valide la disponibilité des places par rapport à la capacité maximale de la session,
-     * calcule dynamiquement le montant financier global et force l'état initial du dossier.
+     * Cette méthode effectue plusieurs opérations critiques :
+     * 1. Valide l'identité du demandeur (prévention IDOR).
+     * 2. Vérifie la disponibilité des places par rapport à la capacité maximale de la session.
+     * 3. Calcule dynamiquement le montant financier global.
+     * 4. Initialise le statut du dossier et génère automatiquement un enregistrement de paiement 
+     * lié à l'état {@code EN_VERIFICATION}.
      * </p>
-     * @param request Objet DTO contenant les données d'entrée de la réservation émises par le Frontend.
+     * * @param request Objet DTO contenant les données d'entrée de la réservation.
      * @return BookingResponse Le DTO de réponse enrichi modélisant la réservation persistée.
-     * @throws RuntimeException Si l'utilisateur connecté n'est pas identifié, en cas de violation de privilèges (IDOR), 
-     * si les entités cibles n'existent pas ou si la jauge maximale de la session est dépassée.
+     * @throws RuntimeException Si l'utilisateur est introuvable ou si les entités cibles sont manquantes.
+     * @throws BusinessSecurityException Si une tentative d'usurpation d'identité (IDOR) est détectée.
+     * @throws SessionCapacityException Si le nombre de places demandées excède la capacité restante de la session.
      */
     @Override
     @Transactional
@@ -60,17 +69,12 @@ public class BookingServiceImpl implements BookingService {
         // LOGIQUE DE SÉCURITÉ CONTEXTUELLE (Prévention des failles de privilèges / IDOR)
         // ============================================================================
         
-        // 1. Extraction de l'identifiant (email) de l'utilisateur actuellement authentifié via Spring Security
         String emailConnecte = SecurityContextHolder.getContext().getAuthentication().getName();
         
-        // 2. Récupération de l'entité User correspondante pour valider son existence et auditer son rôle
         User utilisateurConnecte = userRepository.findByEmail(emailConnecte)
                 .orElseThrow(() -> new RuntimeException("Erreur de sécurité : L'utilisateur connecté est introuvable en base."));
 
-        // 3. Contrôle de coherence : On vérifie si l'utilisateur tente de réserver pour le compte d'un autre ID
         if (request.getUserId() != null && !request.getUserId().equals(utilisateurConnecte.getId())) {
-            
-            // Seuls les membres du personnel authentifiés (ADMIN ou MANAGER) possèdent le droit de substitution
             boolean isStaff = utilisateurConnecte.getRole() == Role.ADMIN || 
                               utilisateurConnecte.getRole() == Role.MANAGER;
             
@@ -78,26 +82,21 @@ public class BookingServiceImpl implements BookingService {
                 throw new BusinessSecurityException("Accès refusé : Vos privilèges actuels ne vous permettent pas de réserver pour un tiers.");
             }
         } else {
-            // Si le champ userId est omis ou conforme, on force l'injection de l'ID de l'utilisateur authentifié
             request.setUserId(utilisateurConnecte.getId());
         }
 
         // ============================================================================
-        // TRAITEMENT MÉTIER DE LA RÉSERVATION (Modèle 2 : Sessions Fixes)
+        // TRAITEMENT MÉTIER DE LA RÉSERVATION
         // ============================================================================
 
-        // 1. Initialisation de l'entité Booking via le convertisseur de structure (Mapper MapStruct)
         Booking booking = bookingMapper.toEntity(request);
 
-        // 2. Chargement des agrégations et dépendances indispensables depuis les référentiels de données
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("Donnée invalide : L'utilisateur ID " + request.getUserId() + " n'existe pas."));
         
-        // Récupération de la session temporelle sélective (qui porte le calendrier et la jauge du voyage)
         Session session = sessionRepository.findById(request.getSessionId())
                 .orElseThrow(() -> new RuntimeException("Donnée invalide : La session de voyage ID " + request.getSessionId() + " est introuvable."));
 
-        // 3. Application de la Règle Métier : Vérification stricte de la jauge de capacité (Demande de Robert)
         int placesDemandees = request.getNbPersonnes() != null ? request.getNbPersonnes() : 1;
         
         if (session.getNbInscrits() + placesDemandees > session.getCapaciteMax()) {
@@ -105,30 +104,31 @@ public class BookingServiceImpl implements BookingService {
                     + (session.getCapaciteMax() - session.getNbInscrits()));
         }
 
-        // 4. Mutation des données et mise à jour dynamique du graphe d'objets
         booking.setUser(user);
         booking.setSession(session);
         booking.setNbPlaces(placesDemandees);
-        
-        // Incrémentation immédiate du compteur d'inscrits de la session parente (Sauvegardé par cascade de persistance)
         session.setNbInscrits(session.getNbInscrits() + placesDemandees);
 
-        // 5. Calcul de l'enveloppe budgétaire : Extraction du tarif unitaire de la prestation via la session
         BigDecimal prixUnitaire = BigDecimal.valueOf(session.getPrestation().getPrixBase());
         BigDecimal total = prixUnitaire.multiply(new BigDecimal(placesDemandees));
         booking.setMontantTotal(total);
-
-        // 6. Cadrage du Workflow Métier : Initialisation obligatoire au statut de blocage "EN_ATTENTE_PAIEMENT"
         booking.setStatut(StatutBooking.EN_ATTENTE_PAIEMENT);
 
         // ============================================================================
-        // PERSISTANCE ET RETOUR
+        // PERSISTANCE ET INITIALISATION DU PAIEMENT
         // ============================================================================
         
-        // Sauvegarde de l'arbre d'entités en base de données MariaDB
+        // 1. Sauvegarde du dossier de réservation
         Booking savedBooking = bookingRepository.save(booking);
 
-        // Conversion de l'entité persistée vers le format de réponse sécurisé destiné au Frontend
+        // 2. Création automatique de la ligne de paiement corrélée
+        Payment initialPayment = new Payment();
+        initialPayment.setBooking(savedBooking);
+        initialPayment.setStatutPaiement(StatutPayment.EN_ATTENTE_PREUVE);
+        initialPayment.setMontantPaye(savedBooking.getMontantTotal());
+        
+        paymentRepository.save(initialPayment);
+
         return bookingMapper.toResponse(savedBooking);
     }
     
@@ -167,7 +167,13 @@ public class BookingServiceImpl implements BookingService {
     
     /**
      * Initialise une procédure de résiliation sur un dossier de réservation en mutant son statut d'avancement.
-     * @throws BusinessSecurityException Si le demandeur n'est pas propriétaire ou si la transition d'état de l'enum est illégale.
+     * <p>
+     * Cette méthode vérifie l'identité du propriétaire du dossier et valide la légitimité de 
+     * la transition d'état via le moteur de workflow embarqué dans l'énumération {@link StatutBooking}.
+     * </p>
+     * @param bookingId Identifiant unique de la réservation à annuler.
+     * @throws BusinessSecurityException Si le demandeur n'est pas propriétaire ou si la transition 
+     * d'état est interdite par la machine à états.
      */
     @Override
     @Transactional
@@ -175,25 +181,29 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Dossier introuvable : Impossible de localiser la réservation ID " + bookingId));
 
-        // Validation stricte de la propriété du dossier
+        // 1. Validation stricte de la propriété du dossier (Prévention IDOR)
         String emailConnecte = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!booking.getUser().getEmail().equals(emailConnecte)) {
             throw new BusinessSecurityException("Violation d'accès : Vous n'êtes pas propriétaire de ce dossier de réservation.");
         }
 
-        // LEVIER SÉCURITÉ AUTOMATE : Vérification de la légitimité du changement d'état via l'enum
-        if (!booking.getStatut().peutBasculerVers(StatutBooking.DEMANDE_ANNULATION)) {
-            throw new BusinessSecurityException("Opération refusée : Impossible d'initier une demande d'annulation depuis le statut actuel (" + booking.getStatut() + ").");
-        }
+        // 2. LEVIER SÉCURITÉ AUTOMATE : Vérification de la conformité de la transition d'état
+        booking.getStatut().verifierTransition(StatutBooking.DEMANDE_ANNULATION);
 
-        // Mutation du statut vers l'étape d'examen
+        // 3. Mutation du statut vers l'étape d'examen
         booking.setStatut(StatutBooking.DEMANDE_ANNULATION);
         bookingRepository.save(booking);
     }
     
     /**
      * Approuve et valide définitivement la résiliation d'une réservation (Action d'administration).
-     * @throws BusinessSecurityException Si la transition d'état demandée au sein de l'enum est illégale.
+     * <p>
+     * Cette méthode valide la légitimité de la transition d'état via la machine à états 
+     * intégrée à {@link StatutBooking}, puis procède à la libération des ressources 
+     * (places en session) libérées par l'annulation.
+     * </p>
+     * @param bookingId Identifiant unique de la réservation à clôturer.
+     * @throws BusinessSecurityException Si la transition d'état demandée est illégale selon le workflow métier.
      */
     @Override
     @Transactional
@@ -201,19 +211,17 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Dossier introuvable : Impossible de localiser la réservation ID " + bookingId));
 
-        // LEVIER SÉCURITÉ AUTOMATE : Validation réglementaire de la transition d'état via l'enum
-        if (!booking.getStatut().peutBasculerVers(StatutBooking.ANNULE)) {
-            throw new BusinessSecurityException("Opération administrative refusée : Transition illégale depuis le statut actuel (" + booking.getStatut() + ").");
-        }
+        // 1. LEVIER SÉCURITÉ AUTOMATE : Validation réglementaire via le moteur de workflow
+        booking.getStatut().verifierTransition(StatutBooking.ANNULE);
 
-        // Logique Métier : Libération des places réservées dans le calendrier pour les prochains clients
+        // 2. Logique Métier : Libération des places réservées dans le calendrier pour les prochains clients
         Session session = booking.getSession();
         if (session != null) {
             int nouveauxInscrits = Math.max(0, session.getNbInscrits() - booking.getNbPlaces());
             session.setNbInscrits(nouveauxInscrits);
         }
 
-        // Clôture définitive du dossier
+        // 3. Clôture définitive du dossier
         booking.setStatut(StatutBooking.ANNULE);
         bookingRepository.save(booking);
     }

@@ -1,6 +1,8 @@
 package fr.honeygroup.bo;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import fr.honeygroup.enumeration.StatutPayment;
+import fr.honeygroup.enumeration.TypePayment;
 
 @DisplayName("Tests unitaires de l'entité Payment (Flux Financiers)")
 class PaymentTest {
@@ -44,7 +47,7 @@ class PaymentTest {
         Payment payment = Payment.builder()
                 .id(42L)
                 .booking(bookingDeTest)
-                .methode("VIREMENT_BANCAIRE")
+                .methode(TypePayment.VIREMENT_BANCAIRE)
                 .transactionId("TX-HONEY-998877")
                 .montantPaye(new BigDecimal("1500.00"))
                 .preuveUrl("uploads/justificatifs/recu_virement_42.pdf")

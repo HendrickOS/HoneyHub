@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import fr.honeygroup.enumeration.StatutPayment;
+import fr.honeygroup.enumeration.TypePayment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,7 +33,7 @@ public class PaymentResponse {
     /**
      * Canal d'acquisition monétaire utilisé pour la transaction (ex: STRIPE, VIREMENT, MOBILE_MONEY).
      */
-    private String methode;
+    private TypePayment methode;
 
     /**
      * Référence ou numéro de reçu unique émis par l'opérateur financier externe.

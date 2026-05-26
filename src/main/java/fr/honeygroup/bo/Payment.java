@@ -1,13 +1,28 @@
 package fr.honeygroup.bo;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import fr.honeygroup.enumeration.StatutPayment;
+import fr.honeygroup.enumeration.TypePayment;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Entité représentant un flux financier ou un règlement (Payment) adossé à un dossier.
@@ -43,12 +58,16 @@ public class Payment {
     private Booking booking;
 
     /**
-     * Canal ou moyen de paiement utilisé par l'usager.
-     * Exemples de valeurs cibles : VIREMENT_BANCAIRE, MOBILE_MONEY (Mvola, Orange Money, Airtel Money).
+     * Canal ou moyen de paiement sélectionné par l'usager pour régler sa réservation.
+     * <p>
+     * Ce champ est initialisé à {@code null} lors de la création automatique du paiement,
+     * puis renseigné par l'utilisateur lors de l'envoi de sa preuve de transaction.
+     * </p>
+     * @see fr.honeygroup.enumeration.TypePayment
      */
-    @NotBlank
-    @Column(name = "methode", length = 50, nullable = false)
-    private String methode;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "methode", length = 50)
+    private TypePayment methode;
 
     /**
      * Référence ou identifiant unique de transaction émis par l'établissement bancaire ou l'opérateur télécom.

@@ -1,6 +1,8 @@
 package fr.honeygroup.bo.request;
 
 import java.math.BigDecimal;
+
+import fr.honeygroup.enumeration.TypePayment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,7 +40,7 @@ public class PaymentRequest {
     /**
      * Canal de paiement utilisé par le client (ex: VIREMENT, MOBILE_MONEY).
      */
-    private String methode;
+    private TypePayment methode;
 
     /**
      * URL ou chemin vers le justificatif numérique (PDF/Image) téléversé sur le stockage sécurisé.

@@ -2,11 +2,13 @@ package fr.honeygroup.bll.impl;
 
 import java.util.List;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import fr.honeygroup.bll.PaymentService;
 import fr.honeygroup.bo.Payment;
+import fr.honeygroup.bo.request.PaymentRequest;
 import fr.honeygroup.bo.response.PaymentResponse;
 import fr.honeygroup.enumeration.StatutBooking;
 import fr.honeygroup.enumeration.StatutPayment;
@@ -58,6 +60,54 @@ public class PaymentServiceImpl implements PaymentService {
                 .map(paymentMapper::toResponse)
                 .toList();
     }
+    
+    /**
+     * Récupère l'historique de tous les paiements effectués par l'utilisateur connecté.
+     * Utilisé pour alimenter le Dashboard client.
+     * * @return Liste des paiements appartenant à l'utilisateur authentifié.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<PaymentResponse> getMyPayments() {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        return paymentRepository.findByBookingUserEmail(userEmail)
+                .stream()
+                .map(paymentMapper::toResponse)
+                .toList();
+    }
+    
+    /**
+     * Récupère tous les paiements liés à une session spécifique.
+     * Accès réservé au personnel (ADMIN/MANAGER).
+     * * @param sessionId Identifiant de la session de voyage.
+     * @return Liste des paiements rattachés à la session.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<PaymentResponse> getPaymentsBySession(Long sessionId) {
+        return paymentRepository.findByBookingSessionId(sessionId)
+                .stream()
+                .map(paymentMapper::toResponse)
+                .toList();
+    }
+    
+    /**
+     * Récupère l'historique complet des transactions financières pour un utilisateur donné.
+     * <p>
+     * Cette méthode est destinée au support client et au service comptabilité pour 
+     * auditer l'ensemble des règlements effectués par un client spécifique.
+     * </p>
+     * @param userId Identifiant technique de l'utilisateur cible.
+     * @return Liste des paiements associés à l'utilisateur.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<PaymentResponse> getPaymentsByUser(Long userId) {
+        return paymentRepository.findByBookingUserId(userId)
+                .stream()
+                .map(paymentMapper::toResponse)
+                .toList();
+    }
 
     /**
      * Valide un paiement et synchronise automatiquement le statut de la réservation associée.
@@ -90,6 +140,37 @@ public class PaymentServiceImpl implements PaymentService {
             payment.getBooking().setStatut(StatutBooking.CONFIRME);
             // La sauvegarde est gérée par la cascade ou par le contexte de persistance @Transactional
         }
+    }
+    
+    /**
+     * Enregistre les détails de la preuve de paiement soumise par le client.
+     * <p>
+     * Cette méthode valide la transition d'état via l'automate {@link StatutPayment},
+     * met à jour les informations de transaction et bascule le paiement dans l'état 
+     * {@link StatutPayment#EN_VERIFICATION} pour examen par le personnel.
+     * </p>
+     * @param paymentId L'identifiant technique du paiement.
+     * @param request Le DTO contenant les informations transmises par le client.
+     * @throws BusinessSecurityException Si la transition est illégale ou si le paiement est introuvable.
+     */
+    @Override
+    @Transactional
+    public void confirmerPaiement(Long paymentId, PaymentRequest request) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new BusinessLogicException("Paiement introuvable : ID " + paymentId));
+
+        // 1. LEVIER SÉCURITÉ AUTOMATE : Vérification de la transition depuis EN_ATTENTE_PREUVE
+        payment.getStatutPaiement().verifierTransition(StatutPayment.EN_VERIFICATION);
+
+        // 2. Mise à jour des données de paiement
+        payment.setMethode(request.getMethode());
+        payment.setTransactionId(request.getTransactionId());
+        payment.setPreuveUrl(request.getPreuveUrl());
+        
+        // 3. Mutation vers l'état EN_VERIFICATION
+        payment.setStatutPaiement(StatutPayment.EN_VERIFICATION);
+        
+        paymentRepository.save(payment);
     }
 
     /**

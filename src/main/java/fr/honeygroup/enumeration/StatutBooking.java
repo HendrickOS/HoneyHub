@@ -74,4 +74,14 @@ public enum StatutBooking {
      * @return true si le changement d'état respecte le workflow, sinon false.
      */
     public abstract boolean peutBasculerVers(StatutBooking nouveauStatut);
+    
+    /**
+     * Vérifie la transition et lance une exception si elle est interdite.
+     * Utile pour valider les changements d'état dans tes services.
+     */
+    public void verifierTransition(StatutBooking nouveauStatut) {
+        if (!this.peutBasculerVers(nouveauStatut)) {
+            throw new IllegalStateException("Transition illégale de " + this + " vers " + nouveauStatut);
+        }
+    }
 }
