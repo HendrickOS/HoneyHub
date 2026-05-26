@@ -152,14 +152,17 @@ public class SessionServiceImpl implements SessionService {
      */
     @Override
     @Transactional
-    public void transitionnerStatut(Long sessionId, StatutSession nouveauStatut) {
+    public String transitionnerStatut(Long sessionId, StatutSession nouveauStatut) {
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new BusinessLogicException("Session introuvable : ID " + sessionId));
+
+        // Sauvegarde du statut actuel avant modification pour le retour d'information
+        String ancienStatut = session.getStatutSession().name();
 
         // Vérification de la légitimité du changement d'état via l'automate d'états
         if (!session.getStatutSession().peutBasculerVers(nouveauStatut)) {
             throw new BusinessSecurityException(
-                "Action refusée : Transition de statut illégale (" + session.getStatutSession() + 
+                "Action refusée : Transition de statut illégale (" + ancienStatut + 
                 " -> " + nouveauStatut + ") pour la session ID " + sessionId
             );
         }
@@ -167,6 +170,8 @@ public class SessionServiceImpl implements SessionService {
         // Mise à jour et persistance
         session.setStatutSession(nouveauStatut);
         sessionRepository.save(session);
+        
+        return ancienStatut;
     }
 
     /**

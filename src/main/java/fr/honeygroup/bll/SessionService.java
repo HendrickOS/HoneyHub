@@ -47,5 +47,5 @@ public interface SessionService {
      * @throws fr.honeygroup.exception.GlobalExceptionHandler.BusinessSecurityException Si la transition demandée est interdite par les règles de l'automate métier.
      * @throws fr.honeygroup.exception.GlobalExceptionHandler.BusinessLogicException Si la session demandée n'existe pas.
      */
-    void transitionnerStatut(Long sessionId, StatutSession nouveauStatut);
+    String transitionnerStatut(Long sessionId, StatutSession nouveauStatut);
 }

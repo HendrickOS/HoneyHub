@@ -28,15 +28,16 @@ public class PaymentController {
      * Accessible à l'utilisateur propriétaire ou au personnel.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<PaymentResponse> getPayment(@PathVariable Long id) {
+    public ResponseEntity<PaymentResponse> getPayment(@PathVariable(name = "id") Long id) {
         return ResponseEntity.ok(paymentService.getPaymentDetails(id));
     }
 
     /**
      * Récupère l'historique des paiements pour une réservation donnée.
      */
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER') or @securityService.isOwnerOfBooking(#bookingId)")
     @GetMapping("/booking/{bookingId}")
-    public ResponseEntity<List<PaymentResponse>> getPaymentsByBooking(@PathVariable Long bookingId) {
+    public ResponseEntity<List<PaymentResponse>> getPaymentsByBooking(@PathVariable(name = "bookingId") Long bookingId) {
         return ResponseEntity.ok(paymentService.getPaymentsByBooking(bookingId));
     }
 
@@ -45,7 +46,7 @@ public class PaymentController {
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PostMapping("/{id}/valider")
-    public ResponseEntity<Void> validerPaiement(@PathVariable Long id) {
+    public ResponseEntity<Void> validerPaiement(@PathVariable(name = "id") Long id) {
         paymentService.validerPaiement(id);
         return ResponseEntity.ok().build();
     }
@@ -55,7 +56,7 @@ public class PaymentController {
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PostMapping("/{id}/rejeter")
-    public ResponseEntity<Void> rejeterPaiement(@PathVariable Long id) {
+    public ResponseEntity<Void> rejeterPaiement(@PathVariable(name = "id") Long id) {
         paymentService.rejeterPaiement(id);
         return ResponseEntity.ok().build();
     }
