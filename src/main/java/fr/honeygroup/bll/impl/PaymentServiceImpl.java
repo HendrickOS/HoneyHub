@@ -123,7 +123,7 @@ public class PaymentServiceImpl implements PaymentService {
      */
     @Override
     @Transactional
-    public void validerPaiement(Long paymentId) {
+    public String validerPaiement(Long paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new BusinessLogicException("Paiement introuvable : ID " + paymentId));
         
@@ -147,6 +147,8 @@ public class PaymentServiceImpl implements PaymentService {
         
         paymentRepository.save(payment);
         bookingRepository.save(booking);
+        
+        return "Paiement validé avec succès pour la réservation #" + booking.getId();
     }
     
     /**
@@ -192,7 +194,7 @@ public class PaymentServiceImpl implements PaymentService {
      */
     @Override
     @Transactional
-    public void rejeterPaiement(Long paymentId) {
+    public String rejeterPaiement(Long paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new BusinessLogicException("Paiement introuvable : ID " + paymentId));
 
@@ -204,6 +206,8 @@ public class PaymentServiceImpl implements PaymentService {
         // 2. Mise à jour du statut du paiement vers REJETE
         payment.setStatutPaiement(StatutPayment.REJETE);
         paymentRepository.save(payment);
+        
+        return "Le paiement #" + paymentId + " a été rejeté. Le client peut soumettre une nouvelle preuve.";
         
         // Note : Le Booking n'est pas modifié ici, il reste en EN_ATTENTE_PAIEMENT,
         // ce qui permet au client de charger un nouveau justificatif via l'interface.

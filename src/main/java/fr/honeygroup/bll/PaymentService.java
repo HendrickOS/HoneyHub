@@ -56,7 +56,7 @@ public interface PaymentService {
      * et peut induire une validation automatique de la réservation liée.
      * </p>
      */
-    void validerPaiement(Long paymentId);
+    String validerPaiement(Long paymentId);
 
     /**
      * Marque un paiement comme rejeté suite à une vérification comptable infructueuse.
@@ -65,7 +65,7 @@ public interface PaymentService {
      * conforme aux exigences de Honey Group.
      * </p>
      */
-    void rejeterPaiement(Long paymentId);
+    String rejeterPaiement(Long paymentId);
     
     /**
      * Enregistre les détails du paiement fournis par le client pour permettre la vérification comptable.

@@ -51,13 +51,26 @@ public class PaymentController {
     }
 
     /**
-     * Valide un paiement (Action réservée au Staff).
+     * Valide un paiement soumis par un client et confirme la réservation associée.
+     * <p>
+     * Cette opération est réservée aux utilisateurs disposant des rôles ADMIN ou MANAGER.
+     * Elle effectue une transition atomique du paiement vers l'état VALIDE et de la 
+     * réservation vers l'état CONFIRME.
+     * </p>
+     * * @param id L'identifiant technique du paiement à valider.
+     * @return Un {@link ResponseEntity} contenant un message de confirmation et les nouveaux statuts.
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PostMapping("/{id}/valider")
-    public ResponseEntity<Void> validerPaiement(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<Map<String, String>> validerPaiement(@PathVariable(name = "id") Long id) {
         paymentService.validerPaiement(id);
-        return ResponseEntity.ok().build();
+        
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Le paiement #" + id + " a été validé avec succès.");
+        response.put("status", "VALIDE");
+        response.put("bookingStatus", "CONFIRME");
+        
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -85,21 +98,24 @@ public class PaymentController {
     }
     
     /**
-     * Rejette un paiement (Action réservée au Staff).
+     * Marque un paiement comme rejeté suite à une vérification comptable infructueuse.
+     * <p>
+     * Le dossier de réservation reste dans son état actuel (attente de paiement) pour permettre
+     * au client de soumettre une nouvelle preuve de transaction conforme.
+     * </p>
+     * @param id L'identifiant technique du paiement à rejeter.
+     * @return Un {@link ResponseEntity} contenant un message d'information et le statut REJETE.
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PostMapping("/{id}/rejeter")
-    public ResponseEntity<Void> rejeterPaiement(@PathVariable(name = "id") Long id) {
-        paymentService.rejeterPaiement(id);
-        return ResponseEntity.ok().build();
-    }
-    
-    /**
-     * Récupère tous les paiements de l'utilisateur connecté (pour le Dashboard).
-     */
-    @GetMapping("/me")
-    public ResponseEntity<List<PaymentResponse>> getMyPayments() {
-        return ResponseEntity.ok(paymentService.getMyPayments());
+    public ResponseEntity<Map<String, String>> rejeterPaiement(@PathVariable(name = "id") Long id) {
+        String message = paymentService.rejeterPaiement(id);
+        
+        Map<String, String> response = new HashMap<>();
+        response.put("message", message);
+        response.put("status", "REJETE");
+        
+        return ResponseEntity.ok(response);
     }
 
     /**
