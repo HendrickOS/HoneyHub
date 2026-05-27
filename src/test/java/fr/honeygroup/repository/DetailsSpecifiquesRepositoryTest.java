@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import fr.honeygroup.bo.DemandeLead;
 import fr.honeygroup.bo.DetailsSpecifiques;
+import fr.honeygroup.bo.Pole;
 
 @DataJpaTest
 @DisplayName("Tests du repository DetailsSpecifiquesRepository")
@@ -27,19 +28,21 @@ class DetailsSpecifiquesRepositoryTest {
     @DisplayName("Requête : Trouver tous les détails par ID de Lead")
     void findByDemandeLeadId_ShouldReturnDetailsForLead() {
         // 1. Préparation
-        DemandeLead lead = new DemandeLead();
-        entityManager.persist(lead);
+        Pole pole = RepositoryTestHelper.persistValidPole(entityManager, "Ecotourisme");
+        DemandeLead lead = RepositoryTestHelper.persistValidDemandeLead(entityManager, pole, null);
 
-        DetailsSpecifiques d1 = new DetailsSpecifiques();
-        d1.setDemandeLead(lead);
-        d1.setChampCle("Projet");
-        d1.setValeur("Écotourisme");
+        DetailsSpecifiques d1 = DetailsSpecifiques.builder()
+                .demandeLead(lead)
+                .champCle("Projet")
+                .valeur("Écotourisme")
+                .build();
         entityManager.persist(d1);
 
-        DetailsSpecifiques d2 = new DetailsSpecifiques();
-        d2.setDemandeLead(lead);
-        d2.setChampCle("Budget");
-        d2.setValeur("5000€");
+        DetailsSpecifiques d2 = DetailsSpecifiques.builder()
+                .demandeLead(lead)
+                .champCle("Budget")
+                .valeur("5000€")
+                .build();
         entityManager.persist(d2);
 
         // 2. Exécution
@@ -54,14 +57,21 @@ class DetailsSpecifiquesRepositoryTest {
     @Test
     @DisplayName("Requête : Trouver tous les détails par clé métier (champCle)")
     void findByChampCle_ShouldReturnMatchingDetails() {
-        DetailsSpecifiques d1 = new DetailsSpecifiques();
-        d1.setChampCle("Technologie");
-        d1.setValeur("Java");
+        Pole pole = RepositoryTestHelper.persistValidPole(entityManager, "Ecotourisme");
+        DemandeLead lead = RepositoryTestHelper.persistValidDemandeLead(entityManager, pole, null);
+
+        DetailsSpecifiques d1 = DetailsSpecifiques.builder()
+                .demandeLead(lead)
+                .champCle("Technologie")
+                .valeur("Java")
+                .build();
         entityManager.persist(d1);
 
-        DetailsSpecifiques d2 = new DetailsSpecifiques();
-        d2.setChampCle("Technologie");
-        d2.setValeur("Python");
+        DetailsSpecifiques d2 = DetailsSpecifiques.builder()
+                .demandeLead(lead)
+                .champCle("Technologie")
+                .valeur("Python")
+                .build();
         entityManager.persist(d2);
 
         List<DetailsSpecifiques> result = detailsRepository.findByChampCle("Technologie");

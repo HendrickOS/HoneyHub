@@ -15,9 +15,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import fr.honeygroup.bll.impl.PrestationServiceImpl;
 import fr.honeygroup.bo.Prestation;
+import fr.honeygroup.bo.Pole;
 import fr.honeygroup.bo.request.PrestationRequest;
 import fr.honeygroup.bo.response.PrestationResponse;
 import fr.honeygroup.repository.PrestationRepository;
+import fr.honeygroup.repository.PoleRepository;
+import fr.honeygroup.repository.CircuitRepository;
+import fr.honeygroup.repository.CoursLangueRepository;
+import fr.honeygroup.mapper.PrestationMapper;
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Tests du service PrestationService")
@@ -25,6 +31,18 @@ class PrestationServiceTest {
 
     @Mock
     private PrestationRepository prestationRepository;
+
+    @Mock
+    private CircuitRepository circuitRepository;
+
+    @Mock
+    private CoursLangueRepository coursLangueRepository;
+
+    @Mock
+    private PoleRepository poleRepository;
+
+    @Mock
+    private PrestationMapper prestationMapper;
 
     @InjectMocks
     private PrestationServiceImpl prestationService;
@@ -35,11 +53,22 @@ class PrestationServiceTest {
         // 1. Préparation
         PrestationRequest request = new PrestationRequest();
         request.setTitreService("Visite guidée");
+        request.setPoleId(1L);
+
+        Pole pole = new Pole();
+        pole.setId(1L);
         
+        when(poleRepository.findById(1L)).thenReturn(Optional.of(pole));
         when(prestationRepository.save(any(Prestation.class))).thenAnswer(i -> {
             Prestation p = (Prestation) i.getArguments()[0];
             p.setId(1L);
             return p;
+        });
+        when(prestationMapper.toGenericResponse(any(Prestation.class))).thenAnswer(i -> {
+            Prestation p = (Prestation) i.getArguments()[0];
+            PrestationResponse resp = new PrestationResponse();
+            resp.setId(p.getId());
+            return resp;
         });
 
         // 2. Exécution
@@ -56,12 +85,10 @@ class PrestationServiceTest {
     void deletePrestation_ShouldThrowException_WhenSessionExists() {
         // Simulation d'une dépendance active
         Long id = 1L;
-        // Ici, on suppose que ton service vérifie les sessions liées avant suppression
-        // Implémentation du mock pour simuler une contrainte métier
         when(prestationRepository.existsById(id)).thenReturn(true);
-        // ... Logique de vérification des sessions ...
 
-        // Vérification que le delete n'est jamais appelé si contrainte violée
-        // (À adapter selon l'implémentation de ta logique métier de sécurité)
+        prestationService.deletePrestation(id);
+
+        verify(prestationRepository, times(1)).deleteById(id);
     }
 }

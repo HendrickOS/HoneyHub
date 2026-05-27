@@ -153,6 +153,7 @@ class BookingServiceImplTest {
         when(sessionRepository.findById(10L)).thenReturn(Optional.of(sessionDisponible));
         when(bookingRepository.save(any(Booking.class))).thenReturn(new Booking());
         when(paymentRepository.save(any(Payment.class))).thenReturn(new Payment());
+        when(bookingMapper.toResponse(any(Booking.class))).thenReturn(BookingResponse.builder().build());
 
         // ACT & ASSERT
         assertNotNull(bookingService.creerReservationSandbox(requestValide));
@@ -251,7 +252,7 @@ class BookingServiceImplTest {
         Booking bookingValide = Booking.builder()
                 .id(200L)
                 .user(clientConnecte)
-                .statut(StatutBooking.EN_ATTENTE_PAIEMENT)
+                .statut(StatutBooking.CONFIRME)
                 .build();
 
         when(bookingRepository.findById(200L)).thenReturn(Optional.of(bookingValide));
@@ -273,7 +274,7 @@ class BookingServiceImplTest {
         Booking bookingTiers = Booking.builder()
                 .id(200L)
                 .user(autreClient) // Appartient à ID 999
-                .statut(StatutBooking.EN_ATTENTE_PAIEMENT)
+                .statut(StatutBooking.CONFIRME)
                 .build();
 
         when(bookingRepository.findById(200L)).thenReturn(Optional.of(bookingTiers));

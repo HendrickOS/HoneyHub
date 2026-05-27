@@ -157,18 +157,19 @@ class PoleServiceImplTest {
 
         // Act & Assert
         assertDoesNotThrow(() -> poleService.deleteById(1L));
-        verify(poleRepository, times(1)).deleteById(1L);
+        verify(poleRepository, times(1)).delete(poleEcotourisme);
     }
 
     @Test
-    @DisplayName("Suppression : Échec et levée de RuntimeException si le pôle cible n'existe pas")
-    void deleteById_ShouldThrowRuntimeException_WhenIdNotFound() {
+    @DisplayName("Suppression : Échec et levée de ResponseStatusException si le pôle cible n'existe pas")
+    void deleteById_ShouldThrowResponseStatusException_WhenIdNotFound() {
         // Arrange
         when(poleRepository.findById(99L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> poleService.deleteById(99L));
-        assertEquals("Pôle introuvable", exception.getMessage());
-        verify(poleRepository, never()).deleteById(99L);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> poleService.deleteById(99L));
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Pôle introuvable", exception.getReason());
+        verify(poleRepository, never()).delete(any());
     }
 }

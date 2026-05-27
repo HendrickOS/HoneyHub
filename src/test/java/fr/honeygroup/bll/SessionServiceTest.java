@@ -16,7 +16,9 @@ import fr.honeygroup.bll.impl.SessionServiceImpl;
 import fr.honeygroup.bo.Session;
 import fr.honeygroup.bo.request.SessionRequest;
 import fr.honeygroup.exception.GlobalExceptionHandler.BusinessLogicException;
+import fr.honeygroup.exception.GlobalExceptionHandler.SessionCapacityException;
 import fr.honeygroup.repository.SessionRepository;
+import java.time.LocalDateTime;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Tests du service SessionService")
@@ -40,12 +42,14 @@ class SessionServiceTest {
         
         SessionRequest request = new SessionRequest();
         request.setCapaciteMax(4); // Tentative de passer en dessous des inscrits (5)
+        request.setDateDebut(LocalDateTime.now().plusDays(1));
+        request.setDateFin(LocalDateTime.now().plusDays(5));
         
         when(sessionRepository.findById(sessionId)).thenReturn(Optional.of(existingSession));
 
         // 2. Exécution & Vérification
         assertThatThrownBy(() -> sessionService.updateSession(sessionId, request))
-            .isInstanceOf(BusinessLogicException.class)
+            .isInstanceOf(SessionCapacityException.class)
             .hasMessageContaining("capacité maximale");
     }
 }

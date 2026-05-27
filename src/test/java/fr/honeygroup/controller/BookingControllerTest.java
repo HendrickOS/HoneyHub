@@ -23,6 +23,7 @@ import fr.honeygroup.bo.request.BookingRequest;
 import fr.honeygroup.bo.response.BookingResponse;
 
 @WebMvcTest(BookingController.class)
+@org.springframework.context.annotation.Import(ControllerTestConfig.class)
 public class BookingControllerTest {
 
     @Autowired
@@ -37,10 +38,11 @@ public class BookingControllerTest {
     @Test
     void creerReservation_ShouldReturn201() throws Exception {
         BookingRequest request = new BookingRequest();
-        // Configure ton objet request ici (ex: setSessionId...)
+        request.setSessionId(1L);
+        request.setNbPersonnes(2);
+        request.setTypeReservation(fr.honeygroup.enumeration.TypeReservation.SESSION);
 
         BookingResponse response = new BookingResponse();
-        // Configure ta réponse attendue
 
         when(bookingService.creerReservationSandbox(any(BookingRequest.class))).thenReturn(response);
 

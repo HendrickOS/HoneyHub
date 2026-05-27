@@ -37,6 +37,7 @@ import fr.honeygroup.mapper.PrestationMapper;
 import fr.honeygroup.repository.PrestationRepository;
 
 @WebMvcTest(PrestationController.class)
+@org.springframework.context.annotation.Import(ControllerTestConfig.class)
 public class PrestationControllerTest {
 
     @Autowired
@@ -80,6 +81,11 @@ public class PrestationControllerTest {
     @WithMockUser(roles = "ADMIN")
     void createPrestationGenerique_ShouldReturn200() throws Exception {
         PrestationRequest request = new PrestationRequest();
+        request.setPoleId(1L);
+        request.setTitreService("Service test");
+        request.setDescription("Description de test de service");
+        request.setPrixBase(100.0);
+        
         PrestationResponse mockResponse = new PrestationResponse();
 
         when(prestationService.createPrestationGenerique(any(PrestationRequest.class))).thenReturn(mockResponse);
@@ -94,6 +100,14 @@ public class PrestationControllerTest {
     @WithMockUser(roles = "ADMIN")
     void createCircuit_ShouldReturn200() throws Exception {
         CircuitRequest request = new CircuitRequest();
+        request.setPoleId(1L);
+        request.setTitreService("Service test");
+        request.setDescription("Description de test de service");
+        request.setPrixBase(100.0);
+        request.setDescriptionLongue("Une description tres longue et descriptive du circuit");
+        request.setItineraire("Itineraire de test");
+        request.setDuree("7 jours / 6 nuits");
+        
         PrestationResponse mockResponse = new PrestationResponse();
 
         when(prestationService.createCircuit(any(CircuitRequest.class))).thenReturn(mockResponse);
@@ -108,6 +122,14 @@ public class PrestationControllerTest {
     @WithMockUser(roles = "ADMIN")
     void createCoursLangue_ShouldReturn200() throws Exception {
         CoursLangueRequest request = new CoursLangueRequest();
+        request.setPoleId(1L);
+        request.setTitreService("Service test");
+        request.setDescription("Description de test de service");
+        request.setPrixBase(100.0);
+        request.setLangue("Anglais");
+        request.setNiveau("B1");
+        request.setDescriptifProgramme("Un super programme de test de niveau B1");
+        
         PrestationResponse mockResponse = new PrestationResponse();
 
         when(prestationService.createCoursLangue(any(CoursLangueRequest.class))).thenReturn(mockResponse);

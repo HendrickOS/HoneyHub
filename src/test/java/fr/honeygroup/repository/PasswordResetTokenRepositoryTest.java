@@ -28,9 +28,12 @@ class PasswordResetTokenRepositoryTest {
     @DisplayName("Requête : Trouver un jeton par sa valeur textuelle")
     void findByToken_ShouldReturnToken_WhenExists() {
         String tokenValue = "abc-123-token";
-        PasswordResetToken token = new PasswordResetToken();
-        token.setToken(tokenValue);
-        token.setExpiryDate(LocalDateTime.now().plusHours(1));
+        User user = RepositoryTestHelper.persistValidUser(entityManager, "user1@honeygroup.fr");
+        PasswordResetToken token = PasswordResetToken.builder()
+                .token(tokenValue)
+                .user(user)
+                .expiryDate(LocalDateTime.now().plusHours(1))
+                .build();
         entityManager.persist(token);
 
         Optional<PasswordResetToken> result = tokenRepository.findByToken(tokenValue);
@@ -42,19 +45,14 @@ class PasswordResetTokenRepositoryTest {
     @Test
     @DisplayName("Requête : Suppression des jetons par utilisateur")
     void deleteByUser_ShouldRemoveAllTokensForUser() {
-        User user = new User();
-        user.setEmail("user@honeygroup.fr");
-        entityManager.persist(user);
+        User user = RepositoryTestHelper.persistValidUser(entityManager, "user2@honeygroup.fr");
 
-        PasswordResetToken t1 = new PasswordResetToken();
-        t1.setUser(user);
-        t1.setToken("token-1");
+        PasswordResetToken t1 = PasswordResetToken.builder()
+                .user(user)
+                .token("token-1")
+                .expiryDate(LocalDateTime.now().plusHours(1))
+                .build();
         entityManager.persist(t1);
-
-        PasswordResetToken t2 = new PasswordResetToken();
-        t2.setUser(user);
-        t2.setToken("token-2");
-        entityManager.persist(t2);
 
         // Exécution de la suppression
         tokenRepository.deleteByUser(user);

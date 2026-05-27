@@ -10,7 +10,7 @@ description = 'Projet Honey Group - Unification des portails'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
@@ -79,6 +79,7 @@ dependencies {
     
     //Ajout pour les tests d'integration
     testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'com.h2database:h2'
     
     // Intégration Lombok pour l'écriture des tests unitaires et d'intégration
     testCompileOnly 'org.projectlombok:lombok'
@@ -89,4 +90,5 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    systemProperty 'spring.profiles.active', 'test'
 }

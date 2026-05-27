@@ -26,7 +26,10 @@ class CoursLangueRequestTest {
     @DisplayName("Validation : Succès si tous les champs requis sont conformes")
     void coursLangueRequest_Valide_Succes() {
         CoursLangueRequest request = CoursLangueRequest.builder()
+                .poleId(1L)
                 .titreService("Anglais Business") // Hérité
+                .description("Une description de prestation valide et suffisamment longue.")
+                .prixBase(150.0)
                 .langue("Anglais")
                 .niveau("B2")
                 .descriptifProgramme("Programme intensif axé sur les réunions professionnelles (20+ chars).")
@@ -40,6 +43,10 @@ class CoursLangueRequestTest {
     @DisplayName("Validation : Échec si les contraintes de taille ou présence ne sont pas respectées")
     void coursLangueRequest_Invalide_Echec() {
         CoursLangueRequest request = CoursLangueRequest.builder()
+                .poleId(1L)
+                .titreService("Anglais Business")
+                .description("Une description de prestation valide et suffisamment longue.")
+                .prixBase(150.0)
                 .langue("")                 // Violation : @NotBlank
                 .niveau("Niveau trop long".repeat(10)) // Violation : > 50 chars
                 .descriptifProgramme("Trop court")     // Violation : < 20 chars

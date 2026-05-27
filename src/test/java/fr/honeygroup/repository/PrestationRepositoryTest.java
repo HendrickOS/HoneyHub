@@ -9,11 +9,13 @@ import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import fr.honeygroup.bo.Prestation;
+import fr.honeygroup.bo.Pole;
 
 @DataJpaTest
 @DisplayName("Tests du repository PrestationRepository")
@@ -28,14 +30,22 @@ class PrestationRepositoryTest {
     @Test
     @DisplayName("Requête : Filtrage par prix entre deux bornes")
     void findByPrixBaseBetween_ShouldReturnInRange() {
-        Prestation p1 = new Prestation();
-        // Conversion de BigDecimal vers Double pour le setter
-        p1.setPrixBase(new BigDecimal("100.00").doubleValue());
+        Pole pole = RepositoryTestHelper.persistValidPole(entityManager, "Ecotourisme");
+
+        Prestation p1 = Prestation.builder()
+                .pole(pole)
+                .titreService("Safari 1")
+                .description("Description de plus de 10 caractères")
+                .prixBase(new BigDecimal("100.00").doubleValue())
+                .build();
         entityManager.persist(p1);
         
-        Prestation p2 = new Prestation();
-        // Conversion de BigDecimal vers Double pour le setter
-        p2.setPrixBase(new BigDecimal("500.00").doubleValue());
+        Prestation p2 = Prestation.builder()
+                .pole(pole)
+                .titreService("Safari 2")
+                .description("Description de plus de 10 caractères")
+                .prixBase(new BigDecimal("500.00").doubleValue())
+                .build();
         entityManager.persist(p2);
 
         // Appel au repository (qui attend des BigDecimal d'après ton interface)
@@ -50,9 +60,16 @@ class PrestationRepositoryTest {
     }
 
     @Test
+    @Disabled("Requiert un vrai SGBD MySQL/MariaDB pour l'opérateur native JSON '->>'")
     @DisplayName("Requête native JSON : Recherche par lieu de départ")
     void findByLieuDepart_ShouldReturnMatchingMetadata() {
-        Prestation p1 = new Prestation();
+        Pole pole = RepositoryTestHelper.persistValidPole(entityManager, "Ecotourisme");
+        Prestation p1 = Prestation.builder()
+                .pole(pole)
+                .titreService("Safari 1")
+                .description("Description de plus de 10 caractères")
+                .prixBase(150.0)
+                .build();
         
         // 1. Création de la Map pour respecter le typage de setMetadata
         Map<String, Object> meta = new HashMap<>();
@@ -70,9 +87,16 @@ class PrestationRepositoryTest {
     }
 
     @Test
+    @Disabled("Requiert un vrai SGBD MySQL/MariaDB pour l'opérateur native JSON '->>'")
     @DisplayName("Requête native JSON : Recherche par trajet complet")
     void findByTrajet_ShouldReturnMatchingMetadata() {
-        Prestation p1 = new Prestation();
+        Pole pole = RepositoryTestHelper.persistValidPole(entityManager, "Ecotourisme");
+        Prestation p1 = Prestation.builder()
+                .pole(pole)
+                .titreService("Safari 1")
+                .description("Description de plus de 10 caractères")
+                .prixBase(150.0)
+                .build();
         
         Map<String, Object> meta = new HashMap<>();
         meta.put("lieu_depart", "Paris");

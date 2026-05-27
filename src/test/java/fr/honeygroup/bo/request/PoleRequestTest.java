@@ -38,7 +38,7 @@ class PoleRequestTest {
     void poleRequest_Invalide_Echec() {
         PoleRequest request = new PoleRequest();
         request.setNom("IT"); // Trop court (min 3)
-        request.setDescription("Trop court"); // Trop court (min 10)
+        request.setDescription("Trop"); // Trop court (min 10)
 
         var violations = validator.validate(request);
         assertEquals(2, violations.size(), "Il devrait y avoir 2 violations");

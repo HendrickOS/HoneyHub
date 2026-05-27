@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import fr.honeygroup.bo.Prestation;
 import fr.honeygroup.bo.Session;
+import fr.honeygroup.bo.Pole;
 import fr.honeygroup.enumeration.StatutSession;
 
 @DataJpaTest
@@ -29,36 +30,42 @@ class SessionRepositoryTest {
     @DisplayName("Requête JPQL : Trouver uniquement les sessions disponibles")
     void findAvailableSessionsByPrestationId_ShouldFilterCorrectly() {
         // 1. Préparation
-        Prestation prestation = new Prestation();
-        entityManager.persist(prestation);
+        Pole pole = RepositoryTestHelper.persistValidPole(entityManager, "Ecotourisme");
+        Prestation prestation = RepositoryTestHelper.persistValidPrestation(entityManager, pole, "Safari");
 
         LocalDateTime now = LocalDateTime.now();
 
         // Session valide
-        Session s1 = new Session();
-        s1.setPrestation(prestation);
-        s1.setDateDebut(now.plusDays(1));
-        s1.setNbInscrits(5);
-        s1.setCapaciteMax(10);
-        s1.setStatutSession(StatutSession.OUVERT);
+        Session s1 = Session.builder()
+                .prestation(prestation)
+                .dateDebut(now.plusDays(2))
+                .dateFin(now.plusDays(5))
+                .nbInscrits(5)
+                .capaciteMax(10)
+                .statutSession(StatutSession.OUVERT)
+                .build();
         entityManager.persist(s1);
 
         // Session expirée (date passée)
-        Session s2 = new Session();
-        s2.setPrestation(prestation);
-        s2.setDateDebut(now.minusDays(1));
-        s2.setNbInscrits(5);
-        s2.setCapaciteMax(10);
-        s2.setStatutSession(StatutSession.OUVERT);
+        Session s2 = Session.builder()
+                .prestation(prestation)
+                .dateDebut(now.minusDays(5))
+                .dateFin(now.minusDays(1))
+                .nbInscrits(5)
+                .capaciteMax(10)
+                .statutSession(StatutSession.OUVERT)
+                .build();
         entityManager.persist(s2);
 
         // Session pleine
-        Session s3 = new Session();
-        s3.setPrestation(prestation);
-        s3.setDateDebut(now.plusDays(2));
-        s3.setNbInscrits(10);
-        s3.setCapaciteMax(10);
-        s3.setStatutSession(StatutSession.OUVERT);
+        Session s3 = Session.builder()
+                .prestation(prestation)
+                .dateDebut(now.plusDays(2))
+                .dateFin(now.plusDays(5))
+                .nbInscrits(10)
+                .capaciteMax(10)
+                .statutSession(StatutSession.OUVERT)
+                .build();
         entityManager.persist(s3);
 
         // 2. Exécution

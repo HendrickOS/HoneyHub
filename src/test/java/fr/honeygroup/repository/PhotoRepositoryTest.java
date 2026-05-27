@@ -27,12 +27,16 @@ class PhotoRepositoryTest {
     @Test
     @DisplayName("Requête : Trouver la photo par ID de prestation")
     void findByPrestation_Id_ShouldReturnPhoto() {
-        Photo photo = new Photo();
-        photo.setUrlFichier("http://honeygroup.fr/photo.jpg");
-        entityManager.persist(photo);
+        Pole pole = RepositoryTestHelper.persistValidPole(entityManager, "Ecotourisme");
+        Photo photo = RepositoryTestHelper.persistValidPhoto(entityManager, "http://honeygroup.fr/photo.jpg");
 
-        Prestation prestation = new Prestation();
-        prestation.setPhoto(photo);
+        Prestation prestation = Prestation.builder()
+                .pole(pole)
+                .photo(photo)
+                .titreService("Safari")
+                .description("Description valide de plus de 10 caractères")
+                .prixBase(100.0)
+                .build();
         entityManager.persist(prestation);
 
         List<Photo> result = photoRepository.findByPrestation_Id(prestation.getId());
@@ -44,15 +48,16 @@ class PhotoRepositoryTest {
     @Test
     @DisplayName("Requête : Trouver toutes les photos d'un pôle")
     void findByPrestation_Pole_Id_ShouldReturnPolePhotos() {
-        Pole pole = new Pole();
-        entityManager.persist(pole);
-
-        Photo p1 = new Photo();
-        entityManager.persist(p1);
+        Pole pole = RepositoryTestHelper.persistValidPole(entityManager, "Ecotourisme");
+        Photo p1 = RepositoryTestHelper.persistValidPhoto(entityManager, "http://honeygroup.fr/photo2.jpg");
         
-        Prestation prestation = new Prestation();
-        prestation.setPole(pole);
-        prestation.setPhoto(p1);
+        Prestation prestation = Prestation.builder()
+                .pole(pole)
+                .photo(p1)
+                .titreService("Safari")
+                .description("Description valide de plus de 10 caractères")
+                .prixBase(100.0)
+                .build();
         entityManager.persist(prestation);
 
         List<Photo> result = photoRepository.findByPrestation_Pole_Id(pole.getId());

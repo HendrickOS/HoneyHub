@@ -26,7 +26,10 @@ class CircuitRequestTest {
     @DisplayName("Validation : Succès si tous les champs requis sont conformes")
     void circuitRequest_Valide_Succes() {
         CircuitRequest request = CircuitRequest.builder()
+                .poleId(1L)
                 .titreService("Safari Écotouristique") // Hérité
+                .description("Une description de prestation valide et suffisamment longue.")
+                .prixBase(250.0)
                 .descriptionLongue("Une aventure immersive de 20 caractères minimum au cœur du parc national.")
                 .itineraire("Antananarivo -> Parc A -> Parc B")
                 .duree("7 jours / 6 nuits")
@@ -40,6 +43,10 @@ class CircuitRequestTest {
     @DisplayName("Validation : Échec si les champs obligatoires sont vides ou trop courts")
     void circuitRequest_Invalide_Echec() {
         CircuitRequest request = CircuitRequest.builder()
+                .poleId(1L)
+                .titreService("Safari")
+                .description("Une description de prestation valide et suffisamment longue.")
+                .prixBase(250.0)
                 .descriptionLongue("Trop court") // Violation : < 20
                 .itineraire("")                   // Violation : @NotBlank
                 .duree(null)                      // Violation : @NotBlank

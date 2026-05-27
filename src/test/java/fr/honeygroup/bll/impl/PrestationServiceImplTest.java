@@ -182,7 +182,7 @@ class PrestationServiceImplTest {
             "Safari".equals(circuit.getTitreService()) &&
             StatutPrestation.EN_ATTENTE == circuit.getStatut() &&
             "Parc National A -> Parc B".equals(circuit.getItineraire()) &&
-            Integer.valueOf(7).equals(circuit.getDuree())
+            "7".equals(circuit.getDuree())
         ));
     }
 

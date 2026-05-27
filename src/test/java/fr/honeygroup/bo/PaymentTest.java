@@ -58,7 +58,7 @@ class PaymentTest {
         assertNotNull(payment);
         assertEquals(42L, payment.getId());
         assertEquals(bookingDeTest, payment.getBooking());
-        assertEquals("VIREMENT_BANCAIRE", payment.getMethode());
+        assertEquals(TypePayment.VIREMENT_BANCAIRE, payment.getMethode());
         assertEquals("TX-HONEY-998877", payment.getTransactionId());
         assertEquals(new BigDecimal("1500.00"), payment.getMontantPaye());
         assertEquals("uploads/justificatifs/recu_virement_42.pdf", payment.getPreuveUrl());

@@ -28,9 +28,12 @@ class RefreshTokenRepositoryTest {
     @DisplayName("Requête : Trouver un jeton par sa valeur textuelle")
     void findByToken_ShouldReturnToken_WhenExists() {
         String tokenValue = "refresh-uuid-12345";
-        RefreshToken token = new RefreshToken();
-        token.setToken(tokenValue);
-        token.setExpiryDate(LocalDateTime.now().plusDays(7).toInstant(java.time.ZoneOffset.UTC));
+        User user = RepositoryTestHelper.persistValidUser(entityManager, "user1@honeygroup.fr");
+        RefreshToken token = RefreshToken.builder()
+                .token(tokenValue)
+                .user(user)
+                .expiryDate(LocalDateTime.now().plusDays(7).toInstant(java.time.ZoneOffset.UTC))
+                .build();
         entityManager.persist(token);
 
         Optional<RefreshToken> result = refreshTokenRepository.findByToken(tokenValue);
@@ -43,19 +46,14 @@ class RefreshTokenRepositoryTest {
     @DisplayName("Requête : Suppression des jetons par utilisateur avec @Modifying")
     void deleteByUser_ShouldRemoveAllTokensForUser() {
         // 1. Préparation
-        User user = new User();
-        user.setEmail("user@honeygroup.fr");
-        entityManager.persist(user);
+        User user = RepositoryTestHelper.persistValidUser(entityManager, "user2@honeygroup.fr");
 
-        RefreshToken t1 = new RefreshToken();
-        t1.setUser(user);
-        t1.setToken("token-1");
+        RefreshToken t1 = RefreshToken.builder()
+                .user(user)
+                .token("token-1")
+                .expiryDate(LocalDateTime.now().plusDays(7).toInstant(java.time.ZoneOffset.UTC))
+                .build();
         entityManager.persist(t1);
-
-        RefreshToken t2 = new RefreshToken();
-        t2.setUser(user);
-        t2.setToken("token-2");
-        entityManager.persist(t2);
 
         // 2. Action : suppression via repository
         refreshTokenRepository.deleteByUser(user);

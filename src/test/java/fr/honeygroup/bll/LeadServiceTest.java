@@ -19,10 +19,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import fr.honeygroup.bll.impl.LeadServiceImpl;
 import fr.honeygroup.bo.DemandeLead;
+import fr.honeygroup.bo.Pole;
 import fr.honeygroup.bo.request.LeadRequest;
 import fr.honeygroup.bo.response.LeadResponse;
+import fr.honeygroup.mapper.LeadMapper;
 import fr.honeygroup.repository.DemandeLeadRepository;
 import fr.honeygroup.repository.DetailsSpecifiquesRepository;
+import fr.honeygroup.repository.PoleRepository;
+import fr.honeygroup.repository.UserRepository;
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Tests du service LeadService")
@@ -32,7 +37,13 @@ class LeadServiceTest {
     private DemandeLeadRepository leadRepository;
 
     @Mock
-    private DetailsSpecifiquesRepository detailsRepository;
+    private PoleRepository poleRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private LeadMapper leadMapper;
 
     @InjectMocks
     private LeadServiceImpl leadService;
@@ -43,14 +54,24 @@ class LeadServiceTest {
         // 1. Préparation
         LeadRequest request = new LeadRequest();
         request.setPoleId(1L);
+        request.setEmail("contact@honeygroup.fr");
+        request.setNom("Nom de contact");
         Map<String, String> details = new HashMap<>();
         details.put("technologie_cible", "Java");
         request.setSpecificDetails(details);
 
+        Pole pole = new Pole();
+        pole.setId(1L);
+
+        when(poleRepository.findById(1L)).thenReturn(Optional.of(pole));
         when(leadRepository.save(any(DemandeLead.class))).thenAnswer(i -> {
             DemandeLead lead = (DemandeLead) i.getArguments()[0];
             lead.setId(100L);
             return lead;
+        });
+        when(leadMapper.toResponse(any(DemandeLead.class))).thenAnswer(i -> {
+            DemandeLead lead = (DemandeLead) i.getArguments()[0];
+            return LeadResponse.builder().id(lead.getId()).build();
         });
 
         // 2. Exécution
@@ -59,7 +80,5 @@ class LeadServiceTest {
         // 3. Vérifications
         assertThat(response.getId()).isEqualTo(100L);
         verify(leadRepository, times(1)).save(any(DemandeLead.class));
-        // Vérifie que les détails sont également persistés
-        verify(detailsRepository, atLeastOnce()).save(any());
     }
 }

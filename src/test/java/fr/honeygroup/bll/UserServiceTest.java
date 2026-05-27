@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import fr.honeygroup.bll.impl.UserServiceImpl;
 import fr.honeygroup.bo.User;
+import fr.honeygroup.enumeration.Role;
 import fr.honeygroup.bo.response.UserProfileResponse;
 import fr.honeygroup.repository.UserRepository;
 
@@ -38,6 +39,7 @@ class UserServiceTest {
         user.setEmail(email);
         user.setNom("Doe");
         user.setPrenom("John");
+        user.setRole(Role.CLIENT);
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 

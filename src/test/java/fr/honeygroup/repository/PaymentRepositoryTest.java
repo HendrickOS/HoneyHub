@@ -15,6 +15,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import fr.honeygroup.bo.Booking;
 import fr.honeygroup.bo.Payment;
 import fr.honeygroup.bo.User;
+import fr.honeygroup.bo.Pole;
+import fr.honeygroup.bo.Prestation;
+import fr.honeygroup.bo.Session;
 
 @DataJpaTest
 @DisplayName("Tests du repository PaymentRepository")
@@ -30,9 +33,17 @@ class PaymentRepositoryTest {
     @DisplayName("Requête : Trouver un paiement par transactionId (Anti-fraude)")
     void findByTransactionId_ShouldReturnPayment() {
         String txId = "STRIPE_12345";
-        Payment payment = new Payment();
-        payment.setTransactionId(txId);
-        payment.setMontantPaye(new BigDecimal("100.00"));
+        User user = RepositoryTestHelper.persistValidUser(entityManager, "test1@honeygroup.fr");
+        Pole pole = RepositoryTestHelper.persistValidPole(entityManager, "Ecotourisme");
+        Prestation prest = RepositoryTestHelper.persistValidPrestation(entityManager, pole, "Safari");
+        Session session = RepositoryTestHelper.persistValidSession(entityManager, prest);
+        Booking booking = RepositoryTestHelper.persistValidBooking(entityManager, user, session);
+
+        Payment payment = Payment.builder()
+                .booking(booking)
+                .transactionId(txId)
+                .montantPaye(new BigDecimal("100.00"))
+                .build();
         entityManager.persist(payment);
 
         Optional<Payment> result = paymentRepository.findByTransactionId(txId);
@@ -44,11 +55,16 @@ class PaymentRepositoryTest {
     @Test
     @DisplayName("Requête : Trouver tous les paiements par BookingId")
     void findByBookingId_ShouldReturnPayments() {
-        Booking booking = new Booking();
-        entityManager.persist(booking);
+        User user = RepositoryTestHelper.persistValidUser(entityManager, "test2@honeygroup.fr");
+        Pole pole = RepositoryTestHelper.persistValidPole(entityManager, "Ecotourisme");
+        Prestation prest = RepositoryTestHelper.persistValidPrestation(entityManager, pole, "Safari");
+        Session session = RepositoryTestHelper.persistValidSession(entityManager, prest);
+        Booking booking = RepositoryTestHelper.persistValidBooking(entityManager, user, session);
 
-        Payment p1 = new Payment();
-        p1.setBooking(booking);
+        Payment p1 = Payment.builder()
+                .booking(booking)
+                .montantPaye(new BigDecimal("50.00"))
+                .build();
         entityManager.persist(p1);
 
         List<Payment> results = paymentRepository.findByBookingId(booking.getId());
@@ -60,16 +76,16 @@ class PaymentRepositoryTest {
     @Test
     @DisplayName("Requête : Trouver les paiements par email utilisateur")
     void findByBookingUserEmail_ShouldReturnUserPayments() {
-        User user = new User();
-        user.setEmail("client@honeygroup.fr");
-        entityManager.persist(user);
+        User user = RepositoryTestHelper.persistValidUser(entityManager, "client@honeygroup.fr");
+        Pole pole = RepositoryTestHelper.persistValidPole(entityManager, "Ecotourisme");
+        Prestation prest = RepositoryTestHelper.persistValidPrestation(entityManager, pole, "Safari");
+        Session session = RepositoryTestHelper.persistValidSession(entityManager, prest);
+        Booking booking = RepositoryTestHelper.persistValidBooking(entityManager, user, session);
 
-        Booking booking = new Booking();
-        booking.setUser(user);
-        entityManager.persist(booking);
-
-        Payment payment = new Payment();
-        payment.setBooking(booking);
+        Payment payment = Payment.builder()
+                .booking(booking)
+                .montantPaye(new BigDecimal("120.00"))
+                .build();
         entityManager.persist(payment);
 
         List<Payment> results = paymentRepository.findByBookingUserEmail("client@honeygroup.fr");

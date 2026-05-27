@@ -19,6 +19,7 @@ import fr.honeygroup.bll.impl.AuthServiceImpl;
 import fr.honeygroup.bo.User;
 import fr.honeygroup.bo.request.RegisterRequest;
 import fr.honeygroup.repository.UserRepository;
+import fr.honeygroup.repository.ProfileRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Tests du service AuthService")
@@ -26,6 +27,9 @@ class AuthServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private ProfileRepository profileRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -42,6 +46,7 @@ class AuthServiceTest {
         request.setPassword("Password123!");
         
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
+        when(profileRepository.existsByTelephone(any())).thenReturn(false);
         when(passwordEncoder.encode(anyString())).thenReturn("hashed_password");
         when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArguments()[0]);
 

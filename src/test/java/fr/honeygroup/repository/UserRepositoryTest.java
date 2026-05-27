@@ -27,8 +27,8 @@ class UserRepositoryTest {
     @Test
     @DisplayName("Authentification : Trouver par email")
     void findByEmail_ShouldReturnUser() {
-        User user = new User();
-        user.setEmail("admin@honeygroup.fr");
+        User user = RepositoryTestHelper.buildValidUser("admin@honeygroup.fr");
+        user.setRole(Role.ADMIN);
         entityManager.persist(user);
 
         Optional<User> result = userRepository.findByEmail("admin@honeygroup.fr");
@@ -40,9 +40,7 @@ class UserRepositoryTest {
     @Test
     @DisplayName("Sécurité : Vérifier existence par email")
     void existsByEmail_ShouldReturnTrue_WhenExists() {
-        User user = new User();
-        user.setEmail("test@honeygroup.fr");
-        entityManager.persist(user);
+        User user = RepositoryTestHelper.persistValidUser(entityManager, "test@honeygroup.fr");
 
         assertThat(userRepository.existsByEmail("test@honeygroup.fr")).isTrue();
         assertThat(userRepository.existsByEmail("nouveau@honeygroup.fr")).isFalse();
@@ -51,7 +49,7 @@ class UserRepositoryTest {
     @Test
     @DisplayName("Recherche : Filtre flou par nom ou prénom")
     void findByNomContainingIgnoreCaseOrPrenomContainingIgnoreCase_ShouldReturnMatches() {
-        User u1 = new User();
+        User u1 = RepositoryTestHelper.buildValidUser("jean.dupont@honeygroup.fr");
         u1.setNom("Dupont");
         u1.setPrenom("Jean");
         entityManager.persist(u1);
@@ -65,7 +63,7 @@ class UserRepositoryTest {
     @Test
     @DisplayName("Administration : Filtrer par rôle")
     void findByRole_ShouldReturnUsersWithRole() {
-        User admin = new User();
+        User admin = RepositoryTestHelper.buildValidUser("admin@honeygroup.fr");
         admin.setRole(Role.ADMIN);
         entityManager.persist(admin);
 

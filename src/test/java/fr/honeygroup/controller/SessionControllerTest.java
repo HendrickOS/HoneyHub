@@ -25,6 +25,7 @@ import fr.honeygroup.bo.response.SessionResponse;
 import fr.honeygroup.enumeration.StatutSession;
 
 @WebMvcTest(SessionController.class)
+@org.springframework.context.annotation.Import(ControllerTestConfig.class)
 public class SessionControllerTest {
 
     @Autowired
@@ -40,6 +41,11 @@ public class SessionControllerTest {
     @WithMockUser(roles = "ADMIN") // Requis par le @PreAuthorize
     void createSession_ShouldReturn201Created() throws Exception {
         SessionRequest request = new SessionRequest();
+        request.setPrestationId(1L);
+        request.setDateDebut(java.time.LocalDateTime.now());
+        request.setDateFin(java.time.LocalDateTime.now().plusDays(2));
+        request.setCapaciteMax(10);
+        
         SessionResponse mockResponse = new SessionResponse();
 
         when(sessionService.createSession(any(SessionRequest.class))).thenReturn(mockResponse);
@@ -56,6 +62,11 @@ public class SessionControllerTest {
     void updateSession_ShouldReturn200Ok() throws Exception {
         Long sessionId = 1L;
         SessionRequest request = new SessionRequest();
+        request.setPrestationId(1L);
+        request.setDateDebut(java.time.LocalDateTime.now());
+        request.setDateFin(java.time.LocalDateTime.now().plusDays(2));
+        request.setCapaciteMax(10);
+
         SessionResponse mockResponse = new SessionResponse();
 
         when(sessionService.updateSession(eq(sessionId), any(SessionRequest.class))).thenReturn(mockResponse);

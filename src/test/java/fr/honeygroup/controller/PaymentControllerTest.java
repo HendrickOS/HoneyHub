@@ -24,6 +24,7 @@ import fr.honeygroup.bo.request.PaymentRequest;
 import fr.honeygroup.bo.response.PaymentResponse;
 
 @WebMvcTest(PaymentController.class)
+@org.springframework.context.annotation.Import(ControllerTestConfig.class)
 public class PaymentControllerTest {
 
     @Autowired

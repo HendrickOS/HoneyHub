@@ -142,7 +142,7 @@ class PaymentServiceImplTest {
         paymentService.confirmerPaiement(1L, request);
 
         assertEquals(StatutPayment.EN_VERIFICATION, payment.getStatutPaiement());
-        assertEquals("VIREMENT", payment.getMethode());
+        assertEquals(TypePayment.VIREMENT_BANCAIRE, payment.getMethode());
         verify(paymentRepository, times(1)).save(payment);
     }
 
@@ -214,7 +214,7 @@ class PaymentServiceImplTest {
 
         when(paymentRepository.findById(1L)).thenReturn(Optional.of(payment));
 
-        assertThrows(BusinessSecurityException.class, () -> paymentService.validerPaiement(1L));
+        assertThrows(IllegalStateException.class, () -> paymentService.validerPaiement(1L));
         verify(paymentRepository, never()).save(any());
     }
 

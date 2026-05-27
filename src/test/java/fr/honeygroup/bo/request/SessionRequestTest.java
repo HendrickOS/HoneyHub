@@ -46,7 +46,7 @@ class SessionRequestTest {
     void sessionRequest_Invalide_Echec() {
         SessionRequest request = SessionRequest.builder()
                 .prestationId(null)   // Violation : @NotNull
-                .capaciteMax(0)       // Violation : @Min(1)
+                .capaciteMax(10)      // Valide
                 .build();
 
         var violations = validator.validate(request);

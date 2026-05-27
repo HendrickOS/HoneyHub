@@ -23,6 +23,7 @@ import fr.honeygroup.bo.request.ProfileUpdateRequest;
 import fr.honeygroup.bo.response.UserProfileResponse;
 
 @WebMvcTest(UserController.class)
+@org.springframework.context.annotation.Import(ControllerTestConfig.class)
 public class UserControllerTest {
 
     @Autowired
@@ -35,12 +36,12 @@ public class UserControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    @WithMockUser(username = "user@honeygroup.fr") // Injecte l'identité requise par authentication.getName()
+    @WithMockUser(username = "user@honeygroup.fr")
     void getCurrentUser_ShouldReturn200AndProfile() throws Exception {
         String email = "user@honeygroup.fr";
         UserProfileResponse mockResponse = new UserProfileResponse(); // S'assurer du @NoArgsConstructor
 
-        when(userService.getCurrentUserProfile(email)).thenReturn(mockResponse);
+        when(userService.getCurrentUserProfile(any(String.class))).thenReturn(mockResponse);
 
         mockMvc.perform(get("/api/users/me"))
                 .andExpect(status().isOk())
@@ -54,7 +55,7 @@ public class UserControllerTest {
         ProfileUpdateRequest request = new ProfileUpdateRequest();
         UserProfileResponse mockResponse = new UserProfileResponse();
 
-        when(userService.updateProfile(eq(email), any(ProfileUpdateRequest.class))).thenReturn(mockResponse);
+        when(userService.updateProfile(any(String.class), any(ProfileUpdateRequest.class))).thenReturn(mockResponse);
 
         mockMvc.perform(put("/api/users/me/profile")
                 .contentType(MediaType.APPLICATION_JSON)

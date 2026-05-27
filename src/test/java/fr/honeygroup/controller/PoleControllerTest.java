@@ -27,6 +27,7 @@ import fr.honeygroup.bo.request.PoleRequest;
 import fr.honeygroup.bo.response.PoleResponse;
 
 @WebMvcTest(PoleController.class)
+@org.springframework.context.annotation.Import(ControllerTestConfig.class)
 public class PoleControllerTest {
 
     @Autowired
@@ -42,6 +43,9 @@ public class PoleControllerTest {
     @WithMockUser
     void create_ShouldReturn200AndPoleResponse() throws Exception {
         PoleRequest request = new PoleRequest();
+        request.setNom("Ecotourisme");
+        request.setDescription("Description du pole d'ecotourisme de Honey Group");
+        
         PoleResponse mockResponse = new PoleResponse();
 
         when(poleService.create(any(PoleRequest.class))).thenReturn(mockResponse);

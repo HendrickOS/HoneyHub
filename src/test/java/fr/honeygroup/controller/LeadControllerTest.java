@@ -29,6 +29,7 @@ import fr.honeygroup.bo.response.LeadResponse;
 import fr.honeygroup.enumeration.StatutLead;
 
 @WebMvcTest(LeadController.class)
+@org.springframework.context.annotation.Import(ControllerTestConfig.class)
 public class LeadControllerTest {
 
     @Autowired

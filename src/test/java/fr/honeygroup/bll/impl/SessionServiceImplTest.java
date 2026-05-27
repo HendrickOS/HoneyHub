@@ -174,8 +174,8 @@ class SessionServiceImplTest {
     void transitionnerStatut_Succes() {
         // Arrange
         // On mock indirectement le comportement de l'enum (ici simulé via Mockito ou l'objet réel)
-        // Supposons que OUVERT -> CLOTURE est une transition valide dans ton modèle
-        StatutSession statutCible = StatutSession.CLOTURE; 
+        // Supposons que OUVERT -> COMPLET est une transition valide dans ton modèle
+        StatutSession statutCible = StatutSession.COMPLET; 
         
         // Pour s'assurer que peutBasculerVers renvoie true durant le test si l'automate est strict
         // Si StatutSession est une enum réelle avec sa logique interne, on prend des statuts compatibles.
@@ -200,9 +200,9 @@ class SessionServiceImplTest {
         // Si l'automate refuse la transition, peutBasculerVers renverra false.
         // Pour le test, on va utiliser un mock espion ou s'appuyer sur la vraie enum défaillante.
         
-        StatutSession statutInterdit = StatutSession.ANNULE;
+        StatutSession statutInterdit = StatutSession.CLOTURE;
         
-        // Si ton enum n'autorise pas OUVERT -> ANNULE, le test passera tout seul ici :
+        // Si ton enum n'autorise pas OUVERT -> CLOTURE, le test passera tout seul ici :
         when(sessionRepository.findById(1L)).thenReturn(Optional.of(sessionMock));
 
         // Act & Assert
