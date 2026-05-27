@@ -1,6 +1,8 @@
 package fr.honeygroup.repository;
 
 import fr.honeygroup.bo.DemandeLead;
+import fr.honeygroup.enumeration.StatutLead;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -23,10 +25,10 @@ public interface DemandeLeadRepository extends JpaRepository<DemandeLead, Long> 
      * Gestion du Pipe Commercial : Permet d'alimenter les colonnes du tableau de bord 
      * des équipes de vente en isolant les dossiers selon leur phase (ex: "NOUVEAU", "EN_COURS", "CONVERTI").
      * </p>
-     * @param statut Le libellé textuel de l'état recherché.
+     * @param nouveau Le libellé textuel de l'état recherché.
      * @return Une liste de {@link DemandeLead} partageant le même statut.
      */
-    List<DemandeLead> findByStatut(String statut);
+    List<DemandeLead> findByStatut(StatutLead nouveau);
 
     /**
      * Récupère l'historique complet des expressions de besoins soumises par un utilisateur spécifique.

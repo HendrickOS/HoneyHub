@@ -26,12 +26,14 @@ class DemandeLeadRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;
-
+    
     @Test
-    @Disabled("Désactivé car la signature du repository utilise String au lieu de l'Enum sous Hibernate 6")
     @DisplayName("Requête : Trouver par Statut")
     void findByStatut_ShouldReturnMatchingLeads() {
+
+        // Arrange
         Pole pole = RepositoryTestHelper.persistValidPole(entityManager, "Ecotourisme");
+
         DemandeLead lead = DemandeLead.builder()
                 .pole(pole)
                 .source("WEB")
@@ -39,13 +41,22 @@ class DemandeLeadRepositoryTest {
                 .nomContact("Contact")
                 .emailContact("contact@domain.com")
                 .build();
+
         entityManager.persist(lead);
+        entityManager.flush();
+        entityManager.clear();
 
-        List<DemandeLead> result = leadRepository.findByStatut("NOUVEAU");
+        // ⚠️ IMPORTANT : on passe le bon type attendu par le repository
+        List<DemandeLead> result =
+        		leadRepository.findByStatut(StatutLead.NOUVEAU);
 
+        // Assert
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getStatut()).isEqualTo(StatutLead.NOUVEAU);
+        assertThat(result.get(0).getStatut())
+                .isEqualTo(StatutLead.NOUVEAU);
     }
+
+    
 
     @Test
     @DisplayName("Requête : Trouver par PoleId")
