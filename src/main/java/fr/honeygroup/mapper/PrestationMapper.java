@@ -1,11 +1,13 @@
 package fr.honeygroup.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
+
 import fr.honeygroup.bo.Circuit;
 import fr.honeygroup.bo.CoursLangue;
 import fr.honeygroup.bo.Prestation;
 import fr.honeygroup.bo.response.PrestationResponse;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 /**
  * Interface de mapping dediee a la transformation des entites metier en objets de reponse (DTOs).
@@ -16,7 +18,7 @@ import org.mapstruct.Mapping;
  * dispatching implementee en methode par defaut.
  * </p>
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface PrestationMapper {
 
     /**
@@ -27,6 +29,8 @@ public interface PrestationMapper {
     @Mapping(source = "pole.id", target = "poleId")
     @Mapping(target = "type", constant = "GENERIQUE")
     @Mapping(target = "metadata", source = "metadata")
+    // MapStruct ignorera les champs manquants dans 'Prestation' 
+    // comme itineraire, langue, etc., grâce au ReportingPolicy.IGNORE
     PrestationResponse toResponse(Prestation prestation);
 
     /**

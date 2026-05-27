@@ -1,6 +1,8 @@
 package fr.honeygroup.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
+
 import fr.honeygroup.bo.Pole;
 import fr.honeygroup.bo.request.PoleRequest;
 import fr.honeygroup.bo.response.PoleResponse;
@@ -14,7 +16,7 @@ import fr.honeygroup.bo.response.PoleResponse;
  * proprement le modèle persistant (BO) des structures d'exposition de l'API (DTOs Request/Response).
  * </p>
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface PoleMapper {
 
     /**

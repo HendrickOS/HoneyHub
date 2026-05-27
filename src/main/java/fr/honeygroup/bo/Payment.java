@@ -95,6 +95,7 @@ public class Payment {
      * Date et heure de l'enregistrement de l'opération financière.
      * Propriété verrouillée contre les modifications ultérieures pour préserver la traçabilité de l'audit.
      */
+    @Builder.Default
     @Column(name = "date_paiement", updatable = false)
     private LocalDateTime datePaiement = LocalDateTime.now();
 

@@ -120,6 +120,7 @@ public class Prestation {
      * Géré par l'énumération {@link StatutPrestation} sous forme textuelle en base.
      */
     @NotNull
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StatutPrestation statut = StatutPrestation.ACTIF;

@@ -91,15 +91,12 @@ public class PoleServiceImpl implements PoleService {
     @Override
     @Transactional(readOnly = true)
     public PoleResponse getByNom(String nom) {
-        Pole pole = poleRepository.findByNom(nom)
-                .orElseThrow(() ->
-                        new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "Pôle introuvable avec le nom : " + nom
-                        )
-                );
-
-        return mapper.toResponse(pole);
+        return poleRepository.findByNom(nom)
+                .map(mapper::toResponse)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, 
+                        "Pôle introuvable avec le nom : " + nom
+                ));
     }
 
     // ======================
@@ -108,15 +105,12 @@ public class PoleServiceImpl implements PoleService {
     @Override
     @Transactional
     public void deleteById(Long id) {
+        // 1. Récupération avec vérification
         Pole pole = poleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pôle introuvable"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pôle introuvable"));
 
-        // 🔥 règle métier
-       /* if (pole.getPrestations() != null && !pole.getPrestations().isEmpty()) {
-            throw new RuntimeException("Impossible de supprimer un pôle avec des prestations"));
-        }  */
-
-        poleRepository.deleteById(id);
+        // 2. Suppression via l'objet chargé
+        poleRepository.delete(pole);
     }
 
     @Override
