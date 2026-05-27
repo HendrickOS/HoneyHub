@@ -16,39 +16,59 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import fr.honeygroup.bo.Prestation;
 import fr.honeygroup.bo.Session;
 import fr.honeygroup.enumeration.StatutSession;
-import fr.honeygroup.repository.SessionRepository;
+import jakarta.persistence.EntityManager;
 
-@SpringBootTest // Charge tout le contexte Spring (plus lourd, mais test réel)
+@SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test") // Utilise application-test.properties (avec H2)
-@Transactional // Rollback automatique après chaque test pour ne pas polluer la DB
+@ActiveProfiles("test")
+@Transactional
 class SessionIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private SessionRepository sessionRepository;
+    private EntityManager entityManager;
 
     @Test
     @WithMockUser(roles = "ADMIN")
     @DisplayName("Test d'intégration : La transition illégale de CLOTURE vers OUVERT doit échouer")
     void shouldRefuseIllegalTransitionInIntegration() throws Exception {
-        // 1. Préparation d'une session valide dans la base H2
+    	// 1. Préparation : Créer et persister un Pole (dépendance de la prestation)
+        fr.honeygroup.bo.Pole pole = new fr.honeygroup.bo.Pole();
+        pole.setNom("Pôle Écotourisme"); // Assure-toi d'avoir un setter pour le nom ou autre champ requis
+        entityManager.persist(pole);
+        
+        // 2. Préparation : Créer et persister une Prestation avec les champs requis
+        Prestation prestation = new Prestation();
+        prestation.setTitreService("Visite Guidée"); // Rempli pour éviter @NotBlank
+        prestation.setDescription("Description de test pour la prestation"); // Rempli pour éviter @NotBlank
+        prestation.setPrixBase(99.99); // Rempli pour éviter @NotNull
+        prestation.setPole(pole);
+        
+        entityManager.persist(prestation);
+        entityManager.flush();
+
+        // 3. Préparation : Créer la session associée
         Session session = Session.builder()
-                .dateDebut(LocalDateTime.now().plusDays(1)) // Date future
+                .prestation(prestation)
+                .dateDebut(LocalDateTime.now().plusDays(1))
                 .dateFin(LocalDateTime.now().plusDays(5))
                 .capaciteMax(10)
-                .statutSession(StatutSession.CLOTURE) // On met l'état que l'on veut tester
+                .nbInscrits(0)
+                .statutSession(StatutSession.CLOTURE)
                 .build();
-        session = sessionRepository.save(session);
+        
+        entityManager.persist(session);
+        entityManager.flush(); 
 
-        // 2. Tentative de transition vers OUVERT (illégal selon l'Enum)
+        // 4. Test de la transition
         mockMvc.perform(post("/api/sessions/{id}/transition", session.getId())
                 .param("nouveauStatut", "OUVERT")
                 .with(csrf()))
-                .andExpect(status().isForbidden()); // On attend une erreur 403
+                .andExpect(status().isForbidden());
     }
 }
