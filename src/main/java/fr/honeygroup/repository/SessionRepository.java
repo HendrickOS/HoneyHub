@@ -1,5 +1,8 @@
 package fr.honeygroup.repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -7,9 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import fr.honeygroup.bo.Session;
 import fr.honeygroup.enumeration.StatutSession;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * Dépôt de données (Repository) Spring Data JPA dédié à la persistance et à la gestion de l'entité {@link Session}.

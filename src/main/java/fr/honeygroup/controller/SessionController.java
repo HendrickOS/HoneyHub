@@ -1,5 +1,7 @@
 package fr.honeygroup.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -76,6 +78,28 @@ public class SessionController {
     @GetMapping("/{id}")
     public ResponseEntity<SessionResponse> getSession(@PathVariable(name = "id") Long id) {
         return ResponseEntity.ok(sessionService.getSessionDetails(id));
+    }
+    
+    /**
+     * Récupère la liste exhaustive des sessions disponibles.
+     * <p>Point d'entrée public pour la consultation du catalogue côté front-end.</p>
+     *
+     * @return Une réponse HTTP 200 (OK) contenant la liste des sessions.
+     */
+    @GetMapping
+    public ResponseEntity<List<SessionResponse>> getAllSessions() {
+        return ResponseEntity.ok(sessionService.findAllSessions());
+    }
+    
+    /**
+     * Récupère toutes les sessions liées à une prestation spécifique.
+     * * @param idPrestation L'identifiant de la prestation cible.
+     * @return Une liste des sessions correspondantes.
+     */
+    @GetMapping("/prestation/{idPrestation}")
+    public ResponseEntity<List<SessionResponse>> getSessionsByPrestation(
+            @PathVariable(name = "idPrestation") Long idPrestation) {
+        return ResponseEntity.ok(sessionService.findByPrestationId(idPrestation));
     }
 
     /**
