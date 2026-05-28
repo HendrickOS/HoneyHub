@@ -183,10 +183,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*")); // Permet l'accès depuis n'importe quelle origine source
-        // TODO: En production, remplacer "*" par l'URL réelle de ton application Frontend
+        // Autorise le frontend de production (Infomaniak) et le local pour les tests
+        configuration.setAllowedOrigins(List.of(
+            "https://hub.honeygroupmadatourism.com",
+            "http://localhost:4200"
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
+        configuration.setAllowCredentials(true); // Indispensable pour la gestion sécurisée des sessions avec cookies/headers
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
