@@ -113,7 +113,7 @@ class BookingRepositoryTest {
                 .build();
         entityManager.persist(b1);
 
-        List<Booking> result = bookingRepository.findByStatut("CONFIRME");
+        List<Booking> result = bookingRepository.findByStatut(StatutBooking.CONFIRME);
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getStatut()).isEqualTo(StatutBooking.CONFIRME);
