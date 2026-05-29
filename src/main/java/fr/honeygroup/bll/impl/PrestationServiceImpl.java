@@ -59,6 +59,7 @@ public class PrestationServiceImpl implements PrestationService {
      * </p>
      */
     @Override
+    @Transactional(readOnly = true)
     public List<PrestationResponse> getAllPrestations() {
         return prestationRepository.findAll().stream()
                 .map(prestationMapper::toGenericResponse)
@@ -73,6 +74,7 @@ public class PrestationServiceImpl implements PrestationService {
      * * @throws RuntimeException Si l'identifiant ne correspond a aucune prestation en base.
      */
     @Override
+    @Transactional(readOnly = true)
     public PrestationResponse getPrestationById(Long id) {
         Prestation prestation = prestationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Prestation introuvable"));
@@ -87,6 +89,7 @@ public class PrestationServiceImpl implements PrestationService {
      * @return Une liste de {@link PrestationResponse} filtrée selon le pôle fourni.
      */
     @Override
+    @Transactional(readOnly = true)
     public List<PrestationResponse> findByPoleId(Long poleId) {
         return prestationRepository.findByPoleId(poleId)
                 .stream()
@@ -127,6 +130,7 @@ public class PrestationServiceImpl implements PrestationService {
      * correspondant aux critères géographiques.
      */
     @Override
+    @Transactional(readOnly = true)
     public List<PrestationResponse> findByTrajet(String depart, String arrivee) {
         return prestationRepository.findByTrajet(depart, arrivee)
                 .stream()

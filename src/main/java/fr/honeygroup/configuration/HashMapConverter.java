@@ -13,6 +13,9 @@ public class HashMapConverter implements AttributeConverter<Map<String, Object>,
 
     @Override
     public String convertToDatabaseColumn(Map<String, Object> attribute) {
+        if (attribute == null) {
+            return "{}";
+        }
         try {
             return objectMapper.writeValueAsString(attribute);
         } catch (JsonProcessingException e) {
@@ -22,6 +25,9 @@ public class HashMapConverter implements AttributeConverter<Map<String, Object>,
 
     @Override
     public Map<String, Object> convertToEntityAttribute(String dbData) {
+        if (dbData == null || dbData.trim().isEmpty() || dbData.equals("null")) {
+            return new java.util.HashMap<>();
+        }
         try {
             return objectMapper.readValue(dbData, Map.class);
         } catch (JsonProcessingException e) {
