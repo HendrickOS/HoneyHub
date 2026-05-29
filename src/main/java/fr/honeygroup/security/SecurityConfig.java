@@ -1,7 +1,7 @@
 package fr.honeygroup.security;
 
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -23,6 +23,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import fr.honeygroup.enumeration.Role;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Configuration maîtresse de la sécurité applicative (Spring Security 6+ & JWT).
@@ -96,9 +97,28 @@ public class SecurityConfig {
                 // 5. COMPTES ET PROFILS UTILISATEURS
                 // Un utilisateur gère ses propres données, l'Admin supervise l'ensemble des comptes
                 .requestMatchers("/api/users/me/**").authenticated()
-                .requestMatchers("/api/users/**").hasRole(Role.ADMIN.name())
+                .requestMatchers("/api/users/**").hasAnyRole(Role.ADMIN.name(), Role.MANAGER.name())
+                
+                // 6. FLUX FINANCIER
+                // Gestion des accès aux paiements
+                
+                // Accès propriétaire ou personnel pour voir un paiement unique
+                .requestMatchers(HttpMethod.GET, "/api/payments/{id}").authenticated()
+                
+                // Historique des paiements par réservation : le contrôleur utilise @PreAuthorize pour gérer le propriétaire
+                .requestMatchers(HttpMethod.GET, "/api/payments/booking/**").authenticated()
+                
+                // Accès spécifique au client pour ses propres paiements
+                .requestMatchers("/api/payments/me").authenticated()
+                
+                // Accès au processus de confirmation client (POST)
+                .requestMatchers(HttpMethod.POST, "/api/payments/*/confirmer").authenticated()
+                
+                // Administration : accès réservé au Staff (ADMIN/MANAGER)
+                .requestMatchers("/api/payments/user/**", "/api/payments/session/**", "/api/payments/pending-verification").hasAnyRole(Role.ADMIN.name(), Role.MANAGER.name())
+                .requestMatchers(HttpMethod.POST, "/api/payments/*/valider", "/api/payments/*/rejeter").hasAnyRole(Role.ADMIN.name(), Role.MANAGER.name())
 
-                // 6. REGLE PARAPLUIE PAR DEFAUT
+                // 7. REGLE PARAPLUIE PAR DEFAUT
                 // Toute route oubliée ou non listée explicitement ci-dessus requiert une authentification obligatoire
                 .anyRequest().authenticated()
             )

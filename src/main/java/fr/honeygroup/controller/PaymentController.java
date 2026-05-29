@@ -36,6 +36,7 @@ public class PaymentController {
      * Récupère les détails d'un paiement spécifique.
      * Accessible à l'utilisateur propriétaire ou au personnel.
      */
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER') or @securityService.isOwnerOfPayment(#id)")
     @GetMapping("/{id}")
     public ResponseEntity<PaymentResponse> getPayment(@PathVariable(name = "id") Long id) {
         return ResponseEntity.ok(paymentService.getPaymentDetails(id));
@@ -148,5 +149,20 @@ public class PaymentController {
     @GetMapping("/me")
     public ResponseEntity<List<PaymentResponse>> getMyPayments() {
         return ResponseEntity.ok(paymentService.getPaymentsForCurrentUser());
+    }
+    
+    /**
+     * Récupère la liste de tous les paiements dont le statut est EN_VERIFICATION.
+     * <p>
+     * Ce point d'entrée est essentiel pour le tableau de bord du staff afin d'identifier
+     * rapidement les preuves de paiement soumises par les clients nécessitant une 
+     * validation manuelle.
+     * </p>
+     * * @return Une liste de {@link PaymentResponse} correspondant aux paiements en cours de vérification.
+     */
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @GetMapping("/pending-verification")
+    public ResponseEntity<List<PaymentResponse>> getPaymentsPendingVerification() {
+        return ResponseEntity.ok(paymentService.getPaymentsByStatus(fr.honeygroup.enumeration.StatutPayment.EN_VERIFICATION));
     }
 }

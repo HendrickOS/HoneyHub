@@ -4,6 +4,7 @@ import java.util.List;
 
 import fr.honeygroup.bo.request.BookingRequest;
 import fr.honeygroup.bo.response.BookingResponse;
+import fr.honeygroup.enumeration.StatutBooking;
 
 /**
  * Contrat d'interface définissant la logique métier liée à la gestion des réservations.
@@ -38,4 +39,6 @@ public interface BookingService {
      * Approuve et valide définitivement la résiliation d'une réservation (Action d'administration).
      */
     void approuverAnnulation(Long bookingId);
+    
+    List<BookingResponse> getBookingsByStatus(StatutBooking status);
 }

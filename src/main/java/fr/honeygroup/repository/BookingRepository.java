@@ -1,9 +1,12 @@
 package fr.honeygroup.repository;
 
-import fr.honeygroup.bo.Booking;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import java.util.List;
+
+import fr.honeygroup.bo.Booking;
+import fr.honeygroup.enumeration.StatutBooking;
 
 /**
  * Dépôt de données (Repository) Spring Data JPA dédié à la persistance et à la gestion de l'entité {@link Booking}.
@@ -38,7 +41,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
      * * @param statut Le libellé textuel du statut recherché (issu de l'énumération métier).
      * @return Une liste de {@link Booking} partageant cet état.
      */
-    List<Booking> findByStatut(String statut);
+    List<Booking> findByStatut(StatutBooking statut);
 
     /**
      * Récupère l'intégralité des réservations contractées sur une session temporelle fixe donnée.

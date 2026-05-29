@@ -4,6 +4,7 @@ import java.util.List;
 
 import fr.honeygroup.bo.request.PaymentRequest;
 import fr.honeygroup.bo.response.PaymentResponse;
+import fr.honeygroup.enumeration.StatutPayment;
 
 /**
  * Contrat d'interface définissant la logique métier liée à la gestion des transactions financières.
@@ -73,4 +74,6 @@ public interface PaymentService {
      * @param request Le DTO contenant les informations de transaction.
      */
     void confirmerPaiement(Long paymentId, PaymentRequest request);
+    
+    List<PaymentResponse> getPaymentsByStatus(StatutPayment status);
 }

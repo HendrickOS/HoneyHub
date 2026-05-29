@@ -1,8 +1,10 @@
 package fr.honeygroup.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
 import fr.honeygroup.bo.Payment;
 import fr.honeygroup.bo.response.PaymentResponse;
-import org.mapstruct.Mapper;
 
 /**
  * Composant de mapping MapStruct gérant la conversion descendante des données de transactions financières.
@@ -24,5 +26,6 @@ public interface PaymentMapper {
      * * @param payment L'entité financière source issue de la base de données MariaDB.
      * @return Le DTO de réponse correspondant, optimisé pour l'affichage et la sérialisation JSON.
      */
+	@Mapping(source = "statutPaiement", target = "statutPaiement")
     PaymentResponse toResponse(Payment payment);
 }

@@ -1,13 +1,19 @@
 package fr.honeygroup.controller;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import fr.honeygroup.bll.UserService;
 import fr.honeygroup.bo.request.ProfileUpdateRequest;
 import fr.honeygroup.bo.response.UserProfileResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
 
 /**
  * Controleur REST gerant le perimetre des utilisateurs et la gestion des profils.
@@ -58,5 +64,22 @@ public class UserController {
             Authentication authentication,
             @Valid @RequestBody ProfileUpdateRequest request) {
         return ResponseEntity.ok(userService.updateProfile(authentication.getName(), request));
+    }
+    
+    /**
+     * Recupere la liste exhaustive de tous les utilisateurs possedant le role CLIENT.
+     * <p>
+     * Cette operation est reservee aux administrateurs ou managers afin de permettre 
+     * l'administration et le suivi de la base client.
+     * </p>
+     * <p>
+     * La reponse est une collection paginee ou une liste complete (selon l'implémentation du service)
+     * des profils clients enregistres dans le systeme.
+     * </p>
+     * * @return Une ResponseEntity contenant une liste de UserProfileResponse et un code 200 OK.
+     */
+    @GetMapping("/clients")
+    public ResponseEntity<java.util.List<UserProfileResponse>> getAllClients() {
+        return ResponseEntity.ok(userService.findAllClients());
     }
 }
