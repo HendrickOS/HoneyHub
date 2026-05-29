@@ -213,4 +213,11 @@ public class PaymentServiceImpl implements PaymentService {
         // Note : Le Booking n'est pas modifié ici, il reste en EN_ATTENTE_PAIEMENT,
         // ce qui permet au client de charger un nouveau justificatif via l'interface.
     }
+    
+    @Override
+    public List<PaymentResponse> getPaymentsByStatus(StatutPayment status) {
+        return paymentRepository.findByStatutPaiement(status).stream()
+                .map(paymentMapper::toResponse) // Utilisation du mapper
+                .toList();
+    }
 }

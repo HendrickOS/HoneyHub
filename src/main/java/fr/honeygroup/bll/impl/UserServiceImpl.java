@@ -1,14 +1,18 @@
 package fr.honeygroup.bll.impl;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import fr.honeygroup.bll.UserService;
 import fr.honeygroup.bo.Profile;
 import fr.honeygroup.bo.User;
 import fr.honeygroup.bo.request.ProfileUpdateRequest;
 import fr.honeygroup.bo.response.UserProfileResponse;
+import fr.honeygroup.enumeration.Role;
 import fr.honeygroup.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Implementation du service metier destine a la gestion des utilisateurs et de leurs profils.
@@ -103,5 +107,22 @@ public class UserServiceImpl implements UserService {
                 .pays(profile != null ? profile.getPays() : null)
                 .preferences(profile != null ? profile.getPreferences() : null)
                 .build();
+    }
+    
+    /**
+     * Recupere la liste complete des utilisateurs ayant le role CLIENT.
+     * <p>
+     * Cette methode interroge la couche de persistance pour filtrer les comptes par leur role,
+     * puis transforme chaque entite {@code User} en un DTO {@link UserProfileResponse}
+     * afin de garantir une exposition sécurisée et optimisée des données.
+     * </p>
+     * * @return Une liste de {@code UserProfileResponse} correspondant aux clients du systeme.
+     */
+    @Override
+    public List<UserProfileResponse> findAllClients() {
+        // On passe l'énumération Role.CLIENT au lieu de la String "CLIENT"
+        return userRepository.findByRole(Role.CLIENT).stream()
+                .map(this::mapToResponse) // Utilise ta méthode interne de mapping existante
+                .toList();
     }
 }

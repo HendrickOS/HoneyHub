@@ -60,6 +60,17 @@ public class PrestationController {
     public ResponseEntity<List<PrestationResponse>> getAllPrestations() {
         return ResponseEntity.ok(prestationService.getAllPrestations());
     }
+    
+    /**
+     * Récupère le catalogue des prestations filtré par pôle.
+     * <p>Utilisé par le front-end pour afficher uniquement les services d'un pôle donné.</p>
+     * * @param poleId Identifiant du pôle cible.
+     * @return Une liste de prestations filtrées.
+     */
+    @GetMapping("/pole/{poleId}")
+    public ResponseEntity<List<PrestationResponse>> getPrestationsByPole(@PathVariable(name="poleId") Long poleId) {
+        return ResponseEntity.ok(prestationService.findByPoleId(poleId));
+    }
 
     /**
      * Recupere le detail textuel et financier d'une prestation specifique via son identifiant unique.
@@ -70,7 +81,7 @@ public class PrestationController {
      * @return Une ResponseEntity contenant le DTO PrestationResponse correspondant et un code 200 OK.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<PrestationResponse> getPrestationById(@PathVariable Long id) {
+    public ResponseEntity<PrestationResponse> getPrestationById(@PathVariable(name="id") Long id) {
         return ResponseEntity.ok(prestationService.getPrestationById(id));
     }
 
@@ -123,7 +134,7 @@ public class PrestationController {
      * @return Une ResponseEntity vide avec un code 200 OK pour confirmer la destruction.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePrestation(@PathVariable Long id) {
+    public ResponseEntity<Void> deletePrestation(@PathVariable(name="id") Long id) {
         prestationService.deletePrestation(id);
         return ResponseEntity.ok().build();
     }
@@ -165,7 +176,7 @@ public class PrestationController {
      * @return Map contenant les métadonnées
      */
     @GetMapping("/{id}/metadata")
-    public ResponseEntity<Map<String, Object>> getMetadata(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> getMetadata(@PathVariable(name="id") Long id) {
         // On récupère la prestation complète via le service existant
         PrestationResponse prestation = prestationService.getPrestationById(id);
         

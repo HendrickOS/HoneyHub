@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import fr.honeygroup.bo.Payment;
+import fr.honeygroup.enumeration.StatutPayment;
 
 /**
  * Dépôt de données (Repository) Spring Data JPA dédié à la persistance et à la gestion de l'entité {@link Payment}.
@@ -68,4 +69,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
      * @return Liste des paiements associés à cet utilisateur.
      */
     List<Payment> findByBookingUserId(Long userId);
+    
+    List<Payment> findByStatutPaiement(StatutPayment statut);
 }

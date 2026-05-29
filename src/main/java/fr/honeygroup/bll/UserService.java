@@ -1,5 +1,7 @@
 package fr.honeygroup.bll;
 
+import java.util.List;
+
 import fr.honeygroup.bo.request.ProfileUpdateRequest;
 import fr.honeygroup.bo.response.UserProfileResponse;
 
@@ -34,4 +36,6 @@ public interface UserService {
      * @return Le DTO UserProfileResponse mis a jour representant le nouvel etat du profil.
      */
     UserProfileResponse updateProfile(String email, ProfileUpdateRequest request);
+    
+    List<UserProfileResponse> findAllClients();
 }

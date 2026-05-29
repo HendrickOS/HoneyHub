@@ -2,6 +2,7 @@ package fr.honeygroup.bll;
 
 import java.util.List;
 
+import fr.honeygroup.bo.Prestation;
 import fr.honeygroup.bo.request.CircuitRequest;
 import fr.honeygroup.bo.request.CoursLangueRequest;
 import fr.honeygroup.bo.request.PrestationRequest;
@@ -34,6 +35,14 @@ public interface PrestationService {
      * @return Le DTO PrestationResponse correspondant a la ressource trouvee.
      */
     PrestationResponse getPrestationById(Long id);
+    
+    /**
+     * Récupère l'ensemble des prestations associées à un pôle d'activité spécifique.
+     *
+     * @param poleId L'identifiant technique unique du pôle d'activité.
+     * @return Une liste de {@link PrestationResponse} filtrée selon le pôle fourni.
+     */
+    List<PrestationResponse> findByPoleId(Long poleId);
     
     /**
      * Ajoute ou met a jour une information dynamique dans les meta-donnees d'une prestation.

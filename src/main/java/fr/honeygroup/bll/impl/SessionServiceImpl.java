@@ -1,6 +1,8 @@
 package fr.honeygroup.bll.impl;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -122,6 +124,34 @@ public class SessionServiceImpl implements SessionService {
         // 6. Sauvegarde et conversion du résultat
         Session sessionMiseAJour = sessionRepository.save(session);
         return sessionMapper.toResponse(sessionMiseAJour);
+    }
+    
+    /**
+     * Récupère l'intégralité des sessions enregistrées en base de données.
+     * <p>Utilise le repository pour extraire les entités et le mapper pour la conversion.</p>
+     *
+     * @return Une liste contenant tous les objets {@link SessionResponse}.
+     */
+    @Override
+    public List<SessionResponse> findAllSessions() {
+        return sessionRepository.findAll()
+                .stream()
+                .map(sessionMapper::toResponse) 
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Récupère toutes les sessions associées à une prestation catalogue.
+     * @param idPrestation Identifiant de la prestation.
+     * @return Liste des sessions formatées en DTO.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<SessionResponse> findByPrestationId(Long idPrestation) {
+        return sessionRepository.findByPrestationId(idPrestation)
+                .stream()
+                .map(sessionMapper::toResponse)
+                .collect(Collectors.toList());
     }
 
     /**

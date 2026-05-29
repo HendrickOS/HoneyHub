@@ -80,6 +80,21 @@ public class PrestationServiceImpl implements PrestationService {
     }
     
     /**
+     * Récupère l'ensemble des prestations associées à un pôle d'activité spécifique.
+     * <p>Cette méthode filtre le catalogue pour ne retourner que les offres correspondant au pôle ciblé.</p>
+     *
+     * @param poleId L'identifiant technique unique du pôle d'activité.
+     * @return Une liste de {@link PrestationResponse} filtrée selon le pôle fourni.
+     */
+    @Override
+    public List<PrestationResponse> findByPoleId(Long poleId) {
+        return prestationRepository.findByPoleId(poleId)
+                .stream()
+                .map(prestationMapper::toGenericResponse)
+                .collect(Collectors.toList());
+    }
+    
+    /**
      * {@inheritDoc}
      * <p>
      * Met a jour ou ajoute une entree dans la structure JSON des meta-donnees de la prestation.

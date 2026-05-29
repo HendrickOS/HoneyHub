@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -113,5 +114,20 @@ public class BookingController {
     public ResponseEntity<String> approuverAnnulation(@PathVariable(name = "id") Long bookingId) {
         bookingService.approuverAnnulation(bookingId);
         return ResponseEntity.ok("La réservation a été officiellement annulée.");
+    }
+    
+    /**
+     * VUE STAFF (ADMIN/MANAGER) : Extrait la liste des dossiers de réservation 
+     * ayant fait l'objet d'une demande d'annulation par le client.
+     * <p>
+     * Ce point d'accès est utilisé par l'équipe de gestion pour identifier et 
+     * traiter manuellement les requêtes de rétractation.
+     * </p>
+     * * @return Une {@link ResponseEntity} contenant la liste des {@link BookingResponse} en attente.
+     */
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @GetMapping("/admin/cancellation-requests")
+    public ResponseEntity<List<BookingResponse>> getDemandesAnnulation() {
+        return ResponseEntity.ok(bookingService.getBookingsByStatus(fr.honeygroup.enumeration.StatutBooking.DEMANDE_ANNULATION));
     }
 }

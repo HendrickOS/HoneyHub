@@ -1,5 +1,7 @@
 package fr.honeygroup.bll;
 
+import java.util.List;
+
 import fr.honeygroup.bo.request.SessionRequest;
 import fr.honeygroup.bo.response.SessionResponse;
 import fr.honeygroup.enumeration.StatutSession;
@@ -30,7 +32,28 @@ public interface SessionService {
      * @throws fr.honeygroup.exception.GlobalExceptionHandler.BusinessLogicException Si la session n'est pas trouvée, si les dates sont incohérentes, ou si la nouvelle capacité maximale est inférieure au nombre actuel d'inscrits.
      */
     SessionResponse updateSession(Long id, SessionRequest request);
-
+    
+    /**
+     * Récupère l'intégralité des sessions enregistrées en base de données.
+     * <p>Cette méthode transforme les entités métier en DTO d'affichage pour le front-end.</p>
+     *
+     * @return Une liste contenant tous les objets {@link SessionResponse}.
+     */
+    List<SessionResponse> findAllSessions();
+    
+    /**
+     * Récupère la liste des sessions planifiées pour une prestation donnée.
+     * <p>
+     * Cette méthode permet d'extraire dynamiquement le calendrier des ouvertures 
+     * associé à une offre spécifique du catalogue. Les entités sont converties 
+     * en DTOs {@link SessionResponse} pour une exposition sécurisée vers le front-end.
+     * </p>
+     * * @param idPrestation L'identifiant technique unique de la prestation cible.
+     * @return Une liste de {@link SessionResponse} correspondant à la prestation, 
+     * ou une liste vide si aucune session n'est programmée.
+     */
+    List<SessionResponse> findByPrestationId(Long idPrestation);
+    
     /**
      * Récupère les détails complets d'une session spécifique.
      * * @param sessionId L'identifiant technique unique de la session.

@@ -1,0 +1,311 @@
+{
+  "info": {
+    "_postman_id": "77651ae1-b2d5-4a4a-a794-64d6a95f703d",
+    "name": "HoneyGroup - Paiement",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "15280963"
+  },
+  "item": [
+    {
+      "name": "Paiement détails",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjbGllbnRAaG9uZXlncm91cC5mciIsImlhdCI6MTc3OTgxMjM4OCwiZXhwIjoxNzc5ODk4Nzg4fQ.PfZNNXpdl4QYiys6BaLs2ukK64S6m6bPg7jyxzQsTKs",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/payments/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "payments",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Historique paiement (Dashboard) - Client",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjbGllbnRAaG9uZXlncm91cC5mciIsImlhdCI6MTc3OTc4MzMyMCwiZXhwIjoxNzc5ODY5NzIwfQ.a_vuZtQhJezjM773aLxhM0-4zlJqITHqvTpJ6-IunuM",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/payments/me",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "payments",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Historique Paiements Client - Staff",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyQGhvbmV5Z3JvdXAuZnIiLCJpYXQiOjE3Nzk4MTIzOTgsImV4cCI6MTc3OTg5ODc5OH0.g-6Pb-NS8qjBQhEj6YpIqMtWpbwI2a9Ki7Hz2bYnXL0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/payments/user/11",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "payments",
+            "user",
+            "11"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Historique Paiement d'une Session - Staff",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyQGhvbmV5Z3JvdXAuZnIiLCJpYXQiOjE3Nzk4MTIzOTgsImV4cCI6MTc3OTg5ODc5OH0.g-6Pb-NS8qjBQhEj6YpIqMtWpbwI2a9Ki7Hz2bYnXL0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/payments/session/2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "payments",
+            "session",
+            "2"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Confirmer Paiement - Client",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjbGllbnRAaG9uZXlncm91cC5mciIsImlhdCI6MTc3OTgxMjM4OCwiZXhwIjoxNzc5ODk4Nzg4fQ.PfZNNXpdl4QYiys6BaLs2ukK64S6m6bPg7jyxzQsTKs",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"methode\": \"VIREMENT_BANCAIRE\",\r\n    \"transactionId\": \"TX-000000001\",\r\n    \"preuveUrl\": \"https://storage.honeygroup.fr/recus/test_163.pdf\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/payments/3/confirmer",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "payments",
+            "3",
+            "confirmer"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crash Test - Valider Paiement - Client",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjbGllbnRAaG9uZXlncm91cC5mciIsImlhdCI6MTc3OTgxMjM4OCwiZXhwIjoxNzc5ODk4Nzg4fQ.PfZNNXpdl4QYiys6BaLs2ukK64S6m6bPg7jyxzQsTKs",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/payments/2/valider",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "payments",
+            "2",
+            "valider"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Valider Paiement - Staff",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyQGhvbmV5Z3JvdXAuZnIiLCJpYXQiOjE3Nzk4MTIzOTgsImV4cCI6MTc3OTg5ODc5OH0.g-6Pb-NS8qjBQhEj6YpIqMtWpbwI2a9Ki7Hz2bYnXL0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/payments/2/valider",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "payments",
+            "2",
+            "valider"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Rejeter Paiement - Staff",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyQGhvbmV5Z3JvdXAuZnIiLCJpYXQiOjE3Nzk4MTIzOTgsImV4cCI6MTc3OTg5ODc5OH0.g-6Pb-NS8qjBQhEj6YpIqMtWpbwI2a9Ki7Hz2bYnXL0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/payments/3/rejeter",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "payments",
+            "3",
+            "rejeter"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Historique Paiement pour une Réservation",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyQGhvbmV5Z3JvdXAuZnIiLCJpYXQiOjE3Nzk4MTIzOTgsImV4cCI6MTc3OTg5ODc5OH0.g-6Pb-NS8qjBQhEj6YpIqMtWpbwI2a9Ki7Hz2bYnXL0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/payments/booking/163",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "payments",
+            "booking",
+            "163"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

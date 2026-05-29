@@ -1,0 +1,482 @@
+{
+  "info": {
+    "_postman_id": "61451302-f6d3-478b-8a5b-938f9923c7b4",
+    "name": "HoneyGroup - Réservation",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "15280963"
+  },
+  "item": [
+    {
+      "name": "Reservation - Client",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjbGllbnRAaG9uZXlncm91cC5mciIsImlhdCI6MTc3OTc4MzMyMCwiZXhwIjoxNzc5ODY5NzIwfQ.a_vuZtQhJezjM773aLxhM0-4zlJqITHqvTpJ6-IunuM",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"prestationId\": 9,\r\n  \"poleId\": 1,\r\n  \"sessionId\": 2,\r\n  \"nbPersonnes\": 3,\r\n  \"dateSouhaitee\": \"2050-09-12T14:30:00\",\r\n  \"typeReservation\": \"SESSION\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/bookings/reserve",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "bookings",
+            "reserve"
+          ]
+        },
+        "description": "### Création de Réservation (Mode Sandbox)\n\nCe test valide l'obligation d'associer une session valide et l'injection du `type_reservation`.\n\n- **Méthode :** `POST`\n    \n- **URL :** `http://localhost:8080/api/bookings/reserve`\n    \n- **Authorization :** `Bearer Token` (Utiliser le token du **CLIENT**)\n    \n- **Body (JSON) :**\n    \n\nJSON\n\n```\n{\n  \"prestationId\": 9,\n  \"poleId\": 2,\n  \"sessionId\": 2,\n  \"nbPersonnes\": 2,\n  \"dateSouhaitee\": \"2026-09-12T14:30:00\",\n  \"typeReservation\": \"SESSION\"\n}\n\n ```\n\n- **Succès attendu :** `201 Created` avec statut `\"EN_ATTENTE_PAIEMENT\"` et le champ `typeReservation` bien persisté en base."
+      },
+      "response": []
+    },
+    {
+      "name": "Crash Test - Reservation Client A -> Client B",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjbGllbnRAaG9uZXlncm91cC5mciIsImlhdCI6MTc3OTgxMjM4OCwiZXhwIjoxNzc5ODk4Nzg4fQ.PfZNNXpdl4QYiys6BaLs2ukK64S6m6bPg7jyxzQsTKs",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"prestationId\": 9,\r\n  \"sessionId\": 2,\r\n  \"nbPersonnes\": 1,\r\n  \"dateSouhaitee\": \"2026-09-12T14:30:00\",\r\n  \"typeReservation\": \"SESSION\",\r\n  \"userId\": 12 \r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/bookings/reserve",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "bookings",
+            "reserve"
+          ]
+        },
+        "description": "# **Tests de Sécurité : Protection IDOR & Rôle ManagerEndFragment**\n\n  \n**Tentative de fraude IDOR (Client → Client)**\n\n_Ce test vérifie que le client 11 ne peut pas créer une réservation au nom du client 12 (Manager) ou d'un autre utilisateur._\n\n- **Méthode :** `POST`\n    \n- **URL :** `http://localhost:8080/api/bookings/reserve`\n    \n- **Authorization :** Token du **CLIENT (11)**\n    \n- JSON\n    \n    - {  \n        \"prestationId\": 9,  \n        \"sessionId\": 2,  \n        \"nbPersonnes\": 1,  \n        \"dateSouhaitee\": \"2026-09-12T14:30:00\",  \n        \"typeReservation\": \"SESSION\",  \n        \"userId\": 12  \n        }\n        \n- **Résultat attendu :** `403 Forbidden` ou `400 Bad Request` (ou le système ignore l'ID fourni et force l'ID du token). **L'objectif est que le backend ignore totalement l'ID fourni dans le JSON** et utilise exclusivement `SecurityContextHolder.getContext().getAuthentication().getName()`"
+      },
+      "response": []
+    },
+    {
+      "name": "Crast Test - Reservation Haute Capacité",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjbGllbnRAaG9uZXlncm91cC5mciIsImlhdCI6MTc3OTgxMjM4OCwiZXhwIjoxNzc5ODk4Nzg4fQ.PfZNNXpdl4QYiys6BaLs2ukK64S6m6bPg7jyxzQsTKs",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"prestationId\": 9,\r\n  \"sessionId\": 2,\r\n  \"nbPersonnes\": 100,\r\n  \"typeReservation\": \"SESSION\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/bookings/reserve",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "bookings",
+            "reserve"
+          ]
+        },
+        "description": "### Test : Violation de la Jauge de Capacité (Sur-réservation)\n\nCe test valide que ton application applique strictement les règles métier de Robert et refuse une transaction si le nombre de places demandées dépasse la capacité maximale restante de la session.\n\n- **Méthode HTTP :** `POST`\n    \n- **URL :** `http://localhost:8080/api/bookings/reserve`\n    \n- **Onglet Authorization :** `Bearer Token` $\\\\rightarrow$ Token d'un **CLIENT**.\n    \n- JSON{ \"prestationId\": 9, \"sessionId\": 2, \"nbPersonnes\": 100, \"typeReservation\": \"SESSION\"}\n    \n- **Résultat attendu :**\n    \n    - **Statut HTTP :** `400 Bad Request` (ou le statut configuré pour tes exceptions métiers).\n        \n    - **Corps de la réponse :** Un message clair géré par ton `SessionCapacityException` : `\"Opération impossible : La capacité maximale de cette session est atteinte. Places restantes : X\"`.\n        \n- **Justification technique :** Ce test prouve la robustesse de la couche logique (BLL). L'application protège l'intégrité de la base de données en empêchant une altération incohérente du compteur `nbInscrits` de l'entité `Session`."
+      },
+      "response": []
+    },
+    {
+      "name": "Crast Test - Reservation Capacité Negative",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjbGllbnRAaG9uZXlncm91cC5mciIsImlhdCI6MTc3OTgxMjM4OCwiZXhwIjoxNzc5ODk4Nzg4fQ.PfZNNXpdl4QYiys6BaLs2ukK64S6m6bPg7jyxzQsTKs",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"prestationId\": 9,\r\n  \"sessionId\": 2,\r\n  \"nbPersonnes\": -5,\r\n  \"typeReservation\": \"SESSION\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/bookings/reserve",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "bookings",
+            "reserve"
+          ]
+        },
+        "description": "### Test : Injection de Payload Négatif ou Incohérent (Données Corrompues)\n\nCe test simule une attaque par falsification de requêtes (Tampering) où un utilisateur modifie le payload JSON via Postman pour envoyer des valeurs négatives ou nulles afin de tenter de casser les calculs financiers (BigDecimal) ou le compteur de places.\n\n- **Méthode HTTP :** `POST`\n    \n- **URL :** `http://localhost:8080/api/bookings/reserve`\n    \n- **Onglet Authorization :** `Bearer Token` $\\\\rightarrow$ Token d'un **CLIENT**.\n    \n- JSON{ \"prestationId\": 9, \"sessionId\": 2, \"nbPersonnes\": -5, \"typeReservation\": \"SESSION\"}\n    \n- **Résultat attendu :**\n    \n    - **Statut HTTP :** `400 Bad Request`\n        \n    - **Corps de la réponse :** Un rapport d'erreur de validation (géré par ton interceptor `@Valid`) indiquant que le nombre de personnes doit être supérieur à 0.\n        \n- **Justification technique :** Validation de surface via Jakarta Bean Validation (`@Min(1)` ou `@Positive` sur ton DTO `BookingRequest`). Cela démontre au jury que les données corrompues sont filtrées dès l'entrée du contrôleur, avant même de consommer des ressources système ou de fausser les calculs de prix (`prixUnitaire.multiply(...)`)."
+      },
+      "response": []
+    },
+    {
+      "name": "Reservation Manger -> Client",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyQGhvbmV5Z3JvdXAuZnIiLCJpYXQiOjE3Nzk4MTIzOTgsImV4cCI6MTc3OTg5ODc5OH0.g-6Pb-NS8qjBQhEj6YpIqMtWpbwI2a9Ki7Hz2bYnXL0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"prestationId\": 10,\r\n  \"sessionId\": 3,\r\n  \"nbPersonnes\": 1,\r\n  \"typeReservation\": \"SESSION\",\r\n  \"userId\": 11\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/bookings/reserve",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "bookings",
+            "reserve"
+          ]
+        },
+        "description": "# Tests de Sécurité : Protection IDOR & Rôle Manager\n\n#### Test 6 : Réservation pour compte tiers (Manager → Client)\n\n_Ce test valide que le Manager a le droit de choisir le bénéficiaire._\n\n- **Méthode :** `POST`\n    \n- **URL :** `http://localhost:8080/api/bookings/reserve`\n    \n- **Authorization :** Token du **MANAGER**\n    \n- JSON\n    \n    - {  \n        \"prestationId\": 10,  \n        \"sessionId\": 3,  \n        \"nbPersonnes\": 1,  \n        \"typeReservation\": \"SESSION\",  \n        \"userId\": 11  \n        }\n        \n- **Succès attendu :** `201 Created`. La réservation apparaît dans le dashboard avec `userId: 11` alors que la requête a été faite par le token `12`."
+      },
+      "response": []
+    },
+    {
+      "name": "Historique Personnel - Client",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjbGllbnRAaG9uZXlncm91cC5mciIsImlhdCI6MTc3OTgxMjM4OCwiZXhwIjoxNzc5ODk4Nzg4fQ.PfZNNXpdl4QYiys6BaLs2ukK64S6m6bPg7jyxzQsTKs",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/bookings/my-bookings",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "bookings",
+            "my-bookings"
+          ]
+        },
+        "description": "### Historique Personnel (Sécurité Contexte Client)\n\nVérifie l'extraction de l'identité via le token, sans passage d'ID utilisateur dans l'URL.\n\n- **Méthode :** `GET`\n    \n- **URL :** `http://localhost:8080/api/bookings/my-bookings`\n    \n- **Authorization :** `Bearer Token` (Utiliser le token du **CLIENT**)\n    \n- **Succès attendu :** `200 OK` avec la liste des réservations associées au client, incluant les détails de `type_reservation`."
+      },
+      "response": []
+    },
+    {
+      "name": "Crash Test - Historique Client A -> Client B",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjbGllbnRAaG9uZXlncm91cC5mciIsImlhdCI6MTc3OTgxMjM4OCwiZXhwIjoxNzc5ODk4Nzg4fQ.PfZNNXpdl4QYiys6BaLs2ukK64S6m6bPg7jyxzQsTKs",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/bookings/admin/user/11",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "bookings",
+            "admin",
+            "user",
+            "11"
+          ]
+        },
+        "description": "### Test : Vol de données de masse (Contournement d'URL)\n\nCe test simule une attaque par force brute ou ingénierie sociale où un client tente d'accéder directement au tableau de bord d'administration d'un autre utilisateur en devinant son identifiant dans l'URL.\n\n- **Méthode HTTP :** `GET`\n    \n- **URL :** `http://localhost:8080/api/bookings/admin/user/11`\n    \n- **Onglet Authorization :** `Bearer Token` $\\\\rightarrow$ Injecter le token d'un **CLIENT** (ex: ID 11 ou tout autre compte client).\n    \n- **Onglet Body :** `none` (Pas de corps de requête).\n    \n- **Résultat attendu :** \\* **Statut HTTP :** `403 Forbidden`\n    \n    - **Corps de la réponse :** Un message standard d'infrastructure indiquant que l'accès à la ressource est interdit.\n        \n- **Justification technique pour le jury :** La requête est interceptée en amont de la couche métier par l'infrastructure Spring Security (soit via la configuration globale du `SecurityFilterChain` bloquant le pattern `/api/bookings/admin/`, soit par l'annotation `@PreAuthorize(\"hasAnyRole('ADMIN', 'MANAGER')\")` placée sur la méthode du contrôleur). Le rôle `ROLE_CLIENT` est immédiatement rejeté."
+      },
+      "response": []
+    },
+    {
+      "name": "Demande d'Annulation Reservation - Client",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjbGllbnRAaG9uZXlncm91cC5mciIsImlhdCI6MTc3OTgxMjM4OCwiZXhwIjoxNzc5ODk4Nzg4fQ.PfZNNXpdl4QYiys6BaLs2ukK64S6m6bPg7jyxzQsTKs",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/bookings/cancel-request/3",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "bookings",
+            "cancel-request",
+            "3"
+          ]
+        },
+        "description": "### Workflow d'Annulation\n\n**Étape : Demande d'annulation (Client)**\n\n- **Méthode :** `PUT`\n    \n- **URL :** `http://localhost:8080/api/bookings/cancel-request/2`\n    \n- **Authorization :** `Bearer Token` (Utiliser le token du **CLIENT**)\n    \n- **Succès attendu :** `200 OK` (Statut : `\"DEMANDE_ANNULATION\"`)."
+      },
+      "response": []
+    },
+    {
+      "name": "Crash Test - Client Confirmation d'Annulation Reservation",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjbGllbnRAaG9uZXlncm91cC5mciIsImlhdCI6MTc3OTgxMjM4OCwiZXhwIjoxNzc5ODk4Nzg4fQ.PfZNNXpdl4QYiys6BaLs2ukK64S6m6bPg7jyxzQsTKs",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/bookings/admin/approve-cancel/3",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "bookings",
+            "admin",
+            "approve-cancel",
+            "3"
+          ]
+        },
+        "description": "### Test : Fraude d'auto-approbation (Workflow)\n\nCe test simule une tentative malveillante où un client tente de forcer le cycle de vie de sa réservation en appelant directement le point d'accès de validation administrative pour passer son dossier de \"En attente\" à \"Annulé\" sans payer ou sans l'accord d'un gestionnaire.\n\n- **Méthode HTTP :** `PATCH`\n    \n- **URL :** `http://localhost:8080/api/bookings/admin/approve-cancel/1` _(Remplacer 1 par l'ID d'une réservation existante)_.\n    \n- **Onglet Authorization :** `Bearer Token` $\\\\rightarrow$ Injecter le token d'un **CLIENT**.\n    \n- **Onglet Body :** `none` (La mutation se fait par l'URL).\n    \n- **Résultat attendu :** \\* **Statut HTTP :** `403 Forbidden`\n    \n    - **Corps de la réponse :** `Access to the resource is prohibited` ou équivalent Spring Security.\n        \n- **Justification technique pour le jury :** Preuve du cloisonnement strict des privilèges (RBAC). Même si l'URL technique et l'ID de la réservation sont connus du attaquant, l'infrastructure bloque la requête parce que la méthode requiert expressément le rôle `ROLE_ADMIN` ou `ROLE_MANAGER`. Un client ne peut pas usurper le rôle de modérateur du système."
+      },
+      "response": []
+    },
+    {
+      "name": "Confirmation Annulation Reservation Client - Manager",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyQGhvbmV5Z3JvdXAuZnIiLCJpYXQiOjE3Nzk4MTIzOTgsImV4cCI6MTc3OTg5ODc5OH0.g-6Pb-NS8qjBQhEj6YpIqMtWpbwI2a9Ki7Hz2bYnXL0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/bookings/admin/approve-cancel/2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "bookings",
+            "admin",
+            "approve-cancel",
+            "2"
+          ]
+        },
+        "description": "### Workflow d'Annulation\n\n**Étape : Approbation finale (Manager)**\n\n- **Méthode :** `PATCH`\n    \n- **URL :** `http://localhost:8080/api/bookings/admin/approve-cancel/2`\n    \n- **Authorization :** `Bearer Token` (Utiliser le token du **MANAGER**)\n    \n- **Succès attendu :** `200 OK` (Statut définitif : `\"ANNULE\"`)."
+      },
+      "response": []
+    },
+    {
+      "name": "Dashboard Historique Client - Manager",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyQGhvbmV5Z3JvdXAuZnIiLCJpYXQiOjE3Nzk4MTIzOTgsImV4cCI6MTc3OTg5ODc5OH0.g-6Pb-NS8qjBQhEj6YpIqMtWpbwI2a9Ki7Hz2bYnXL0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/bookings/admin/user/11",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "bookings",
+            "admin",
+            "user",
+            "11"
+          ]
+        },
+        "description": "### Dashboard Staff (Vue Admin)\n\n- **Méthode :** `GET`\n    \n- **URL :** `http://localhost:8080/api/bookings/admin/user/11`\n    \n- **Authorization :** `Bearer Token` (Utiliser le token du **MANAGER**)\n    \n- **Succès attendu :** `200 OK` avec le dossier complet du client."
+      },
+      "response": []
+    }
+  ]
+}

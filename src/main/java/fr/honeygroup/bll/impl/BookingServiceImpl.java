@@ -230,4 +230,11 @@ public class BookingServiceImpl implements BookingService {
         booking.setStatut(StatutBooking.ANNULE);
         bookingRepository.save(booking);
     }
+    
+    @Override
+    public List<BookingResponse> getBookingsByStatus(StatutBooking status) {
+        return bookingRepository.findByStatut(status).stream()
+                .map(bookingMapper::toResponse) // En supposant que tu aies un BookingMapper
+                .toList();
+    }
 }
