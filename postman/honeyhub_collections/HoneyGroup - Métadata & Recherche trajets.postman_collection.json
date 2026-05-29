@@ -1,0 +1,52 @@
+{
+  "info": {
+    "_postman_id": "0303441d-89a5-4cd1-a904-da136a7b88a6",
+    "name": "HoneyGroup - Métadata & Recherche trajets",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "15280963"
+  },
+  "item": [
+    {
+      "name": "MAJ Métadonnées",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyQGhvbmV5Z3JvdXAuZnIiLCJpYXQiOjE3Nzk4MTIzOTgsImV4cCI6MTc3OTg5ODc5OH0.g-6Pb-NS8qjBQhEj6YpIqMtWpbwI2a9Ki7Hz2bYnXL0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"lieu_depart\": \"Paris\",\r\n  \"lieu_arrivee\": \"Washington\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/prestations/9/metadata",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "prestations",
+            "9",
+            "metadata"
+          ]
+        },
+        "description": "**1\\. Mise à jour des Métadonnées (Admin/Manager)**\n\n- **Méthode :** PATCH\n    \n- **URL :** [http://localhost:8080/api/prestations/{id}/metadata](http://localhost:8080/api/prestations/{id}/metadata)\n    \n- **Description****:** Cette requête permet de définir ou d'enrichir les spécificités  \n    logistiques d'une prestation. En envoyant un objet JSON dans le corps de  \n    la requête, le système fusionne ces données avec les métadonnées  \n    existantes. C'est l'outil privilégié pour rendre une prestation spécifique  \n    sans modifier sa structure de base.\n    \n- **Payload (JSON) :**\n    \n\nJSON\n\n{  \n\"lieu_depart\": \"Paris\",  \n\"lieu_arrivee\": \"Tokyo\"\n\n}\n\n- **Succès  \n    attendu :** 200 OK"
+      },
+      "response": []
+    }
+  ]
+}

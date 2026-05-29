@@ -1,0 +1,302 @@
+{
+  "info": {
+    "_postman_id": "6b68f2e8-caf4-4108-81c4-2132933454cd",
+    "name": "HoneyGroup - Session",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "15280963"
+  },
+  "item": [
+    {
+      "name": "Session Détails",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjbGllbnRAaG9uZXlncm91cC5mciIsImlhdCI6MTc3OTgxMjM4OCwiZXhwIjoxNzc5ODk4Nzg4fQ.PfZNNXpdl4QYiys6BaLs2ukK64S6m6bPg7jyxzQsTKs",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/sessions/22",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "sessions",
+            "22"
+          ]
+        },
+        "description": "## Récupérer une session par ID\n\nRetourne les détails d'une session spécifique à partir de son identifiant unique.\n\nUne **session** représente une occurrence planifiée d'une prestation (activité/service). Elle contient les informations de planification, la capacité maximale et le nombre actuel de participants inscrits.\n\n---\n\n### Authentification\n\nCet endpoint nécessite une authentification par **Bearer Token (JWT)**.\n\nObtenez un token en effectuant une requête `POST /api/auth/login` avec les identifiants appropriés, puis transmettez le token dans l'en-tête de la requête :\n\n```\nAuthorization: Bearer <votre_token>\n```\n\n| Rôle      | Email                        |\n|-----------|------------------------------|\n| Client    | `client@honeygroup.fr`       |\n| Manager   | `manager@honeygroup.fr`      |\n| Admin     | `admin@honeygroup.fr`        |\n\n---\n\n### Paramètres de chemin\n\n| Paramètre | Type    | Requis | Description                                   |\n|-----------|---------|--------|-----------------------------------------------|\n| `id`      | integer | Oui    | L'identifiant unique de la session (ex. `22`) |\n\n---\n\n### Réponse\n\n**200 OK** — Retourne l'objet session.\n\n```json\n{\n  \"id\": 22,\n  \"prestationId\": 9,\n  \"prestationNom\": \"Trek & Découverte : Le Nord Sauvage\",\n  \"dateDebut\": \"2026-05-15T10:00:00\",\n  \"dateFin\": \"2026-05-30T20:00:00\",\n  \"statut\": \"EN_COURS\",\n  \"capaciteMax\": 12,\n  \"participantsActuels\": 2\n}\n```\n\n#### Champs de la réponse\n\n| Champ                 | Type    | Description                                                        |\n|-----------------------|---------|-------------------------------------------------------------------|\n| `id`                  | integer | Identifiant unique de la session                                   |\n| `prestationId`        | integer | Identifiant de la prestation associée                              |\n| `prestationNom`       | string  | Nom de la prestation associée                                      |\n| `dateDebut`           | string  | Date et heure de début de la session (ISO 8601)                    |\n| `dateFin`             | string  | Date et heure de fin de la session (ISO 8601)                      |\n| `statut`              | string  | Statut actuel de la session (ex. `EN_COURS`, `TERMINE`, `ANNULE`)  |\n| `capaciteMax`         | integer | Nombre maximum de participants autorisés                           |\n| `participantsActuels` | integer | Nombre actuel de participants inscrits                             |\n\n---\n\n### Exemple de requête\n\n```\nGET http://localhost:8080/api/sessions/22\n```"
+      },
+      "response": []
+    },
+    {
+      "name": "Crash Test - Session Détails",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjbGllbnRAaG9uZXlncm91cC5mciIsImlhdCI6MTc3OTgxMjM4OCwiZXhwIjoxNzc5ODk4Nzg4fQ.PfZNNXpdl4QYiys6BaLs2ukK64S6m6bPg7jyxzQsTKs",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/sessions/1000",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "sessions",
+            "1000"
+          ]
+        },
+        "description": "## Récupérer une session par ID\n\nRetourne les détails d'une session spécifique à partir de son identifiant unique.\n\nUne **session** représente une occurrence planifiée d'une prestation (activité/service). Elle contient les informations de planification, la capacité maximale et le nombre actuel de participants inscrits.\n\n---\n\n### Authentification\n\nCet endpoint nécessite une authentification par **Bearer Token (JWT)**.\n\nObtenez un token en effectuant une requête `POST /api/auth/login` avec les identifiants appropriés, puis transmettez le token dans l'en-tête de la requête :\n\n```\nAuthorization: Bearer <votre_token>\n```\n\n| Rôle      | Email                        |\n|-----------|------------------------------|\n| Client    | `client@honeygroup.fr`       |\n| Manager   | `manager@honeygroup.fr`      |\n| Admin     | `admin@honeygroup.fr`        |\n\n---\n\n### Paramètres de chemin\n\n| Paramètre | Type    | Requis | Description                                   |\n|-----------|---------|--------|-----------------------------------------------|\n| `id`      | integer | Oui    | L'identifiant unique de la session (ex. `22`) |\n\n---\n\n### Réponse\n\n**200 OK** — Retourne l'objet session.\n\n```json\n{\n  \"id\": 22,\n  \"prestationId\": 9,\n  \"prestationNom\": \"Trek & Découverte : Le Nord Sauvage\",\n  \"dateDebut\": \"2026-05-15T10:00:00\",\n  \"dateFin\": \"2026-05-30T20:00:00\",\n  \"statut\": \"EN_COURS\",\n  \"capaciteMax\": 12,\n  \"participantsActuels\": 2\n}\n```\n\n#### Champs de la réponse\n\n| Champ                 | Type    | Description                                                        |\n|-----------------------|---------|-------------------------------------------------------------------|\n| `id`                  | integer | Identifiant unique de la session                                   |\n| `prestationId`        | integer | Identifiant de la prestation associée                              |\n| `prestationNom`       | string  | Nom de la prestation associée                                      |\n| `dateDebut`           | string  | Date et heure de début de la session (ISO 8601)                    |\n| `dateFin`             | string  | Date et heure de fin de la session (ISO 8601)                      |\n| `statut`              | string  | Statut actuel de la session (ex. `EN_COURS`, `TERMINE`, `ANNULE`)  |\n| `capaciteMax`         | integer | Nombre maximum de participants autorisés                           |\n| `participantsActuels` | integer | Nombre actuel de participants inscrits                             |\n\n---\n\n### Exemple de requête\n\n```\nGET http://localhost:8080/api/sessions/22\n```"
+      },
+      "response": []
+    },
+    {
+      "name": "Créer Session",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyQGhvbmV5Z3JvdXAuZnIiLCJpYXQiOjE3Nzk4MTIzOTgsImV4cCI6MTc3OTg5ODc5OH0.g-6Pb-NS8qjBQhEj6YpIqMtWpbwI2a9Ki7Hz2bYnXL0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"prestationId\": 1, \"dateDebut\": \"2026-06-01T09:00:00\", \"dateFin\": \"2026-06-03T18:00:00\", \"capaciteMax\": 10, \"statut\": \"OUVERT\" }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/sessions",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "sessions"
+          ]
+        },
+        "description": "## Créer une Session\n\nCrée une nouvelle session associée à une prestation existante. Cet endpoint permet à un administrateur ou un manager de planifier une session avec une date de début, une date de fin, une capacité maximale et un statut initial.\n\n---\n\n### Authentification\n\nCet endpoint nécessite une authentification par **Bearer Token (JWT)**.\n\nObtenez un token en effectuant une requête `POST /api/auth/login` avec les identifiants appropriés, puis transmettez le token dans l'en-tête de la requête :\n\n```\nAuthorization: Bearer <votre_token>\n```\n\n---\n\n### Détails de la requête\n\n**Méthode :** `POST`\n**URL :** `http://localhost:8080/api/sessions`\n\n---\n\n### En-têtes (Headers)\n\n| Clé             | Valeur             | Description                               |\n|-----------------|--------------------|-------------------------------------------|\n| `Content-Type`  | `application/json` | Le corps de la requête est au format JSON |\n| `Authorization` | `Bearer <token>`   | Token JWT obtenu lors de la connexion     |\n\n---\n\n### Corps de la requête (Request Body)\n\n```json\n{\n  \"prestationId\": 1,\n  \"dateDebut\": \"2026-06-01T09:00:00\",\n  \"dateFin\": \"2026-06-03T18:00:00\",\n  \"capaciteMax\": 10,\n  \"statut\": \"OUVERT\"\n}\n```\n\n| Champ          | Type      | Description                                                                    | Exemple                 |\n|----------------|-----------|--------------------------------------------------------------------------------|-------------------------|\n| `prestationId` | `integer` | Identifiant de la prestation à laquelle la session est rattachée               | `1`                     |\n| `dateDebut`    | `string`  | Date et heure de début de la session (format ISO 8601)                         | `\"2026-06-01T09:00:00\"` |\n| `dateFin`      | `string`  | Date et heure de fin de la session (format ISO 8601)                           | `\"2026-06-03T18:00:00\"` |\n| `capaciteMax`  | `integer` | Nombre maximum de participants autorisés pour cette session                    | `10`                    |\n| `statut`       | `string`  | Statut initial de la session. Valeurs possibles : `OUVERT`, `FERME`, `COMPLET` | `\"OUVERT\"`              |\n\n---\n\n### Corps de la réponse (Response Body)\n\nEn cas de succès, l'API retourne un statut **`201 Created`** avec les détails de la session créée.\n\n| Champ                 | Type      | Description                                                    |\n|-----------------------|-----------|----------------------------------------------------------------|\n| `id`                  | `integer` | Identifiant unique de la session créée                         |\n| `prestationId`        | `integer` | Identifiant de la prestation associée                          |\n| `prestationNom`       | `string`  | Nom de la prestation associée                                  |\n| `dateDebut`           | `string`  | Date et heure de début de la session (format ISO 8601)         |\n| `dateFin`             | `string`  | Date et heure de fin de la session (format ISO 8601)           |\n| `statut`              | `string`  | Statut actuel de la session                                    |\n| `capaciteMax`         | `integer` | Capacité maximale de participants                              |\n| `participantsActuels` | `integer` | Nombre de participants actuellement inscrits (0 à la création) |\n\n---\n\n### Exemple de réponse\n\n**Statut :** `201 Created`\n\n```json\n{\n  \"id\": 85,\n  \"prestationId\": 1,\n  \"prestationNom\": \"Hébergement Web (Standard)\",\n  \"dateDebut\": \"2026-06-01T09:00:00\",\n  \"dateFin\": \"2026-06-03T18:00:00\",\n  \"statut\": \"OUVERT\",\n  \"capaciteMax\": 10,\n  \"participantsActuels\": 0\n}\n```"
+      },
+      "response": []
+    },
+    {
+      "name": "Crash Test - Créer Session - Client",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjbGllbnRAaG9uZXlncm91cC5mciIsImlhdCI6MTc3OTc4MzMyMCwiZXhwIjoxNzc5ODY5NzIwfQ.a_vuZtQhJezjM773aLxhM0-4zlJqITHqvTpJ6-IunuM",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"prestationId\": 1, \"dateDebut\": \"2026-06-01T09:00:00\", \"dateFin\": \"2026-06-03T18:00:00\", \"capaciteMax\": 10, \"statut\": \"OUVERT\" }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/sessions",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "sessions"
+          ]
+        },
+        "description": "## Créer une Session\n\nCrée une nouvelle session associée à une prestation existante. Cet endpoint permet à un administrateur ou un manager de planifier une session avec une date de début, une date de fin, une capacité maximale et un statut initial.\n\n---\n\n### Authentification\n\nCet endpoint nécessite une authentification par **Bearer Token (JWT)**.\n\nObtenez un token en effectuant une requête `POST /api/auth/login` avec les identifiants appropriés, puis transmettez le token dans l'en-tête de la requête :\n\n```\nAuthorization: Bearer <votre_token>\n```\n\n---\n\n### Détails de la requête\n\n**Méthode :** `POST`\n**URL :** `http://localhost:8080/api/sessions`\n\n---\n\n### En-têtes (Headers)\n\n| Clé             | Valeur             | Description                               |\n|-----------------|--------------------|-------------------------------------------|\n| `Content-Type`  | `application/json` | Le corps de la requête est au format JSON |\n| `Authorization` | `Bearer <token>`   | Token JWT obtenu lors de la connexion     |\n\n---\n\n### Corps de la requête (Request Body)\n\n```json\n{\n  \"prestationId\": 1,\n  \"dateDebut\": \"2026-06-01T09:00:00\",\n  \"dateFin\": \"2026-06-03T18:00:00\",\n  \"capaciteMax\": 10,\n  \"statut\": \"OUVERT\"\n}\n```\n\n| Champ          | Type      | Description                                                                    | Exemple                 |\n|----------------|-----------|--------------------------------------------------------------------------------|-------------------------|\n| `prestationId` | `integer` | Identifiant de la prestation à laquelle la session est rattachée               | `1`                     |\n| `dateDebut`    | `string`  | Date et heure de début de la session (format ISO 8601)                         | `\"2026-06-01T09:00:00\"` |\n| `dateFin`      | `string`  | Date et heure de fin de la session (format ISO 8601)                           | `\"2026-06-03T18:00:00\"` |\n| `capaciteMax`  | `integer` | Nombre maximum de participants autorisés pour cette session                    | `10`                    |\n| `statut`       | `string`  | Statut initial de la session. Valeurs possibles : `OUVERT`, `FERME`, `COMPLET` | `\"OUVERT\"`              |\n\n---\n\n### Corps de la réponse (Response Body)\n\nEn cas de succès, l'API retourne un statut **`201 Created`** avec les détails de la session créée.\n\n| Champ                 | Type      | Description                                                    |\n|-----------------------|-----------|----------------------------------------------------------------|\n| `id`                  | `integer` | Identifiant unique de la session créée                         |\n| `prestationId`        | `integer` | Identifiant de la prestation associée                          |\n| `prestationNom`       | `string`  | Nom de la prestation associée                                  |\n| `dateDebut`           | `string`  | Date et heure de début de la session (format ISO 8601)         |\n| `dateFin`             | `string`  | Date et heure de fin de la session (format ISO 8601)           |\n| `statut`              | `string`  | Statut actuel de la session                                    |\n| `capaciteMax`         | `integer` | Capacité maximale de participants                              |\n| `participantsActuels` | `integer` | Nombre de participants actuellement inscrits (0 à la création) |\n\n---\n\n### Exemple de réponse\n\n**Statut :** `201 Created`\n\n```json\n{\n  \"id\": 85,\n  \"prestationId\": 1,\n  \"prestationNom\": \"Hébergement Web (Standard)\",\n  \"dateDebut\": \"2026-06-01T09:00:00\",\n  \"dateFin\": \"2026-06-03T18:00:00\",\n  \"statut\": \"OUVERT\",\n  \"capaciteMax\": 10,\n  \"participantsActuels\": 0\n}\n```"
+      },
+      "response": []
+    },
+    {
+      "name": "Crash Test - Création Session date passée",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyQGhvbmV5Z3JvdXAuZnIiLCJpYXQiOjE3Nzk4MTIzOTgsImV4cCI6MTc3OTg5ODc5OH0.g-6Pb-NS8qjBQhEj6YpIqMtWpbwI2a9Ki7Hz2bYnXL0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"prestationId\": 1, \"dateDebut\": \"2025-06-01T09:00:00\", \"dateFin\": \"2026-06-03T18:00:00\", \"capaciteMax\": 10, \"statut\": \"OUVERT\" }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/sessions",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "sessions"
+          ]
+        },
+        "description": "## Crash Test — Création de session avec une date passée\n\nCe test vérifie que l'API **rejette correctement** la création d'une session lorsque la `dateDebut` est antérieure à la date actuelle.\n\n### Objectif\n\nValider la règle métier d'**incohérence temporelle** : il est impossible de créer une session dont la date de début est déjà passée. L'API doit retourner une erreur `400 Bad Request` avec un message explicite.\n\n### Corps de la requête\n\n| Champ | Valeur | Description |\n|---|---|---|\n| `prestationId` | `1` | Identifiant de la prestation associée |\n| `dateDebut` | `2025-06-01T09:00:00` | Date de début **dans le passé** (cas de test) |\n| `dateFin` | `2026-06-03T18:00:00` | Date de fin (dans le futur) |\n| `capaciteMax` | `10` | Capacité maximale de participants |\n| `statut` | `OUVERT` | Statut initial de la session |\n\n### Résultat attendu\n\n- **Status HTTP :** `400 Bad Request`\n- **Erreur :** `Business Logic Error`\n- **Message :** Incohérence temporelle — la date de début ne peut pas être dans le passé.\n\n### Authentification\n\nCette requête nécessite un **Bearer Token** valide dans l'en-tête `Authorization`."
+      },
+      "response": []
+    },
+    {
+      "name": "Session - Statut Transition",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyQGhvbmV5Z3JvdXAuZnIiLCJpYXQiOjE3Nzk3ODY5NjksImV4cCI6MTc3OTg3MzM2OX0.4ioH3paU3Cc-h2vNUvfKbvk5zgyGiZaSiDLJoqpOSL8",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/sessions/3/transition?nouveauStatut=COMPLET",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "sessions",
+            "3",
+            "transition"
+          ],
+          "query": [
+            {
+              "key": "nouveauStatut",
+              "value": "COMPLET"
+            }
+          ]
+        },
+        "description": "## Transition de Statut d'une Session\n\nDéclenche une transition de statut pour une session existante. Le nouveau statut est transmis en tant que paramètre de requête (`query parameter`).\n\n---\n\n### Méthode & URL\n\n| Méthode | URL |\n|---------|-----|\n| `POST` | `http://localhost:8080/api/sessions/{sessionId}/transition` |\n\n---\n\n### Paramètre de chemin (Path Parameter)\n\n| Paramètre | Type | Obligatoire | Description |\n|-----------|------|-------------|-------------|\n| `sessionId` | `integer` | ✅ Oui | Identifiant unique de la session à faire transitionner (ex. : `2`) |\n\n---\n\n### Paramètre de requête (Query Parameter)\n\n| Paramètre | Type | Obligatoire | Valeurs possibles | Description |\n|-----------|------|-------------|-------------------|-------------|\n| `nouveauStatut` | `string` | ✅ Oui | `COMPLET` | Le nouveau statut vers lequel faire transitionner la session |\n\n---\n\n### En-têtes (Headers)\n\n| Clé | Valeur |\n|-----|--------|\n| `Content-Type` | `application/json` |\n\n---\n\n### Corps de la requête (Request Body)\n\nAucun corps de requête n'est requis pour cet endpoint.\n\n---\n\n### Description fonctionnelle\n\nCet endpoint permet de faire évoluer le statut d'une session depuis son état actuel vers un nouvel état défini. La transition est contrôlée par le paramètre `nouveauStatut` passé dans l'URL. Par exemple, pour marquer une session comme complète, il suffit de passer `nouveauStatut=COMPLET`.\n\n---\n\n### Exemple de requête\n\n```\nPOST http://localhost:8080/api/sessions/2/transition?nouveauStatut=COMPLET\nContent-Type: application/json\n```"
+      },
+      "response": []
+    },
+    {
+      "name": "Crash Test - Session - Statut Transition",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyQGhvbmV5Z3JvdXAuZnIiLCJpYXQiOjE3Nzk3ODY5NjksImV4cCI6MTc3OTg3MzM2OX0.4ioH3paU3Cc-h2vNUvfKbvk5zgyGiZaSiDLJoqpOSL8",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/sessions/1/transition?nouveauStatut=COMPLET",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "sessions",
+            "1",
+            "transition"
+          ],
+          "query": [
+            {
+              "key": "nouveauStatut",
+              "value": "COMPLET"
+            }
+          ]
+        },
+        "description": "## Transition de Statut d'une Session\n\nDéclenche une transition de statut pour une session existante. Le nouveau statut est transmis en tant que paramètre de requête (`query parameter`).\n\n---\n\n### Méthode & URL\n\n| Méthode | URL |\n|---------|-----|\n| `POST` | `http://localhost:8080/api/sessions/{sessionId}/transition` |\n\n---\n\n### Paramètre de chemin (Path Parameter)\n\n| Paramètre | Type | Obligatoire | Description |\n|-----------|------|-------------|-------------|\n| `sessionId` | `integer` | ✅ Oui | Identifiant unique de la session à faire transitionner (ex. : `2`) |\n\n---\n\n### Paramètre de requête (Query Parameter)\n\n| Paramètre | Type | Obligatoire | Valeurs possibles | Description |\n|-----------|------|-------------|-------------------|-------------|\n| `nouveauStatut` | `string` | ✅ Oui | `COMPLET` | Le nouveau statut vers lequel faire transitionner la session |\n\n---\n\n### En-têtes (Headers)\n\n| Clé | Valeur |\n|-----|--------|\n| `Content-Type` | `application/json` |\n\n---\n\n### Corps de la requête (Request Body)\n\nAucun corps de requête n'est requis pour cet endpoint.\n\n---\n\n### Description fonctionnelle\n\nCet endpoint permet de faire évoluer le statut d'une session depuis son état actuel vers un nouvel état défini. La transition est contrôlée par le paramètre `nouveauStatut` passé dans l'URL. Par exemple, pour marquer une session comme complète, il suffit de passer `nouveauStatut=COMPLET`.\n\n---\n\n### Exemple de requête\n\n```\nPOST http://localhost:8080/api/sessions/2/transition?nouveauStatut=COMPLET\nContent-Type: application/json\n```"
+      },
+      "response": []
+    }
+  ]
+}
